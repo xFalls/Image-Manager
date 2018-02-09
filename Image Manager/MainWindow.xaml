@@ -8,7 +8,7 @@
         Title="Image Gallery" Height="350" Width="672" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseLeftButtonDown="ControlWindow_MouseLeftButtonDown">
     <Grid>
         <Image x:Name="imageViewer" Margin="0,18,0,0"/>
-        <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="0,18,0,0" Width="600" TextWrapping="Wrap" IsEnabled="False"/>
+        <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="0,18,0,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden"/>
         <DockPanel>
             <Menu DockPanel.Dock="Top" Foreground="White" Background="#FF171717">
                 <MenuItem Header="_File">
@@ -16,5 +16,6 @@
             </Menu>
             <StackPanel/>
         </DockPanel>
+        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Height="301" Margin="0,18,0,0" VerticalAlignment="Top" Width="224" Background="#FF150000" Foreground="White" SelectionChanged="DirectoryTreeList_SelectionChanged"/>
     </Grid>
 </Window>
