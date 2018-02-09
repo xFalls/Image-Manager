@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ThumbnailGenerator;
 
 namespace Image_Manager
 {
@@ -21,6 +24,7 @@ namespace Image_Manager
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Variables
         private List<string> filepaths = new List<string>();
         private List<string> newFiles = new List<string>();
 
@@ -28,7 +32,9 @@ namespace Image_Manager
         private List<BitmapImage> cachedImages = new List<BitmapImage>();
 
         private int currentImageNum = 0;
-        private string currentImageType = "null";
+        private string currentContentType = "null";
+
+        private bool setFocus = false;
 
 
         public MainWindow()
@@ -36,6 +42,7 @@ namespace Image_Manager
             InitializeComponent();
         }
 
+        // Handler for dropping files
         private void ControlWindow_Drop(object sender, DragEventArgs e)
         {
             // Finds all filepaths of a dropped object
@@ -49,6 +56,7 @@ namespace Image_Manager
 
         }
 
+        // Store added images in a cache
         private void AddToCache()
         {
             foreach (var item in newFiles)
@@ -63,10 +71,25 @@ namespace Image_Manager
                 {
                     filepaths.Add(item);
                 }
+                else if (FileType(item) == "video")
+                {
+                    filepaths.Add(item);
+
+                    // Grab thumbnail from video and cache it
+                    int THUMB_SIZE = 1024;
+                    Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
+                       item, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
+
+                    BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
+                    cache.Add(item, thumbnailImage);
+
+                    thumbnail.Dispose();
+                }
             }
             newFiles.Clear();
         }
 
+        // Return type of file as a string
         private string FileType(string inputFile)
         {
             string temp = inputFile.ToLower();
@@ -77,32 +100,48 @@ namespace Image_Manager
             {
                 return "image";
             }
+
             else if (temp.EndsWith(".txt"))
             {
                 return "text";
             }
+
+            else if (temp.EndsWith(".mp4") || temp.EndsWith(".mkv") || temp.EndsWith(".webm")
+                 || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi"))
+            {
+                return "video";
+            }
+
             return "";
         }
 
-        // Changes the currently displayed image
+        // Changes the currently displayed content
         private void UpdateContent()
         {
             string curItem = filepaths[currentImageNum];
             if (FileType(curItem) == "image" && cache.ContainsKey(curItem))
             {
                 imageViewer.Source = cache[curItem];
-                currentImageType = "image";
+                currentContentType = "image";
 
                 imageViewer.Visibility = Visibility.Visible;
                 textViewer.Visibility = Visibility.Hidden;
             }
             else if (FileType(curItem) == "text")
             {
-                textViewer.AppendText("\n\n" + File.ReadAllText(curItem));
-                currentImageType = "text";
+                textViewer.Text = "\n\n" + File.ReadAllText(curItem);
+                currentContentType = "text";
 
                 imageViewer.Visibility = Visibility.Hidden;
                 textViewer.Visibility = Visibility.Visible;
+            }
+            else if (FileType(curItem) == "video")
+            {
+                imageViewer.Source = cache[curItem];
+                currentContentType = "video";
+                
+                imageViewer.Visibility = Visibility.Visible;
+                textViewer.Visibility = Visibility.Hidden;
             }
         }
 
@@ -132,19 +171,43 @@ namespace Image_Manager
             }
         }
 
+        private void ToggleFocus()
+        {
+            // Text viewer
+            if (currentContentType == "text")
+            {
+                setFocus = !setFocus;
+                textViewer.IsEnabled = setFocus;
+            }
+
+            // Start video in default player
+            else if (currentContentType == "video")
+            {
+                Process.Start(filepaths[currentImageNum]);
+            }
+        }
+
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
+                // Toggle focus
+                case Key.Enter:
+                    ToggleFocus();
+                    break;
+
+                // Previous image
                 case Key.Left:
-                    if (currentImageNum > 0)
+                    if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
                     {
                         currentImageNum--;
                         UpdateContent();
                     }
                     break;
+
+                // Next image
                 case Key.Right:
-                    if (currentImageNum + 1 < filepaths.Count)
+                    if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
                     {
                         currentImageNum++;
                         UpdateContent();
@@ -155,7 +218,8 @@ namespace Image_Manager
 
         private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (currentImageType == "text")
+            // Disable switching image when on a focused text item
+            if (setFocus && currentContentType == "text")
             {
                 return;
             }
@@ -168,6 +232,30 @@ namespace Image_Manager
             {
                 currentImageNum++;
                 UpdateContent();
+            }
+        }
+
+        private void ControlWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ToggleFocus();
+            }
+        }
+
+        BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
             }
         }
     }
