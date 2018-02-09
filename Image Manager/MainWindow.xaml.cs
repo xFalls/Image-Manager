@@ -22,13 +22,18 @@ namespace Image_Manager
     public partial class MainWindow : Window
     {
         private List<string> filepaths = new List<string>();
+        private List<string> newFiles = new List<string>();
+
+        public Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
+        private List<BitmapImage> cachedImages = new List<BitmapImage>();
+
         private int currentImageNum = 0;
-        BitmapImage loadedImage;
+        private string currentImageType = "null";
+
 
         public MainWindow()
         {
             InitializeComponent();
-            // Test
         }
 
         private void ControlWindow_Drop(object sender, DragEventArgs e)
@@ -38,13 +43,67 @@ namespace Image_Manager
 
             FindFilesInSubfolders(e, folder);
 
-            UpdateImage();
+            AddToCache();
+
+            UpdateContent();
+
         }
 
-        private void UpdateImage()
+        private void AddToCache()
         {
-            loadedImage = new BitmapImage(new Uri(filepaths[currentImageNum], UriKind.RelativeOrAbsolute));
-            imageViewer.Source = loadedImage;
+            foreach (var item in newFiles)
+            {
+                if (FileType(item) == "image")
+                {
+                    filepaths.Add(item);
+                    BitmapImage imageToCache = new BitmapImage(new Uri(item, UriKind.RelativeOrAbsolute));
+                    cache.Add(item, imageToCache);
+                }
+                else if (FileType(item) == "text")
+                {
+                    filepaths.Add(item);
+                }
+            }
+            newFiles.Clear();
+        }
+
+        private string FileType(string inputFile)
+        {
+            string temp = inputFile.ToLower();
+            if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".tif") ||
+                    temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".gif") ||
+                    temp.EndsWith(".bmp") || temp.EndsWith(".ico") || temp.EndsWith(".wmf") ||
+                    temp.EndsWith(".emf") || temp.EndsWith(".webp"))
+            {
+                return "image";
+            }
+            else if (temp.EndsWith(".txt"))
+            {
+                return "text";
+            }
+            return "";
+        }
+
+        // Changes the currently displayed image
+        private void UpdateContent()
+        {
+            string curItem = filepaths[currentImageNum];
+            if (FileType(curItem) == "image" && cache.ContainsKey(curItem))
+            {
+                imageViewer.Source = cache[curItem];
+                currentImageType = "image";
+
+                imageViewer.Visibility = Visibility.Visible;
+                textViewer.Visibility = Visibility.Hidden;
+            }
+            else if (FileType(curItem) == "text")
+            {
+                textViewer.AppendText("\n\n" + File.ReadAllText(curItem));
+                currentImageType = "text";
+
+                imageViewer.Visibility = Visibility.Hidden;
+                textViewer.Visibility = Visibility.Visible;
+            }
         }
 
         // Recursively finds all files and subfolders in a folder
@@ -54,17 +113,21 @@ namespace Image_Manager
             {
                 if (Directory.Exists(s))
                 {
-                    // Add files and subfolders from folder
-                    filepaths.AddRange(Directory.GetFiles(s));
-                    filepaths.AddRange(Directory.GetDirectories(s));
-
-                    string[] subfolder = Directory.GetDirectories(s);
-                    FindFilesInSubfolders(e, subfolder);
+                    foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.AllDirectories))
+                    {
+                        if (!filepaths.Contains(foundFile))
+                        {
+                            newFiles.Add(foundFile);
+                        }
+                    }
                 }
-                else
+                else if (File.Exists(s))
                 {
                     // Add filepath
-                    filepaths.Add(s);
+                    if (!filepaths.Contains(s))
+                    {
+                        newFiles.Add(s);
+                    }
                 }
             }
         }
@@ -77,16 +140,34 @@ namespace Image_Manager
                     if (currentImageNum > 0)
                     {
                         currentImageNum--;
-                        UpdateImage();
+                        UpdateContent();
                     }
                     break;
                 case Key.Right:
                     if (currentImageNum + 1 < filepaths.Count)
                     {
                         currentImageNum++;
-                        UpdateImage();
+                        UpdateContent();
                     }
                     break;
+            }
+        }
+
+        private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (currentImageType == "text")
+            {
+                return;
+            }
+            if (e.Delta > 0 && currentImageNum > 0)
+            {
+                currentImageNum--;
+                UpdateContent();
+            }
+            else if (e.Delta < 0 && currentImageNum + 1 < filepaths.Count)
+            {
+                currentImageNum++;
+                UpdateContent();
             }
         }
     }
