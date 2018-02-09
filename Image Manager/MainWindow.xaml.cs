@@ -28,6 +28,7 @@ namespace Image_Manager
         public MainWindow()
         {
             InitializeComponent();
+            // Test
         }
 
         private void ControlWindow_Drop(object sender, DragEventArgs e)
