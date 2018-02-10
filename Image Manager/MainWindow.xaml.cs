@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using ThumbnailGenerator;
 
 namespace Image_Manager
 {
@@ -16,14 +17,14 @@ namespace Image_Manager
     public partial class MainWindow : Window
     {
         // Variables
-        private List<string> filepaths = new List<string>();
-        private List<string> newFiles = new List<string>();
-        private List<string> folderPaths = new List<string>();
+        public static List<string> filepaths = new List<string>();
+        public static List<string> newFiles = new List<string>();
+        public static List<string> folderPaths = new List<string>();
 
-        public Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
+        public static Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
         private List<BitmapImage> cachedImages = new List<BitmapImage>();
 
-        private int currentImageNum = 0;
+        private static int currentImageNum = 0;
         private string currentContentType = "null";
 
         private bool setFocus = false;
@@ -32,7 +33,7 @@ namespace Image_Manager
         private string rootFolder;
         private string currentFolder;
 
-        private string rootTitleText = "___________________";
+        private string rootTitleText = "______________________";
 
 
         public MainWindow()
@@ -44,10 +45,6 @@ namespace Image_Manager
         {
             DirectoryTreeList.Items.Clear();
             DirectoryTreeList.Items.Clear();
-
-            //DirectoryTreeList.Items.Add(new DirectoryInfo(currentFolder).Name);
-            Console.WriteLine(new DirectoryInfo(currentFolder).FullName);
-            Console.WriteLine(new DirectoryInfo(rootFolder).FullName);
 
             string compareRoot = new DirectoryInfo(rootFolder).FullName;
 
@@ -68,42 +65,14 @@ namespace Image_Manager
             DirectoryTreeList.Items.Refresh();
         }
 
-        // Store added images in a cache
-        // TODO - Limit cache size
-        private void AddToCache()
+
+        public static int returnCurrentImageNum()
         {
-            foreach (var item in newFiles)
-            {
-                if (FileType(item) == "image")
-                {
-                    filepaths.Add(item);
-                    BitmapImage imageToCache = new BitmapImage(new Uri(item, UriKind.RelativeOrAbsolute));
-                    cache.Add(item, imageToCache);
-                }
-                else if (FileType(item) == "text")
-                {
-                    filepaths.Add(item);
-                }
-                else if (FileType(item) == "video")
-                {
-                    filepaths.Add(item);
-
-                    // Grab thumbnail from video and cache it
-                    int THUMB_SIZE = 1024;
-                    Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
-                       item, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
-
-                    BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
-                    cache.Add(item, thumbnailImage);
-
-                    thumbnail.Dispose();
-                }
-            }
-            newFiles.Clear();
+            return currentImageNum;
         }
 
         // Return type of file as a string
-        private string FileType(string inputFile)
+        public static string FileType(string inputFile)
         {
             string temp = inputFile.ToLower();
             if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".tif") ||
@@ -131,6 +100,9 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
+            CacheHandler.AddToCache();
+            CacheHandler.lastPos = currentImageNum;
+
             string curItem = filepaths[currentImageNum];
             currentContentType = FileType(curItem);
 
@@ -150,6 +122,18 @@ namespace Image_Manager
             }
         }
 
+        private void InitializeValidFiles()
+        {
+            foreach (var item in newFiles)
+            {
+                if (FileType(item) == "image" || FileType(item) == "text" || FileType(item) == "video")
+                {
+                    filepaths.Add(item);
+                }
+            }
+            newFiles.Clear();
+        }
+
         // Recursively finds all files and subfolders in a folder
         private void FindFilesInSubfolders(DragEventArgs e, string[] folder)
         {
@@ -162,6 +146,7 @@ namespace Image_Manager
                     {
                         establishedRoot = true;
                         rootFolder = currentFolder = s;
+
                     }
                     // Files
                     foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.AllDirectories))
@@ -182,6 +167,13 @@ namespace Image_Manager
                 }
                 else if (File.Exists(s))
                 {
+                    // Sets root folder to work with
+                    if (establishedRoot == false)
+                    {
+                        establishedRoot = true;
+                        rootFolder = currentFolder = Directory.GetParent(s).ToString();
+
+                    }
                     // Add filepath
                     if (!filepaths.Contains(s))
                     {
@@ -215,7 +207,7 @@ namespace Image_Manager
 
             FindFilesInSubfolders(e, folder);
 
-            AddToCache();
+            InitializeValidFiles();
 
             UpdateContent();
 
@@ -295,7 +287,7 @@ namespace Image_Manager
             }        
         }
 
-        BitmapImage BitmapToImageSource(Bitmap bitmap)
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
             {

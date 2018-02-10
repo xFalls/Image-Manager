@@ -16,6 +16,6 @@
             </Menu>
             <StackPanel/>
         </DockPanel>
-        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Height="301" Margin="0,18,0,0" VerticalAlignment="Top" Width="224" Background="#FF150000" Foreground="White" SelectionChanged="DirectoryTreeList_SelectionChanged"/>
+        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Height="301" Margin="0,18,0,0" VerticalAlignment="Top" Width="224" Background="Black" Foreground="White" SelectionChanged="DirectoryTreeList_SelectionChanged" Opacity="0.5"/>
     </Grid>
 </Window>
