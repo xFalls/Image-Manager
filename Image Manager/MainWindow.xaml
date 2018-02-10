@@ -5,17 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Image_Manager"
         mc:Ignorable="d"
-        Title="Image Gallery" Height="350" Width="672" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseLeftButtonDown="ControlWindow_MouseLeftButtonDown">
+        Title="Image Manager" Height="350" Width="672" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseLeftButtonDown="ControlWindow_MouseLeftButtonDown" MouseDown="ControlWindow_MouseDown">
     <Grid>
-        <Image x:Name="imageViewer" Margin="0,18,0,0"/>
-        <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="0,18,0,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden"/>
-        <DockPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="81*"/>
+            <ColumnDefinition Width="85*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="imageViewer" Margin="0,18,0,0" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
+        <DockPanel Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top" Foreground="White" Background="#FF171717">
                 <MenuItem Header="_File">
                 </MenuItem>
             </Menu>
             <StackPanel/>
         </DockPanel>
-        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Height="301" Margin="0,18,0,0" VerticalAlignment="Top" Width="224" Background="Black" Foreground="White" SelectionChanged="DirectoryTreeList_SelectionChanged" Opacity="0.5"/>
+        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Height="301" Margin="0,18,0,0" VerticalAlignment="Top" Width="224" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged"/>
     </Grid>
 </Window>

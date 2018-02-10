@@ -15,7 +15,7 @@ namespace Image_Manager
         public const int NUM_OF_CACHED_IMAGES = 25;
         public static int lastPos = 0;
 
-        public static void AddToCache()
+        public static void UpdateCache()
         {
             bool isGoingRight = true;
             int currentImageNum = MainWindow.returnCurrentImageNum();

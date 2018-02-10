@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -33,7 +34,8 @@ namespace Image_Manager
         private string rootFolder;
         private string currentFolder;
 
-        private string rootTitleText = "______________________";
+        private const string rootTitleText = "[ROOT FOLDER]";
+        private const string prevDirTitleText = "[THIS FOLDER]";
 
 
         public MainWindow()
@@ -48,10 +50,10 @@ namespace Image_Manager
 
             string compareRoot = new DirectoryInfo(rootFolder).FullName;
 
-            if (compareRoot != new DirectoryInfo(currentFolder).FullName && 
+            if (compareRoot != new DirectoryInfo(currentFolder).FullName &&
                 new DirectoryInfo(currentFolder).FullName != compareRoot + "\\")
             {
-                DirectoryTreeList.Items.Add("BACK");
+                DirectoryTreeList.Items.Add(prevDirTitleText);
             }
             else
             {
@@ -100,11 +102,13 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            CacheHandler.AddToCache();
+            CacheHandler.UpdateCache();
             CacheHandler.lastPos = currentImageNum;
 
             string curItem = filepaths[currentImageNum];
             currentContentType = FileType(curItem);
+
+            Title = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + Path.GetFileName(curItem);
 
             if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
             {
@@ -122,6 +126,7 @@ namespace Image_Manager
             }
         }
 
+        // Adds all valid files to a list
         private void InitializeValidFiles()
         {
             foreach (var item in newFiles)
@@ -135,7 +140,7 @@ namespace Image_Manager
         }
 
         // Recursively finds all files and subfolders in a folder
-        private void FindFilesInSubfolders(DragEventArgs e, string[] folder)
+        private void FindFilesInSubfolders(string[] folder)
         {
             foreach (var s in folder)
             {
@@ -199,19 +204,51 @@ namespace Image_Manager
             }
         }
 
-        // Handler for dropping files
+        // Handler for drag-dropping files
         private void ControlWindow_Drop(object sender, DragEventArgs e)
         {
             // Finds all filepaths of a dropped object
             string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-            FindFilesInSubfolders(e, folder);
+            CreateNewContext(folder);
+        }
+
+        private void CreateNewContext(string[] folder)
+        {
+            RemoveOldContext();
+
+            FindFilesInSubfolders(folder);
 
             InitializeValidFiles();
 
             UpdateContent();
 
-            MakeArchiveTree(rootFolder);
+            MakeArchiveTree(currentFolder);
+        }
+
+        private void RemoveOldContext()
+        {
+            imageViewer.Source = null;
+            currentImageNum = 0;
+            cache.Clear();
+            folderPaths.Clear();
+            filepaths.Clear();
+        }
+
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
         }
 
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
@@ -221,6 +258,12 @@ namespace Image_Manager
                 // Toggle focus
                 case Key.Enter:
                     ToggleFocus();
+                    break;
+
+                case Key.Tab:
+                    Visibility vis = (DirectoryTreeList.Visibility == Visibility.Hidden) ? 
+                        (Visibility.Visible) : (Visibility.Hidden);
+                    DirectoryTreeList.Visibility = vis;
                     break;
 
                 // Previous image
@@ -270,7 +313,32 @@ namespace Image_Manager
             }
         }
 
-        private void DirectoryTreeList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        // A right click opens the selected directory in the gallery
+        private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) as ListBoxItem;
+            if (item != null)
+            {
+                string[] folder = new string[1];
+                currentFolder = currentFolder + "\\" + item.Content;
+
+                if ((string)item.Content == rootTitleText)
+                {
+                    currentFolder = rootFolder;
+                }
+                if ((string)item.Content == prevDirTitleText)
+                {
+                    currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                }
+
+                folder[0] = currentFolder;
+                CreateNewContext(folder);
+            }
+            //e.Handled = true; 
+        }
+
+        // Explores the selected gallery
+        private void DirectoryTreeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (DirectoryTreeList.SelectedIndex != 0)
             {
@@ -279,27 +347,22 @@ namespace Image_Manager
             }
             else
             {
-                if ((string) DirectoryTreeList.SelectedItem != rootTitleText)
+                if ((string)DirectoryTreeList.SelectedItem != rootTitleText)
                 {
                     currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
                     MakeArchiveTree(currentFolder);
                 }
-            }        
+            }
         }
 
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        private void ControlWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            using (MemoryStream memory = new MemoryStream())
+            // Toggles the directory box with a mouse wheel click
+            if (e.ChangedButton == MouseButton.Middle && e.ButtonState == MouseButtonState.Pressed)
             {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
+                Visibility vis = (DirectoryTreeList.Visibility == Visibility.Hidden) ?
+                        (Visibility.Visible) : (Visibility.Hidden);
+                DirectoryTreeList.Visibility = vis;
             }
         }
     }
