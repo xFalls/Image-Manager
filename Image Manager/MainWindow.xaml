@@ -15,7 +15,7 @@
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
         <DockPanel Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top" Foreground="White" Background="#FF171717">
-                <MenuItem Header="_File">
+                <MenuItem Header="File">
                 </MenuItem>
             </Menu>
             <StackPanel/>

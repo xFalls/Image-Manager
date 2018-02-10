@@ -26,6 +26,7 @@ namespace Image_Manager
         SolidColorBrush setTextColor = new SolidColorBrush(Colors.Orange);
         SolidColorBrush artistTextColor = new SolidColorBrush(Colors.Yellow);
         SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
+        SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
 
 
         // Variables
@@ -46,6 +47,8 @@ namespace Image_Manager
         private string rootFolder;
         private string currentFolder;
 
+        private int guiSelection = 0;
+
 
         public MainWindow()
         {
@@ -60,6 +63,8 @@ namespace Image_Manager
         {
             DirectoryTreeList.Items.Clear();
             DirectoryTreeList.Items.Clear();
+
+            guiSelection = 0;
 
             string compareRoot = new DirectoryInfo(rootFolder).FullName;
 
@@ -110,7 +115,20 @@ namespace Image_Manager
                     Foreground = color
                 });
             }
+
+            repaintSelector();
             DirectoryTreeList.Items.Refresh();
+        }
+
+        private void repaintSelector()
+        {
+            foreach (ListBoxItem item in DirectoryTreeList.Items)
+            {
+                item.Background = new SolidColorBrush(Colors.Transparent);
+            }
+
+            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+            selectedBox.Background = selectionColor;
         }
 
 
@@ -162,7 +180,7 @@ namespace Image_Manager
             string curItem = filepaths[currentImageNum];
             currentContentType = FileType(curItem);
 
-            UpdateTitle();            
+            UpdateTitle();
 
             if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
             {
@@ -182,9 +200,12 @@ namespace Image_Manager
 
         private void UpdateTitle()
         {
-            string curItem = filepaths[currentImageNum];
-            Title = allowSubDir ? "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + Path.GetFileName(curItem) :
-                "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + " -subdir | " + Path.GetFileName(curItem);
+            if (filepaths.Count > 0)
+            {
+                string curItem = filepaths[currentImageNum];
+                Title = allowSubDir ? "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + Path.GetFileName(curItem) :
+                    "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + " -subdir | " + Path.GetFileName(curItem);
+            }
         }
 
         // Adds all valid files to a list
@@ -334,13 +355,66 @@ namespace Image_Manager
             }
         }
 
+        // Various keyboard shortcuts
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
-                // Toggle focus
+                // Toggle focus, enter selected directory
                 case Key.Enter:
+
                     ToggleFocus();
+
+                    break;
+
+                case Key.E:
+                    if (DirectoryTreeList.Visibility == Visibility.Visible)
+                    {
+                        ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+                        if (guiSelection != 0)
+                        {
+                            currentFolder = currentFolder + "\\" + selectedBox.Content;
+                            MakeArchiveTree(currentFolder);
+                        }
+                        else
+                        {
+                            if ((string)selectedBox.Content != rootTitleText)
+                            {
+                                currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                                MakeArchiveTree(currentFolder);
+                            }
+                        }
+                    }
+                    break;
+
+                case Key.Q:
+                    ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
+                    if (DirectoryTreeList.Visibility == Visibility.Visible && (string) firstBox.Content != rootTitleText)
+                    {
+                        currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                        MakeArchiveTree(currentFolder);
+                    }
+                    break;
+
+
+                case Key.Space:
+                    if (DirectoryTreeList.Visibility == Visibility.Visible)
+                    {
+                        ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+                        string[] folder = new string[1];
+                        currentFolder = currentFolder + "\\" + selectedBox.Content;
+
+                        if ((string)selectedBox.Content == rootTitleText)
+                        {
+                            currentFolder = rootFolder;
+                        }
+                        if ((string)selectedBox.Content == prevDirTitleText)
+                        {
+                            currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                        }
+                        folder[0] = currentFolder;
+                        CreateNewContext(folder);
+                    }
                     break;
 
                 case Key.LeftShift:
@@ -354,8 +428,27 @@ namespace Image_Manager
                     DirectoryTreeList.Visibility = vis;
                     break;
 
+                case Key.S:
+                    if (DirectoryTreeList.Visibility == Visibility.Visible &&
+                        guiSelection + 1 < DirectoryTreeList.Items.Count)
+                    {
+                        guiSelection++;
+                        repaintSelector();
+                    }
+                    break;
+
+                case Key.W:
+                    if (DirectoryTreeList.Visibility == Visibility.Visible &&
+                        guiSelection - 1 >= 0)
+                    {
+                        guiSelection--;
+                        repaintSelector();
+                    }
+                    break;
+
                 // Previous image
                 case Key.Left:
+                case Key.A:
                     if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
                     {
                         currentImageNum--;
@@ -365,6 +458,7 @@ namespace Image_Manager
 
                 // Next image
                 case Key.Right:
+                case Key.D:
                     if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
                     {
                         currentImageNum++;
@@ -436,8 +530,8 @@ namespace Image_Manager
             }
             else
             {
-                ListBoxItem lb = (ListBoxItem) DirectoryTreeList.SelectedItem;
-                if ((string) lb.Content != rootTitleText)
+                ListBoxItem lb = (ListBoxItem)DirectoryTreeList.SelectedItem;
+                if ((string)lb.Content != rootTitleText)
                 {
                     currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
                     MakeArchiveTree(currentFolder);
