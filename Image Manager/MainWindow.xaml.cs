@@ -35,7 +35,7 @@ namespace Image_Manager
         public static List<string> folderPaths = new List<string>();
 
         public static Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
-        private List<BitmapImage> cachedImages = new List<BitmapImage>();
+        //private List<BitmapImage> cachedImages = new List<BitmapImage>();
 
         private static int currentImageNum = 0;
         private string currentContentType = "null";
@@ -48,6 +48,7 @@ namespace Image_Manager
         private string currentFolder;
 
         private int guiSelection = 0;
+        CacheHandler cacheHandler = new CacheHandler();
 
 
         public MainWindow()
@@ -168,8 +169,8 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            CacheHandler.UpdateCache();
-            CacheHandler.lastPos = currentImageNum;
+            cacheHandler.UpdateCache();
+            cacheHandler.lastPos = currentImageNum;
 
             // Don't display an empty directory
             if (filepaths.Count == 0)
@@ -205,6 +206,14 @@ namespace Image_Manager
                 string curItem = filepaths[currentImageNum];
                 Title = allowSubDir ? "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + Path.GetFileName(curItem) :
                     "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + " -subdir | " + Path.GetFileName(curItem);
+            }
+            else
+            {
+                Title = "Image Manager";
+                if (!allowSubDir)
+                {
+                    Title = "Image Manager -subdir";
+                }
             }
         }
 
@@ -332,11 +341,100 @@ namespace Image_Manager
         private void RemoveOldContext()
         {
             imageViewer.Source = null;
+            textViewer.Visibility = Visibility.Hidden;
+
             currentImageNum = 0;
-            Title = "Image Manager";
+            guiSelection = 0;
+            UpdateTitle();
+            DirectoryTreeList.Items.Clear();
             cache.Clear();
             folderPaths.Clear();
             filepaths.Clear();
+        }
+
+        public static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
+        }
+
+        private void MoveFile()
+        {
+
+            if (establishedRoot == false || filepaths.Count == 0)
+            {
+                return;
+            }
+
+            ListBoxItem selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
+            string originalPath = filepaths[currentImageNum];
+            string newFileName = currentFolder + "\\" + selectedBoxItem.Content.ToString() + "\\" + currentFileName;
+            string ext = Path.GetExtension(currentFileName);
+            newFileName = newFileName.Replace(rootTitleText, "");
+            newFileName = newFileName.Replace(prevDirTitleText, "");
+
+            bool isTopDir = false;
+
+            if (selectedBoxItem.Content.ToString() == rootTitleText || selectedBoxItem.Content.ToString() == prevDirTitleText)
+            {
+                isTopDir = true;
+            }
+
+            // Renames file if file with same name already exists
+            // Also prevents the file from being moved into the same folder
+            while (true)
+            {
+                if (File.Exists(newFileName))
+                {
+                    if (isTopDir == false)
+                    {
+                        Console.WriteLine(NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString()));
+                        Console.WriteLine(NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString()));
+                        
+                        string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString());
+                        string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString());
+
+                        if (pathToCompare1 == pathToCompare2) break;
+                        newFileName = currentFolder + "\\" + selectedBoxItem.Content.ToString() + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
+                    }
+                    else
+                    {
+                        if (currentFolder.ToString().TrimEnd('\\') ==
+                            newFileName.Replace(currentFileName, "").ToString().TrimEnd('\\')) break;
+                        newFileName = currentFolder + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+
+
+            File.Move(originalPath, newFileName);
+
+            filepaths.RemoveAt(currentImageNum);
+
+            // When last file has been moved
+            if (filepaths.Count == 0)
+            {
+                string[] refreshFolder = new string[1];
+                refreshFolder[0] = rootFolder;
+                RemoveOldContext();
+                currentFolder = rootFolder;
+                CreateNewContext(refreshFolder);
+            } else if (currentImageNum == filepaths.Count)
+            {
+                currentImageNum--;
+            }
+
+            UpdateContent();
+            UpdateTitle();
+
+            cache.Remove(originalPath);
         }
 
         public static BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -368,6 +466,10 @@ namespace Image_Manager
                     break;
 
                 case Key.E:
+                    if (establishedRoot == false)
+                    {
+                        return;
+                    }
                     if (DirectoryTreeList.Visibility == Visibility.Visible)
                     {
                         ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
@@ -387,9 +489,17 @@ namespace Image_Manager
                     }
                     break;
 
+                case Key.R:
+                    MoveFile();
+                    break;
+
                 case Key.Q:
+                    if (establishedRoot == false)
+                    {
+                        return;
+                    }
                     ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
-                    if (DirectoryTreeList.Visibility == Visibility.Visible && (string) firstBox.Content != rootTitleText)
+                    if (DirectoryTreeList.Visibility == Visibility.Visible && (string)firstBox.Content != rootTitleText)
                     {
                         currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
                         MakeArchiveTree(currentFolder);
@@ -398,6 +508,10 @@ namespace Image_Manager
 
 
                 case Key.Space:
+                    if (establishedRoot == false)
+                    {
+                        return;
+                    }
                     if (DirectoryTreeList.Visibility == Visibility.Visible)
                     {
                         ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
@@ -415,6 +529,7 @@ namespace Image_Manager
                         folder[0] = currentFolder;
                         CreateNewContext(folder);
                     }
+                    UpdateTitle();
                     break;
 
                 case Key.LeftShift:

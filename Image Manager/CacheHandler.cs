@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,12 +11,12 @@ using ThumbnailGenerator;
 
 namespace Image_Manager
 {
-    class CacheHandler
+    class CacheHandler : IDisposable
     {
-        public const int NUM_OF_CACHED_IMAGES = 25;
-        public static int lastPos = 0;
+        private const int NUM_OF_CACHED_IMAGES = 25;
+        public int lastPos = 0;
 
-        public static void UpdateCache()
+        public void UpdateCache()
         {
             bool isGoingRight = true;
             int currentImageNum = MainWindow.returnCurrentImageNum();
@@ -49,7 +50,7 @@ namespace Image_Manager
             DropCache();
         }
 
-        public static void AddCache(int i)
+        public void AddCache(int i)
         {
             if (!MainWindow.cache.ContainsKey(MainWindow.filepaths[i]))
             {
@@ -59,7 +60,8 @@ namespace Image_Manager
                 }
                 if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
                 {
-                    BitmapImage imageToCache = new BitmapImage(new Uri(MainWindow.filepaths[i], UriKind.RelativeOrAbsolute));
+                    //BitmapImage imageToCache = new BitmapImage(new Uri(MainWindow.filepaths[i], UriKind.RelativeOrAbsolute));
+                    BitmapImage imageToCache = LoadImage(MainWindow.filepaths[i]);
                     MainWindow.cache.Add(MainWindow.filepaths[i], imageToCache);
                 }
                 else if (MainWindow.FileType(MainWindow.filepaths[i]) == "video")
@@ -78,7 +80,23 @@ namespace Image_Manager
             }
         }
 
-        public static void DropCache()
+        private BitmapImage LoadImage(string myImageFile)
+        {
+            BitmapImage retImage = null;
+            BitmapImage image = new BitmapImage();
+            using (FileStream stream = File.OpenRead(myImageFile))
+            {
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.StreamSource = stream;
+                image.EndInit();
+            }
+            retImage = image;
+            
+            return retImage;
+        }
+
+        public void DropCache()
         {
             int currentImageNum = MainWindow.returnCurrentImageNum();
 
@@ -95,6 +113,11 @@ namespace Image_Manager
             {
                 MainWindow.cache.Remove(MainWindow.filepaths[currentImageNum + NUM_OF_CACHED_IMAGES + 1]);
             }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }
