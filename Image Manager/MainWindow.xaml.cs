@@ -170,6 +170,7 @@ namespace Image_Manager
         private void UpdateContent()
         {
             cacheHandler.UpdateCache();
+
             cacheHandler.lastPos = currentImageNum;
 
             // Don't display an empty directory
@@ -389,20 +390,19 @@ namespace Image_Manager
                 if (File.Exists(newFileName))
                 {
                     if (isTopDir == false)
-                    {
-                        Console.WriteLine(NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString()));
-                        Console.WriteLine(NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString()));
-                        
+                    {                     
                         string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString());
                         string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString());
 
+                        // If current image is in the marked folder
                         if (pathToCompare1 == pathToCompare2) break;
                         newFileName = currentFolder + "\\" + selectedBoxItem.Content.ToString() + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
                     }
                     else
                     {
+                        // If current image is in the same folder
                         if (currentFolder.ToString().TrimEnd('\\') ==
-                            newFileName.Replace(currentFileName, "").ToString().TrimEnd('\\')) break;
+                            originalPath.Replace(currentFileName, "").ToString().TrimEnd('\\')) break;
                         newFileName = currentFolder + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
                     }
                 }
@@ -437,6 +437,18 @@ namespace Image_Manager
             cache.Remove(originalPath);
         }
 
+        private void RenameFile(string input)
+        {
+            string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+            string currentFileExt = Path.GetExtension(filepaths[currentImageNum]);
+            string currentLocation = Path.GetFullPath(filepaths[currentImageNum]).Replace(currentFileName, "").Replace(currentFileExt, "");
+            
+
+            File.Move(currentLocation + "\\" + currentFileName + currentFileExt, currentLocation + "\\" + input + currentFileExt);
+            filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
+            UpdateContent();
+        }
+
         public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -465,6 +477,7 @@ namespace Image_Manager
 
                     break;
 
+                // Enter directory
                 case Key.E:
                     if (establishedRoot == false)
                     {
@@ -489,10 +502,33 @@ namespace Image_Manager
                     }
                     break;
 
+                // Rename current file
+                case Key.F2:
+                    string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                    string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
+                    RenameFile(input);
+                    break;
+
+                // Adds +HQ modifier
+                case Key.F3:
+                    string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                    string HQInput = "+HQ " + HQFileName;
+                    RenameFile(HQInput);
+                    break;
+
+                // Remove +HQ modifier
+                case Key.F4:
+                    string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                    string HQnoInput = HQnoFileName.Replace("+HQ ", "");
+                    RenameFile(HQnoInput);
+                    break;
+
+                // Move file to selected directory
                 case Key.R:
                     MoveFile();
                     break;
 
+                // Go up one directory
                 case Key.Q:
                     if (establishedRoot == false)
                     {
@@ -506,7 +542,7 @@ namespace Image_Manager
                     }
                     break;
 
-
+                // Open directory in view mode
                 case Key.Space:
                     if (establishedRoot == false)
                     {
@@ -532,17 +568,20 @@ namespace Image_Manager
                     UpdateTitle();
                     break;
 
+                // Toggle subdirectories in view mode
                 case Key.LeftShift:
                     allowSubDir = !allowSubDir;
                     UpdateTitle();
                     break;
 
+                // Toggle directory list
                 case Key.Tab:
                     Visibility vis = (DirectoryTreeList.Visibility == Visibility.Hidden) ?
                         (Visibility.Visible) : (Visibility.Hidden);
                     DirectoryTreeList.Visibility = vis;
                     break;
 
+                // Select directory below
                 case Key.S:
                     if (DirectoryTreeList.Visibility == Visibility.Visible &&
                         guiSelection + 1 < DirectoryTreeList.Items.Count)
@@ -552,6 +591,7 @@ namespace Image_Manager
                     }
                     break;
 
+                // Select directory above
                 case Key.W:
                     if (DirectoryTreeList.Visibility == Visibility.Visible &&
                         guiSelection - 1 >= 0)

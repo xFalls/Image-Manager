@@ -92,7 +92,6 @@ namespace Image_Manager
                 image.EndInit();
             }
             retImage = image;
-            
             return retImage;
         }
 
