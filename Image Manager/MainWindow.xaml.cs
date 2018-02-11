@@ -12,6 +12,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using DirectShowLib;
+using DirectShowLib.DES;
+using System.Runtime.InteropServices;
+using WpfAnimatedGif;
 
 namespace Image_Manager
 {
@@ -25,19 +29,23 @@ namespace Image_Manager
         private const string prevDirTitleText = "[THIS FOLDER]";
 
         SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
+        SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
+
         SolidColorBrush setTextColor = new SolidColorBrush(Colors.Orange);
         SolidColorBrush artistTextColor = new SolidColorBrush(Colors.Yellow);
         SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
         SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
+
+        public static System.Windows.Controls.Image gifTest;
 
 
         // Variables
         public static List<string> filepaths = new List<string>();
         public static List<string> newFiles = new List<string>();
         public static List<string> folderPaths = new List<string>();
+        private Dictionary<string, string> folderDict = new Dictionary<string, string>();
 
         public static Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
-        //private List<BitmapImage> cachedImages = new List<BitmapImage>();
 
         private static int currentImageNum = 0;
         private string currentContentType = "null";
@@ -49,7 +57,7 @@ namespace Image_Manager
         private string rootFolder;
         private string currentFolder;
 
-        private string curFileName = "";
+        public static string curFileName = "";
         private string curFolderPath = "";
 
         // Image manipulation
@@ -63,6 +71,8 @@ namespace Image_Manager
         BlurEffect videoBlur = new BlurEffect();
 
         private int guiSelection = 0;
+        private int sortGuiSelection = 0;
+        private int currentMode = 0;
         CacheHandler cacheHandler = new CacheHandler();
 
 
@@ -70,6 +80,8 @@ namespace Image_Manager
         public MainWindow()
         {
             InitializeComponent();
+
+            gifTest = imageViewer;
 
             imageTransformGroup.Children.Add(st);
             imageTransformGroup.Children.Add(tt);
@@ -113,17 +125,19 @@ namespace Image_Manager
 
             foreach (string foundFolder in Directory.GetDirectories(folder, "*", SearchOption.TopDirectoryOnly))
             {
+                if (foundFolder.Contains('_')) continue;
+
                 string shortDir = Path.GetFileName(foundFolder);
                 SolidColorBrush color = new SolidColorBrush(Colors.White);
 
                 // Color directories based on content
-                if (shortDir.Contains("[Set]"))
-                {
-                    color = setTextColor;
-                }
-                else if (shortDir.Contains("[Artist]"))
+                if (shortDir.Contains("[Artist]"))
                 {
                     color = artistTextColor;
+                }
+                else if (shortDir.Contains("[Set]"))
+                {
+                    color = setTextColor;
                 }
                 else if (shortDir.Contains("[Manga]"))
                 {
@@ -141,6 +155,43 @@ namespace Image_Manager
             DirectoryTreeList.Items.Refresh();
         }
 
+        private void CompleteFolderTree(string folder)
+        {
+            AllFolders.Items.Clear();
+            AllFolders.Items.Clear();
+
+            sortGuiSelection = 0;
+
+            foreach (KeyValuePair<string, string> storedFolder in folderDict)
+            {
+                string dirName = storedFolder.Key;
+                SolidColorBrush color = new SolidColorBrush(Colors.White);
+
+                // Color directories based on content
+                if (dirName.Contains("[Set]"))
+                {
+                    color = setTextColor;
+                }
+                else if (dirName.Contains("[Artist]"))
+                {
+                    color = artistTextColor;
+                }
+                else if (dirName.Contains("[Manga]"))
+                {
+                    color = mangaTextColor;
+                }
+
+                AllFolders.Items.Add(new ListBoxItem
+                {
+                    Content = dirName,
+                    Foreground = color
+                });
+            }
+
+            RepaintSortSelector();
+            AllFolders.Items.Refresh();
+        }
+
         private void RepaintSelector()
         {
             foreach (ListBoxItem item in DirectoryTreeList.Items)
@@ -149,6 +200,17 @@ namespace Image_Manager
             }
 
             ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+            selectedBox.Background = selectionColor;
+        }
+
+        private void RepaintSortSelector()
+        {
+            foreach (ListBoxItem item in AllFolders.Items)
+            {
+                item.Background = new SolidColorBrush(Colors.Transparent);
+            }
+
+            ListBoxItem selectedBox = (ListBoxItem)AllFolders.Items[sortGuiSelection];
             selectedBox.Background = selectionColor;
         }
 
@@ -186,11 +248,79 @@ namespace Image_Manager
             return "";
         }
 
+        private void UpdateInfobar()
+        {
+            if (currentContentType == "image")
+            {
+                if (curFileName.ToLower().EndsWith(".gif"))
+                {
+                    CurrentFileInfoLabel.Foreground = defaultTextColor;
+                    CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
+                } else
+                {
+                    CurrentFileInfoLabel.Foreground = imageViewer.Source.Height >= 1000 ? defaultTextColor : warningTextColor;
+                    CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                        "    -    ( " + (int)imageViewer.Source.Width + " x " + (int)imageViewer.Source.Height + " )   ";
+                }
+            }
+            else if (currentContentType == "text")
+            {
+                CurrentFileInfoLabel.Foreground = defaultTextColor;
+                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
+            } else
+            {
+                var mediaDet = (IMediaDet)new MediaDet();
+                DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
+
+                // find the video stream in the file
+                int index;
+                var type = Guid.Empty;
+                for (index = 0; index < 1000 && type != MediaType.Video; index++)
+                {
+                    mediaDet.put_CurrentStream(index);
+                    mediaDet.get_StreamType(out type);
+                }
+
+                // retrieve some measurements from the video
+                double frameRate;
+                mediaDet.get_FrameRate(out frameRate);
+
+                var mediaType = new AMMediaType();
+                mediaDet.get_StreamMediaType(mediaType);
+                var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
+                DsUtils.FreeAMMediaType(mediaType);
+                var width = videoInfo.BmiHeader.Width;
+                var height = videoInfo.BmiHeader.Height;
+
+                double mediaLength;
+                mediaDet.get_StreamLength(out mediaLength);
+                var frameCount = (int)(frameRate * mediaLength);
+                var duration = frameCount / frameRate;
+
+                var parts = new List<string>();
+                Action<int, string> add = (val, unit) => { if (val > 0) parts.Add(val + unit); };
+                var t = TimeSpan.FromSeconds((int) mediaLength);
+
+                add(t.Days, "d");
+                add(t.Hours, "h");
+                add(t.Minutes, "m");
+                add(t.Seconds, "s");
+
+                string formattedTime = string.Join(" ", parts);
+
+                CurrentFileInfoLabel.Foreground = defaultTextColor;
+                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                    "    -    ( " + width + " x " + height + " )" + 
+                    "    -    ( " + formattedTime + " )   ";
+            }
+        }
+
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            cacheHandler.UpdateCache();
+            CompleteFolderTree(rootFolder);
 
+            cacheHandler.UpdateCache();
             cacheHandler.lastPos = currentImageNum;
 
             // Don't display an empty directory
@@ -210,12 +340,19 @@ namespace Image_Manager
 
             UpdateTitle();
 
-
-            CurrentFileInfoLabel.Content = curFileName + "  -  " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder,"").Replace(curFileName, "").TrimEnd('\\') + "   ";
-
             if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
             {
                 imageViewer.Source = cache[curItem];
+
+                if (curFileName.ToLower().EndsWith(".gif"))
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.UriSource = new Uri(filepaths[currentImageNum]);
+                    image.EndInit();
+                    ImageBehavior.SetAnimatedSource(imageViewer, cache[curItem]);
+                }
+
                 imageViewer.Effect = null;
 
                 imageViewer.Visibility = Visibility.Visible;
@@ -237,6 +374,8 @@ namespace Image_Manager
                 textViewer.Visibility = Visibility.Visible;
                 VideoPlayIcon.Visibility = Visibility.Hidden;
             }
+
+            UpdateInfobar();
         }
 
         private void ZoomIn(double zoomAmount)
@@ -307,6 +446,12 @@ namespace Image_Manager
                         establishedRoot = true;
                         rootFolder = currentFolder = s;
 
+                        folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
+                        foreach (string foundFolder in Directory.GetDirectories(s, "*.*", SearchOption.AllDirectories))
+                            if (!foundFolder.Contains("_"))
+                            {
+                                folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
+                            }
                     }
                     // Files
                     if (allowSubDir)
@@ -315,7 +460,10 @@ namespace Image_Manager
                         {
                             if (!filepaths.Contains(foundFile))
                             {
-                                newFiles.Add(foundFile);
+                                if (!Path.GetDirectoryName(foundFile).Contains("_"))
+                                {
+                                    newFiles.Add(foundFile);
+                                }
                             }
                         }
                         // Folders
@@ -323,7 +471,10 @@ namespace Image_Manager
                         {
                             if (!folderPaths.Contains(foundFolder))
                             {
-                                folderPaths.Add(foundFolder);
+                                if (!foundFolder.Contains("_"))
+                                {
+                                    folderPaths.Add(foundFolder);
+                                }
                             }
                         }
                     }
@@ -333,7 +484,10 @@ namespace Image_Manager
                         {
                             if (!filepaths.Contains(foundFile))
                             {
-                                newFiles.Add(foundFile);
+                                if (!Path.GetDirectoryName(foundFile).Contains("_"))
+                                {
+                                    newFiles.Add(foundFile);
+                                }
                             }
                         }
                         // Folders
@@ -341,7 +495,10 @@ namespace Image_Manager
                         {
                             if (!folderPaths.Contains(foundFolder))
                             {
-                                folderPaths.Add(foundFolder);
+                                if (!foundFolder.Contains("_"))
+                                {
+                                    folderPaths.Add(foundFolder);
+                                }
                             }
                         }
                     }
@@ -353,6 +510,10 @@ namespace Image_Manager
                     {
                         establishedRoot = true;
                         rootFolder = currentFolder = Directory.GetParent(s).ToString();
+
+                        folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
+                        foreach (string foundFolder in Directory.GetDirectories(rootFolder, "*.*", SearchOption.AllDirectories))
+                            folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
 
                     }
                     // Add filepath
@@ -385,6 +546,7 @@ namespace Image_Manager
             }
         }
 
+        // Resets the zoom level and panning
         private void ResetView()
         {
             tt.Y = 0.5;
@@ -401,9 +563,12 @@ namespace Image_Manager
             // Finds all filepaths of a dropped object
             string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
+            RemoveOldContext();
+            establishedRoot = false;
             CreateNewContext(folder);
         }
 
+        // Resets the program and starts over with new files
         private void CreateNewContext(string[] folder)
         {
             RemoveOldContext();
@@ -417,18 +582,31 @@ namespace Image_Manager
             MakeArchiveTree(currentFolder);
         }
 
+        // Resets the program
         private void RemoveOldContext()
         {
+            setFocus = false;
             imageViewer.Source = null;
             textViewer.Visibility = Visibility.Hidden;
+            currentContentType = "";
 
             currentImageNum = 0;
             guiSelection = 0;
+            sortGuiSelection = 0;
             UpdateTitle();
+            ResetView();
+
             DirectoryTreeList.Items.Clear();
+            AllFolders.Items.Clear();
+
             cache.Clear();
+
+            folderDict.Clear();
             folderPaths.Clear();
             filepaths.Clear();
+            newFiles.Clear();
+
+            System.GC.Collect();
         }
 
         public static string NormalizePath(string path)
@@ -440,6 +618,7 @@ namespace Image_Manager
 
         private void MoveFile()
         {
+            if (currentMode != 1) return;
 
             if (establishedRoot == false || filepaths.Count == 0)
             {
@@ -490,8 +669,6 @@ namespace Image_Manager
                 }
             }
 
-
-
             File.Move(originalPath, newFileName);
 
             filepaths.RemoveAt(currentImageNum);
@@ -505,6 +682,69 @@ namespace Image_Manager
                 currentFolder = rootFolder;
                 CreateNewContext(refreshFolder);
             } else if (currentImageNum == filepaths.Count)
+            {
+                currentImageNum--;
+            }
+
+            UpdateContent();
+            UpdateTitle();
+
+            cache.Remove(originalPath);
+        }
+
+        private void MoveFileViaSort()
+        {
+            if (currentMode != 2) return;
+
+            if (establishedRoot == false || filepaths.Count == 0)
+            {
+                return;
+            }
+
+            ListBoxItem selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
+            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
+            string originalPath = filepaths[currentImageNum];
+            string folderPath = folderDict[selectedBoxItem.Content.ToString()];
+
+            string newFileName = folderPath + "\\" + currentFileName;
+            string ext = Path.GetExtension(currentFileName);
+
+            Console.WriteLine(originalPath);
+            Console.WriteLine(folderPath);
+            Console.WriteLine(newFileName);
+
+            
+
+            // Renames file if file with same name already exists
+            // Also prevents the file from being moved into the same folder
+            while (true)
+            {
+                if (File.Exists(newFileName))
+                {
+                    // If current image is in the marked folder
+                    if (originalPath == newFileName) break;
+                    newFileName = folderPath + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            File.Move(originalPath, newFileName);
+
+            filepaths.RemoveAt(currentImageNum);
+
+            // When last file has been moved
+            if (filepaths.Count == 0)
+            {
+                string[] refreshFolder = new string[1];
+                refreshFolder[0] = rootFolder;
+                RemoveOldContext();
+                currentFolder = rootFolder;
+                CreateNewContext(refreshFolder);
+            }
+            else if (currentImageNum == filepaths.Count)
             {
                 currentImageNum--;
             }
@@ -529,6 +769,33 @@ namespace Image_Manager
             } else
             {
                 Microsoft.VisualBasic.Interaction.MsgBox("File with name already exists");
+            }
+        }
+
+        private void ToggleViewMode()
+        {
+            // View mode
+            if (currentMode == 0)
+            {
+                DirectoryTreeList.Visibility = Visibility.Visible;
+                AllFolders.Visibility = Visibility.Hidden;
+                currentMode = 1;
+            }
+
+            // Explore mode
+            else if (currentMode == 1)
+            {
+                DirectoryTreeList.Visibility = Visibility.Hidden;
+                AllFolders.Visibility = Visibility.Visible;
+                currentMode = 2;
+            }
+
+            // Sort mode
+            else if (currentMode == 2)
+            {
+                DirectoryTreeList.Visibility = Visibility.Hidden;
+                AllFolders.Visibility = Visibility.Hidden;
+                currentMode = 0;
             }
         }
 
@@ -608,7 +875,14 @@ namespace Image_Manager
 
                 // Move file to selected directory
                 case Key.R:
-                    MoveFile();
+                    if (currentMode == 1)
+                    {
+                        MoveFile();
+                    }
+                    else if (currentMode == 2)
+                    {
+                        MoveFileViaSort();
+                    }
                     break;
 
                 // Zoom in
@@ -669,28 +943,58 @@ namespace Image_Manager
 
                 // Toggle directory list
                 case Key.Tab:
-                    Visibility vis = (DirectoryTreeList.Visibility == Visibility.Hidden) ?
-                        (Visibility.Visible) : (Visibility.Hidden);
-                    DirectoryTreeList.Visibility = vis;
+                    ToggleViewMode();
                     break;
 
                 // Select directory below
                 case Key.S:
-                    if (DirectoryTreeList.Visibility == Visibility.Visible &&
-                        guiSelection + 1 < DirectoryTreeList.Items.Count)
+                    if (DirectoryTreeList.Visibility == Visibility.Visible)
                     {
                         guiSelection++;
+
+                        if (guiSelection == DirectoryTreeList.Items.Count)
+                        {
+                            guiSelection = 0;
+                        }
+
                         RepaintSelector();
+                    }
+                    else if (currentMode == 2)
+                    {
+                        sortGuiSelection++;
+
+                        if (sortGuiSelection == AllFolders.Items.Count)
+                        {
+                            sortGuiSelection = 0;
+                        }
+
+                        RepaintSortSelector();
                     }
                     break;
 
                 // Select directory above
                 case Key.W:
-                    if (DirectoryTreeList.Visibility == Visibility.Visible &&
-                        guiSelection - 1 >= 0)
+                    if (DirectoryTreeList.Visibility == Visibility.Visible)
                     {
                         guiSelection--;
+
+                        if (guiSelection < 0)
+                        {
+                            guiSelection = DirectoryTreeList.Items.Count - 1;
+                        }
+
                         RepaintSelector();
+                    }
+                    else if (currentMode == 2)
+                    {
+                        sortGuiSelection--;
+
+                        if (sortGuiSelection < 0)
+                        {
+                            sortGuiSelection = AllFolders.Items.Count - 1;
+                        }
+
+                        RepaintSortSelector();
                     }
                     break;
 
@@ -710,6 +1014,28 @@ namespace Image_Manager
                     if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
                     {
                         currentImageNum++;
+                        UpdateContent();
+                    }
+                    break;
+
+                // First image
+                case Key.Home:
+                    if (!(setFocus && currentContentType == "text"))
+                    {
+                        currentImageNum = 0;
+                        cache.Clear();
+                        System.GC.Collect();
+                        UpdateContent();
+                    }
+                    break;
+
+                // Last image
+                case Key.End:
+                    if (!(setFocus && currentContentType == "text"))
+                    {
+                        currentImageNum = filepaths.Count - 1;
+                        cache.Clear();
+                        System.GC.Collect();
                         UpdateContent();
                     }
                     break;
@@ -761,6 +1087,7 @@ namespace Image_Manager
         // A right click opens the selected directory in the gallery
         private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (currentMode != 1) return;
             var item = ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) as ListBoxItem;
             if (item != null)
             {
@@ -785,6 +1112,7 @@ namespace Image_Manager
         // Explores the selected gallery
         private void DirectoryTreeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (currentMode != 1) return;
             if (DirectoryTreeList.SelectedIndex != 0)
             {
                 currentFolder = currentFolder + "\\" + DirectoryTreeList.SelectedItem;
@@ -801,14 +1129,12 @@ namespace Image_Manager
             }
         }
 
+        // Toggles the directory box with a mouse wheel click
         private void ControlWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Toggles the directory box with a mouse wheel click
             if (e.ChangedButton == MouseButton.Middle && e.ButtonState == MouseButtonState.Pressed)
             {
-                Visibility vis = (DirectoryTreeList.Visibility == Visibility.Hidden) ?
-                        (Visibility.Visible) : (Visibility.Hidden);
-                DirectoryTreeList.Visibility = vis;
+                ToggleViewMode();
             }
         }
 
