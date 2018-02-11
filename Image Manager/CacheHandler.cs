@@ -11,7 +11,7 @@ using ThumbnailGenerator;
 
 namespace Image_Manager
 {
-    class CacheHandler : IDisposable
+    class CacheHandler
     {
         private const int NUM_OF_CACHED_IMAGES = 25;
         public int lastPos = 0;
@@ -19,7 +19,7 @@ namespace Image_Manager
         public void UpdateCache()
         {
             bool isGoingRight = true;
-            int currentImageNum = MainWindow.returnCurrentImageNum();
+            int currentImageNum = MainWindow.ReturnCurrentImageNum();
             
             // Find direction moved in gallery
             if (currentImageNum - lastPos == 1)
@@ -97,7 +97,7 @@ namespace Image_Manager
 
         public void DropCache()
         {
-            int currentImageNum = MainWindow.returnCurrentImageNum();
+            int currentImageNum = MainWindow.ReturnCurrentImageNum();
 
             // Remove image N steps back
             if (currentImageNum - NUM_OF_CACHED_IMAGES >= 0 &&
@@ -114,9 +114,5 @@ namespace Image_Manager
             }
         }
 
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

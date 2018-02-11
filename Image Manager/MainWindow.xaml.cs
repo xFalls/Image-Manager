@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 
 namespace Image_Manager
@@ -47,17 +49,35 @@ namespace Image_Manager
         private string rootFolder;
         private string currentFolder;
 
+        private string curFileName = "";
+        private string curFolderPath = "";
+
+        // Image manipulation
+        private System.Windows.Point start;
+        private System.Windows.Point origin;
+        double initialZoom = 1;
+        TransformGroup imageTransformGroup = new TransformGroup();
+        TranslateTransform tt = new TranslateTransform();
+        ScaleTransform st = new ScaleTransform();
+
+        BlurEffect videoBlur = new BlurEffect();
+
         private int guiSelection = 0;
         CacheHandler cacheHandler = new CacheHandler();
+
 
 
         public MainWindow()
         {
             InitializeComponent();
 
+            imageTransformGroup.Children.Add(st);
+            imageTransformGroup.Children.Add(tt);
+            imageViewer.RenderTransform = imageTransformGroup;
+            videoBlur.Radius = 20;
+
             // Remove harmless error messages from output
             System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
-
         }
 
         private void MakeArchiveTree(string folder)
@@ -117,11 +137,11 @@ namespace Image_Manager
                 });
             }
 
-            repaintSelector();
+            RepaintSelector();
             DirectoryTreeList.Items.Refresh();
         }
 
-        private void repaintSelector()
+        private void RepaintSelector()
         {
             foreach (ListBoxItem item in DirectoryTreeList.Items)
             {
@@ -135,7 +155,7 @@ namespace Image_Manager
 
 
 
-        public static int returnCurrentImageNum()
+        public static int ReturnCurrentImageNum()
         {
             return currentImageNum;
         }
@@ -179,17 +199,35 @@ namespace Image_Manager
                 return;
             }
 
+            ResetView();
+
+            // Update widely used variables
+            curFileName = Path.GetFileName(filepaths[currentImageNum]);
+            curFolderPath = Path.GetFullPath(filepaths[currentImageNum]);
+
             string curItem = filepaths[currentImageNum];
             currentContentType = FileType(curItem);
 
             UpdateTitle();
 
+
+            CurrentFileInfoLabel.Content = curFileName + "  -  " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder,"").Replace(curFileName, "").TrimEnd('\\') + "   ";
+
             if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
             {
                 imageViewer.Source = cache[curItem];
+                imageViewer.Effect = null;
 
                 imageViewer.Visibility = Visibility.Visible;
                 textViewer.Visibility = Visibility.Hidden;
+                VideoPlayIcon.Visibility = Visibility.Hidden;
+
+                if (currentContentType == "video")
+                {
+                    VideoPlayIcon.Visibility = Visibility.Visible;
+
+                    imageViewer.Effect = videoBlur;
+                }
             }
             else if (currentContentType == "text")
             {
@@ -197,7 +235,32 @@ namespace Image_Manager
 
                 imageViewer.Visibility = Visibility.Hidden;
                 textViewer.Visibility = Visibility.Visible;
+                VideoPlayIcon.Visibility = Visibility.Hidden;
             }
+        }
+
+        private void ZoomIn(double zoomAmount)
+        {
+            if (currentContentType == "video") return;
+            if (initialZoom - zoomAmount >= 3) return;
+            initialZoom += zoomAmount;
+
+            st.ScaleX = initialZoom;
+            st.ScaleY = initialZoom;
+
+            imageViewer.RenderTransform = imageTransformGroup;
+        }
+
+        private void ZoomOut(double zoomAmount)
+        {
+            if (currentContentType == "video") return;
+            if (initialZoom - zoomAmount < 0.5) return;
+            initialZoom -= zoomAmount;
+
+            st.ScaleX = initialZoom;
+            st.ScaleY = initialZoom;
+
+            imageViewer.RenderTransform = imageTransformGroup;
         }
 
         private void UpdateTitle()
@@ -304,10 +367,15 @@ namespace Image_Manager
         private void ToggleFocus()
         {
             // Text viewer
-            if (currentContentType == "text")
+            if (currentContentType == "text" || currentContentType == "image")
             {
                 setFocus = !setFocus;
                 textViewer.IsEnabled = setFocus;
+
+                if (setFocus == false)
+                {
+                    ResetView();
+                }
             }
 
             // Start video in default player
@@ -315,6 +383,16 @@ namespace Image_Manager
             {
                 Process.Start(filepaths[currentImageNum]);
             }
+        }
+
+        private void ResetView()
+        {
+            tt.Y = 0.5;
+            tt.X = 0.5;
+            st.ScaleX = 1;
+            st.ScaleY = 1;
+            initialZoom = 1;
+            imageViewer.RenderTransform = imageTransformGroup;
         }
 
         // Handler for drag-dropping files
@@ -442,11 +520,16 @@ namespace Image_Manager
             string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
             string currentFileExt = Path.GetExtension(filepaths[currentImageNum]);
             string currentLocation = Path.GetFullPath(filepaths[currentImageNum]).Replace(currentFileName, "").Replace(currentFileExt, "");
-            
 
-            File.Move(currentLocation + "\\" + currentFileName + currentFileExt, currentLocation + "\\" + input + currentFileExt);
-            filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
-            UpdateContent();
+            if (!File.Exists(currentLocation + "\\" + input + currentFileExt))
+            {
+                File.Move(currentLocation + "\\" + currentFileName + currentFileExt, currentLocation + "\\" + input + currentFileExt);
+                filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
+                UpdateContent();
+            } else
+            {
+                Microsoft.VisualBasic.Interaction.MsgBox("File with name already exists");
+            }
         }
 
         public static BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -528,6 +611,16 @@ namespace Image_Manager
                     MoveFile();
                     break;
 
+                // Zoom in
+                case Key.Add:
+                    ZoomIn(0.2);
+                    break;
+
+                // Zoom out
+                case Key.Subtract:
+                    ZoomOut(0.2);
+                    break;
+
                 // Go up one directory
                 case Key.Q:
                     if (establishedRoot == false)
@@ -587,7 +680,7 @@ namespace Image_Manager
                         guiSelection + 1 < DirectoryTreeList.Items.Count)
                     {
                         guiSelection++;
-                        repaintSelector();
+                        RepaintSelector();
                     }
                     break;
 
@@ -597,7 +690,7 @@ namespace Image_Manager
                         guiSelection - 1 >= 0)
                     {
                         guiSelection--;
-                        repaintSelector();
+                        RepaintSelector();
                     }
                     break;
 
@@ -630,6 +723,20 @@ namespace Image_Manager
             {
                 return;
             }
+            if (setFocus)
+            {
+                double zoom = e.Delta > 0 ? .2 : -.2;
+                if (zoom > 0)
+                {
+                    ZoomIn(0.1);
+                }
+                else if (zoom < 0)
+                {
+                    ZoomOut(0.1);
+                }
+                return;
+            }
+
             if (e.Delta > 0 && currentImageNum > 0)
             {
                 currentImageNum--;
@@ -647,7 +754,7 @@ namespace Image_Manager
         {
             if (e.ClickCount == 2)
             {
-                ToggleFocus();
+                ResetView();
             }
         }
 
@@ -703,6 +810,41 @@ namespace Image_Manager
                         (Visibility.Visible) : (Visibility.Hidden);
                 DirectoryTreeList.Visibility = vis;
             }
+        }
+
+        
+        // Drag support
+        private void imageViewer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (currentContentType == "video") return;
+            if (setFocus == false) return;
+            imageViewer.CaptureMouse();
+            imageViewer.RenderTransform = imageTransformGroup;
+
+            start = e.GetPosition(ImageBorder);
+            origin = new System.Windows.Point(tt.X, tt.Y);
+        }
+
+        private void imageViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            imageViewer.ReleaseMouseCapture();
+        }
+
+        private void imageViewer_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (imageViewer.IsMouseCaptured)
+            {
+                Vector v = start - e.GetPosition(ImageBorder);
+                tt.X = origin.X - v.X;
+                tt.Y = origin.Y - v.Y;
+
+                imageViewer.RenderTransform = imageTransformGroup;
+            }
+        }
+
+        private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ToggleFocus();
         }
     }
 }
