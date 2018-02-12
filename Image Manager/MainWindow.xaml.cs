@@ -36,9 +36,6 @@ namespace Image_Manager
         SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
         SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
 
-        public static System.Windows.Controls.Image gifTest;
-
-
         // Variables
         public static List<string> filepaths = new List<string>();
         public static List<string> newFiles = new List<string>();
@@ -80,8 +77,6 @@ namespace Image_Manager
         public MainWindow()
         {
             InitializeComponent();
-
-            gifTest = imageViewer;
 
             imageTransformGroup.Children.Add(st);
             imageTransformGroup.Children.Add(tt);
@@ -158,7 +153,6 @@ namespace Image_Manager
         private void CompleteFolderTree(string folder)
         {
             AllFolders.Items.Clear();
-            AllFolders.Items.Clear();
 
             sortGuiSelection = 0;
 
@@ -199,7 +193,7 @@ namespace Image_Manager
                 item.Background = new SolidColorBrush(Colors.Transparent);
             }
 
-            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+            ListBoxItem selectedBox = (ListBoxItem) DirectoryTreeList.Items[guiSelection];
             selectedBox.Background = selectionColor;
         }
 
@@ -209,8 +203,7 @@ namespace Image_Manager
             {
                 item.Background = new SolidColorBrush(Colors.Transparent);
             }
-
-            ListBoxItem selectedBox = (ListBoxItem)AllFolders.Items[sortGuiSelection];
+            ListBoxItem selectedBox = (ListBoxItem) AllFolders.Items[sortGuiSelection];
             selectedBox.Background = selectionColor;
         }
 
@@ -265,26 +258,46 @@ namespace Image_Manager
             }
             else if (currentContentType == "text")
             {
+                StreamReader sr = new StreamReader(filepaths[currentImageNum]);
+
+                int counter = 0;
+                string delim = " ,.!?";
+                string[] fields = null;
+                string line = null;
+
+                while (!sr.EndOfStream)
+                {
+                    line = sr.ReadLine();
+                    line.Trim();
+                    fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    counter += fields.Length;
+                }
+
                 CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
-            } else
+                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                    "    -    " + counter + " words   ";
+
+            } else if (currentContentType == "video")
             {
+                
                 var mediaDet = (IMediaDet)new MediaDet();
                 DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
 
-                // find the video stream in the file
+                /* find the video stream in the file
                 int index;
                 var type = Guid.Empty;
                 for (index = 0; index < 1000 && type != MediaType.Video; index++)
                 {
                     mediaDet.put_CurrentStream(index);
                     mediaDet.get_StreamType(out type);
-                }
+                }*/
 
                 // retrieve some measurements from the video
+
                 double frameRate;
                 mediaDet.get_FrameRate(out frameRate);
 
+                
                 var mediaType = new AMMediaType();
                 mediaDet.get_StreamMediaType(mediaType);
                 var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
@@ -297,6 +310,7 @@ namespace Image_Manager
                 var frameCount = (int)(frameRate * mediaLength);
                 var duration = frameCount / frameRate;
 
+                // Convert time into readable format
                 var parts = new List<string>();
                 Action<int, string> add = (val, unit) => { if (val > 0) parts.Add(val + unit); };
                 var t = TimeSpan.FromSeconds((int) mediaLength);
@@ -308,10 +322,17 @@ namespace Image_Manager
 
                 string formattedTime = string.Join(" ", parts);
 
-                CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
-                    "    -    ( " + width + " x " + height + " )" + 
+                string textInfo = curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                    "    -    ( " + width + " x " + height + " )" +
                     "    -    ( " + formattedTime + " )   ";
+
+                CurrentFileInfoLabel.Foreground = defaultTextColor;
+                CurrentFileInfoLabel.Content = textInfo;
+
+
+                mediaDet.put_Filename(null);
+
             }
         }
 
@@ -346,11 +367,20 @@ namespace Image_Manager
 
                 if (curFileName.ToLower().EndsWith(".gif"))
                 {
-                    var image = new BitmapImage();
-                    image.BeginInit();
-                    image.UriSource = new Uri(filepaths[currentImageNum]);
-                    image.EndInit();
-                    ImageBehavior.SetAnimatedSource(imageViewer, cache[curItem]);
+                    gifViewer.Visibility = Visibility.Visible;
+                    BitmapImage image = new BitmapImage();
+                    using (FileStream stream = File.OpenRead(curItem))
+                    {
+                        image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.StreamSource = stream;
+                        ImageBehavior.SetAnimatedSource(gifViewer, image);
+                        image.EndInit();
+                    }
+                }
+                else
+                {
+                    gifViewer.Visibility = Visibility.Hidden;
                 }
 
                 imageViewer.Effect = null;
@@ -362,6 +392,7 @@ namespace Image_Manager
                 if (currentContentType == "video")
                 {
                     VideoPlayIcon.Visibility = Visibility.Visible;
+                    gifViewer.Visibility = Visibility.Hidden;
 
                     imageViewer.Effect = videoBlur;
                 }
@@ -373,6 +404,7 @@ namespace Image_Manager
                 imageViewer.Visibility = Visibility.Hidden;
                 textViewer.Visibility = Visibility.Visible;
                 VideoPlayIcon.Visibility = Visibility.Hidden;
+                gifViewer.Visibility = Visibility.Hidden;
             }
 
             UpdateInfobar();
@@ -444,6 +476,9 @@ namespace Image_Manager
                     if (establishedRoot == false)
                     {
                         establishedRoot = true;
+
+                        folderDict.Clear();
+
                         rootFolder = currentFolder = s;
 
                         folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
@@ -509,6 +544,9 @@ namespace Image_Manager
                     if (establishedRoot == false)
                     {
                         establishedRoot = true;
+
+                        folderDict.Clear();
+
                         rootFolder = currentFolder = Directory.GetParent(s).ToString();
 
                         folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
@@ -601,7 +639,7 @@ namespace Image_Manager
 
             cache.Clear();
 
-            folderDict.Clear();
+            //folderDict.Clear();
             folderPaths.Clear();
             filepaths.Clear();
             newFiles.Clear();
@@ -709,10 +747,6 @@ namespace Image_Manager
             string newFileName = folderPath + "\\" + currentFileName;
             string ext = Path.GetExtension(currentFileName);
 
-            Console.WriteLine(originalPath);
-            Console.WriteLine(folderPath);
-            Console.WriteLine(newFileName);
-
             
 
             // Renames file if file with same name already exists
@@ -806,9 +840,10 @@ namespace Image_Manager
                 bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
                 memory.Position = 0;
                 BitmapImage bitmapimage = new BitmapImage();
+
                 bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.StreamSource = memory;
                 bitmapimage.EndInit();
 
                 return bitmapimage;
@@ -910,7 +945,7 @@ namespace Image_Manager
                     break;
 
                 // Open directory in view mode
-                case Key.Space:
+                case Key.F:
                     if (establishedRoot == false)
                     {
                         return;

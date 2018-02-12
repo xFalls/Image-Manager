@@ -21,7 +21,8 @@
                 </Image.Effect>
             </Image>
         </Canvas>
-        <Image x:Name="imageViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove"/>
+        <Image x:Name="gifViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Visibility="Hidden"/>
+        <Image x:Name="imageViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Panel.ZIndex="-1"/>
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
         
         <DockPanel Grid.ColumnSpan="2">
@@ -33,8 +34,8 @@
                 <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
             </Grid>
         </DockPanel>
-        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1"/>
-        <ListBox x:Name="AllFolders" HorizontalAlignment="Right" Margin="0,18,10,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Grid.Column="1" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1"/>
+        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" IsSynchronizedWithCurrentItem="False" IsHitTestVisible="False"/>
+        <ListBox x:Name="AllFolders" HorizontalAlignment="Right" Margin="0,18,10,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Grid.Column="1" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" IsSynchronizedWithCurrentItem="False" IsHitTestVisible="False"/>
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
     </Grid>
 </Window>

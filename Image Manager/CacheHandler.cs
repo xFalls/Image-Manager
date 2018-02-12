@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using ThumbnailGenerator;
-using WpfAnimatedGif;
 
 namespace Image_Manager
 {
@@ -72,10 +71,10 @@ namespace Image_Manager
                        MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
 
                     BitmapImage thumbnailImage = MainWindow.BitmapToImageSource(thumbnail);
+                    thumbnail.Dispose();
 
                     MainWindow.cache.Add(MainWindow.filepaths[i], thumbnailImage);
 
-                    thumbnail.Dispose();
                 }
             }
         }
@@ -91,14 +90,8 @@ namespace Image_Manager
                 image.BeginInit();
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.StreamSource = stream;
-                if (myImageFile.ToLower().EndsWith(".gif"))
-                {
-                    ImageBehavior.SetAnimatedSource(MainWindow.gifTest, image);
-                }
                 image.EndInit();
             }
-
-
             retImage = image;
             return retImage;
         }
