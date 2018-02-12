@@ -13,7 +13,7 @@ namespace Image_Manager
 {
     class CacheHandler
     {
-        private const int NUM_OF_CACHED_IMAGES = 25;
+        private const int NUM_OF_CACHED_IMAGES = 15;
         public int lastPos = 0;
 
         public void UpdateCache()
@@ -22,11 +22,11 @@ namespace Image_Manager
             int currentImageNum = MainWindow.ReturnCurrentImageNum();
             
             // Find direction moved in gallery
-            if (currentImageNum - lastPos == 1)
+            if (currentImageNum - lastPos > 0)
             {
                 isGoingRight = true;
             }
-            else if (currentImageNum - lastPos == -1)
+            else if (currentImageNum - lastPos < 0)
             {
                 isGoingRight = false;
             }
@@ -41,7 +41,7 @@ namespace Image_Manager
             }
             else
             {
-                for (int i = currentImageNum - NUM_OF_CACHED_IMAGES + 1; i < currentImageNum && i >= 0; i++)
+                for (int i = currentImageNum - NUM_OF_CACHED_IMAGES + 1; i <= currentImageNum && i >= 0; i++)
                 {
                     AddCache(i);
                 }
@@ -58,9 +58,8 @@ namespace Image_Manager
                 {
                     return;
                 }
-                if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
+                else if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
                 {
-                    //BitmapImage imageToCache = new BitmapImage(new Uri(MainWindow.filepaths[i], UriKind.RelativeOrAbsolute));
                     BitmapImage imageToCache = LoadImage(MainWindow.filepaths[i]);
                     MainWindow.cache.Add(MainWindow.filepaths[i], imageToCache);
                 }
@@ -72,10 +71,10 @@ namespace Image_Manager
                        MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
 
                     BitmapImage thumbnailImage = MainWindow.BitmapToImageSource(thumbnail);
+                    thumbnail.Dispose();
 
                     MainWindow.cache.Add(MainWindow.filepaths[i], thumbnailImage);
 
-                    thumbnail.Dispose();
                 }
             }
         }
@@ -83,6 +82,8 @@ namespace Image_Manager
         private BitmapImage LoadImage(string myImageFile)
         {
             BitmapImage retImage = null;
+
+
             BitmapImage image = new BitmapImage();
             using (FileStream stream = File.OpenRead(myImageFile))
             {
