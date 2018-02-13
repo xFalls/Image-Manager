@@ -8,12 +8,13 @@
         xmlns:local="clr-namespace:Image_Manager"
         
         mc:Ignorable="d"
-        Title="Image Manager" Height="478" Width="777" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseLeftButtonDown="ControlWindow_MouseLeftButtonDown" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500">
+        Title="Image Manager" Height="536" Width="895" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseLeftButtonDown="ControlWindow_MouseLeftButtonDown" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="81*"/>
             <ColumnDefinition Width="85*"/>
         </Grid.ColumnDefinitions>
+        <TextBox x:Name="SortTypeBox" HorizontalAlignment="Center" Height="40" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2" Foreground="White" Background="#66000000" VerticalContentAlignment="Center" BorderBrush="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" IsTabStop="False" IsHitTestVisible="False" KeyUp="SortTypeBox_KeyUp" FontSize="16" FontFamily="Segoe UI Light" Panel.ZIndex="150" Canvas.Left="256" Canvas.Top="73" Margin="0,50,0,0" Padding="0" Visibility="Hidden"/>
         <Canvas HorizontalAlignment="Center" Height="200" Margin="256,82,231,71" VerticalAlignment="Center" Width="200" IsHitTestVisible="True" Grid.ColumnSpan="2" Panel.ZIndex="100">
             <Image x:Name="VideoPlayIcon" Height="200" Width="200" Source="PlayIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden">
                 <Image.Effect>
@@ -21,10 +22,13 @@
                 </Image.Effect>
             </Image>
         </Canvas>
+
+
+
         <Image x:Name="gifViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Visibility="Hidden"/>
         <Image x:Name="imageViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Panel.ZIndex="-1"/>
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
-        
+
         <DockPanel Grid.ColumnSpan="2">
             <Menu x:Name="MenuStrip" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
                 <MenuItem Header="File" IsTabStop="False">

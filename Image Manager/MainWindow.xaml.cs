@@ -51,10 +51,13 @@ namespace Image_Manager
 
         private bool setFocus = false;
         private bool allowSubDir = true;
+        private bool showSets = true;
 
         private bool establishedRoot = false;
         private string rootFolder;
         private string currentFolder;
+
+        private bool isTyping = false;
 
         public static string curFileName = "";
         private string curFolderPath = "";
@@ -158,8 +161,18 @@ namespace Image_Manager
 
             sortGuiSelection = 0;
 
-            foreach (KeyValuePair<string, string> storedFolder in folderDict)
+            UpdateSortTree(folderDict);
+
+            RepaintSortSelector();
+            AllFolders.Items.Refresh();
+        }
+
+        private void UpdateSortTree(Dictionary<string, string> listToUse)
+        {
+            AllFolders.Items.Clear();
+            foreach (KeyValuePair<string, string> storedFolder in listToUse)
             {
+
                 string dirName = storedFolder.Key;
                 SolidColorBrush color = new SolidColorBrush(Colors.White);
 
@@ -183,29 +196,28 @@ namespace Image_Manager
                     Foreground = color
                 });
             }
-
-            RepaintSortSelector();
-            AllFolders.Items.Refresh();
         }
 
         private void RepaintSelector()
         {
+            if (!establishedRoot) return;
             foreach (ListBoxItem item in DirectoryTreeList.Items)
             {
                 item.Background = new SolidColorBrush(Colors.Transparent);
             }
 
-            ListBoxItem selectedBox = (ListBoxItem) DirectoryTreeList.Items[guiSelection];
+            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
             selectedBox.Background = selectionColor;
         }
 
         private void RepaintSortSelector()
         {
+            if (!establishedRoot) return;
             foreach (ListBoxItem item in AllFolders.Items)
             {
                 item.Background = new SolidColorBrush(Colors.Transparent);
             }
-            ListBoxItem selectedBox = (ListBoxItem) AllFolders.Items[sortGuiSelection];
+            ListBoxItem selectedBox = (ListBoxItem)AllFolders.Items[sortGuiSelection];
             selectedBox.Background = selectionColor;
         }
 
@@ -255,14 +267,15 @@ namespace Image_Manager
                 if (curFileName.ToLower().EndsWith(".gif"))
                 {
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
-                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
-                        curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                         curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
-                } else
+                }
+                else
                 {
                     CurrentFileInfoLabel.Foreground = imageViewer.Source.Height >= 1000 ? defaultTextColor : warningTextColor;
-                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
-                        curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                         curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                         "    -    ( " + (int)imageViewer.Source.Width + " x " + (int)imageViewer.Source.Height + " )   ";
                 }
@@ -287,14 +300,15 @@ namespace Image_Manager
                 sr.Close();
 
                 CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
-                    curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                    curFileName + "    -    " + Path.GetFileName(rootFolder) +
                     curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                     "    -    " + counter + " words   ";
 
-            } else if (currentContentType == "video")
+            }
+            else if (currentContentType == "video")
             {
-                
+
                 var mediaDet = (IMediaDet)new MediaDet();
                 DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
 
@@ -312,7 +326,7 @@ namespace Image_Manager
                 double frameRate;
                 mediaDet.get_FrameRate(out frameRate);
 
-                
+
                 var mediaType = new AMMediaType();
                 mediaDet.get_StreamMediaType(mediaType);
                 var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
@@ -328,7 +342,7 @@ namespace Image_Manager
                 // Convert time into readable format
                 var parts = new List<string>();
                 Action<int, string> add = (val, unit) => { if (val > 0) parts.Add(val + unit); };
-                var t = TimeSpan.FromSeconds((int) mediaLength);
+                var t = TimeSpan.FromSeconds((int)mediaLength);
 
                 add(t.Days, "d");
                 add(t.Hours, "h");
@@ -337,7 +351,7 @@ namespace Image_Manager
 
                 string formattedTime = string.Join(" ", parts);
 
-                string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName +"    -    " + 
+                string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
                     Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                     "    -    ( " + width + " x " + height + " )" +
                     "    -    ( " + formattedTime + " )   ";
@@ -452,15 +466,33 @@ namespace Image_Manager
             if (filepaths.Count > 0)
             {
                 string curItem = filepaths[currentImageNum];
-                Title = allowSubDir ? "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + Path.GetFileName(curItem) :
-                    "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + " -subdir | " + Path.GetFileName(curItem);
+                Title = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") ";
+
+                if (!allowSubDir)
+                {
+                    Title = Title + " -subdir ";
+                }
+                if (!showSets)
+                {
+                    Title = Title + " -sets ";
+                }
+                if (!showSets || !allowSubDir)
+                {
+                    Title = Title + "| ";
+                }
+
+                Title = Title + Path.GetFileName(curItem);
             }
             else
             {
                 Title = "Image Manager";
                 if (!allowSubDir)
                 {
-                    Title = "Image Manager -subdir";
+                    Title = Title + " -subdir";
+                }
+                if (!showSets)
+                {
+                    Title = Title + " -sets";
                 }
             }
         }
@@ -510,7 +542,13 @@ namespace Image_Manager
                             {
                                 if (!Path.GetDirectoryName(foundFile).Contains("_"))
                                 {
-                                    newFiles.Add(foundFile);
+                                    if (showSets)
+                                        newFiles.Add(foundFile);
+                                    else
+                                    {
+                                        if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]")))
+                                            newFiles.Add(foundFile);
+                                    }
                                 }
                             }
                         }
@@ -533,9 +571,13 @@ namespace Image_Manager
                             if (!filepaths.Contains(foundFile))
                             {
                                 if (!Path.GetDirectoryName(foundFile).Contains("_"))
-                                {
-                                    newFiles.Add(foundFile);
-                                }
+                                    if (showSets)
+                                        newFiles.Add(foundFile);
+                                    else
+                                    {
+                                        if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]")))
+                                            newFiles.Add(foundFile);
+                                    }
                             }
                         }
                         // Folders
@@ -632,6 +674,7 @@ namespace Image_Manager
             UpdateContent();
 
             MakeArchiveTree(currentFolder);
+            CompleteFolderTree(rootFolder);
         }
 
         // Resets the program
@@ -742,7 +785,8 @@ namespace Image_Manager
                 RemoveOldContext();
                 currentFolder = rootFolder;
                 CreateNewContext(refreshFolder);*/
-            } else if (currentImageNum == filepaths.Count)
+            }
+            else if (currentImageNum == filepaths.Count)
             {
                 currentImageNum--;
             }
@@ -770,7 +814,7 @@ namespace Image_Manager
             string newFileName = folderPath + "\\" + currentFileName;
             string ext = Path.GetExtension(currentFileName);
 
-            
+
 
             // Renames file if file with same name already exists
             // Also prevents the file from being moved into the same folder
@@ -846,7 +890,8 @@ namespace Image_Manager
                 File.Move(currentLocation + "\\" + currentFileName + currentFileExt, currentLocation + "\\" + input + currentFileExt);
                 filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
                 UpdateContent();
-            } else
+            }
+            else
             {
                 Microsoft.VisualBasic.Interaction.MsgBox("File with name already exists");
             }
@@ -899,255 +944,331 @@ namespace Image_Manager
         // Various keyboard shortcuts
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            switch (e.Key)
-            {
-                // Toggle focus, enter selected directory
-                case Key.Enter:
+            if (!isTyping)
+                switch (e.Key)
+                {
+                    // Toggle focus, enter selected directory
+                    case Key.Enter:
 
-                    ToggleFocus();
+                        ToggleFocus();
 
-                    break;
+                        break;
 
-                // Enter directory
-                case Key.E:
-                    if (establishedRoot == false)
-                    {
-                        return;
-                    }
-                    if (DirectoryTreeList.Visibility == Visibility.Visible)
-                    {
-                        ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-                        if (guiSelection != 0)
+                    // Enter directory
+                    case Key.E:
+                        if (establishedRoot == false)
                         {
-                            currentFolder = currentFolder + "\\" + selectedBox.Content;
-                            MakeArchiveTree(currentFolder);
+                            return;
                         }
-                        else
+                        if (DirectoryTreeList.Visibility == Visibility.Visible)
                         {
-                            if ((string)selectedBox.Content != rootTitleText)
+                            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+                            if (guiSelection != 0)
                             {
-                                currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                                currentFolder = currentFolder + "\\" + selectedBox.Content;
                                 MakeArchiveTree(currentFolder);
                             }
+                            else
+                            {
+                                if ((string)selectedBox.Content != rootTitleText)
+                                {
+                                    currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                                    MakeArchiveTree(currentFolder);
+                                }
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                // Rename current file
-                case Key.F2:
-                    string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                    string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
-                    RenameFile(input);
-                    break;
+                    // Rename current file
+                    case Key.F2:
+                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
+                        RenameFile(input);
+                        break;
 
-                // Adds +HQ modifier
-                case Key.F3:
-                    string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                    string HQInput = "+HQ " + HQFileName;
-                    RenameFile(HQInput);
-                    break;
+                    // Adds +HQ modifier
+                    case Key.F3:
+                        string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string HQInput = "+HQ " + HQFileName;
+                        RenameFile(HQInput);
+                        break;
 
-                // Remove +HQ modifier
-                case Key.F4:
-                    string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                    string HQnoInput = HQnoFileName.Replace("+HQ ", "");
-                    RenameFile(HQnoInput);
-                    break;
+                    // Remove +HQ modifier
+                    case Key.F4:
+                        string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string HQnoInput = HQnoFileName.Replace("+HQ ", "");
+                        RenameFile(HQnoInput);
+                        break;
 
-                // Toggle fullscreen
-                case Key.F11:
-                    switch (WindowState) {
-                        // Make fullscreen
-                        case (System.Windows.WindowState.Normal):
-                            ResizeMode = ResizeMode.NoResize;
-                            WindowStyle = System.Windows.WindowStyle.None;
-                            WindowState = System.Windows.WindowState.Maximized;
-
-                            MakeMenuStripInvisible();
-                            break;
-                        // Make normal
-                        case (System.Windows.WindowState.Maximized):
-                            ResizeMode = ResizeMode.CanResize;
-                            WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
-                            WindowState = System.Windows.WindowState.Normal;
-
-                            MakeMenuStripVisible();
-                            break;
-                    }
-                    break;
-
-                // Move file to selected directory
-                case Key.R:
-                    if (currentMode == 1)
-                    {
-                        MoveFile();
-                    }
-                    else if (currentMode == 2)
-                    {
-                        MoveFileViaSort();
-                    }
-                    break;
-
-                // Zoom in
-                case Key.Add:
-                    ZoomIn(0.2);
-                    break;
-
-                // Zoom out
-                case Key.Subtract:
-                    ZoomOut(0.2);
-                    break;
-
-                // Go up one directory
-                case Key.Q:
-                    if (establishedRoot == false)
-                    {
-                        return;
-                    }
-                    ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
-                    if (DirectoryTreeList.Visibility == Visibility.Visible && (string)firstBox.Content != rootTitleText)
-                    {
-                        currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                        MakeArchiveTree(currentFolder);
-                    }
-                    break;
-
-                // Open directory in view mode
-                case Key.F:
-                    if (establishedRoot == false)
-                    {
-                        return;
-                    }
-                    if (DirectoryTreeList.Visibility == Visibility.Visible)
-                    {
-                        ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-                        string[] folder = new string[1];
-                        currentFolder = currentFolder + "\\" + selectedBox.Content;
-
-                        if ((string)selectedBox.Content == rootTitleText)
+                    // Move file to selected directory
+                    case Key.R:
+                        if (currentMode == 1)
                         {
-                            currentFolder = rootFolder;
+                            MoveFile();
                         }
-                        if ((string)selectedBox.Content == prevDirTitleText)
+                        else if (currentMode == 2)
+                        {
+                            MoveFileViaSort();
+                        }
+                        break;
+
+                    // Zoom in
+                    case Key.Add:
+                        ZoomIn(0.2);
+                        break;
+
+                    // Zoom out
+                    case Key.Subtract:
+                        ZoomOut(0.2);
+                        break;
+
+                    // Go up one directory
+                    case Key.Q:
+                        if (establishedRoot == false)
+                        {
+                            return;
+                        }
+                        ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
+                        if (DirectoryTreeList.Visibility == Visibility.Visible && (string)firstBox.Content != rootTitleText)
                         {
                             currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                            MakeArchiveTree(currentFolder);
                         }
-                        folder[0] = currentFolder;
-                        CreateNewContext(folder);
-                    }
-                    UpdateTitle();
-                    break;
+                        break;
 
-                // Toggle subdirectories in view mode
-                case Key.LeftShift:
-                    allowSubDir = !allowSubDir;
-                    UpdateTitle();
-                    break;
-
-                // Toggle directory list
-                case Key.Tab:
-                    ToggleViewMode();
-                    break;
-
-                // Undo last move
-                case Key.Z:
-                    UndoMove();
-                    break;
-
-                // Select directory below
-                case Key.S:
-                    if (DirectoryTreeList.Visibility == Visibility.Visible)
-                    {
-                        guiSelection++;
-
-                        if (guiSelection == DirectoryTreeList.Items.Count)
+                    // Open directory in view mode
+                    case Key.F:
+                        if (establishedRoot == false)
                         {
-                            guiSelection = 0;
+                            return;
                         }
-
-                        RepaintSelector();
-                    }
-                    else if (currentMode == 2)
-                    {
-                        sortGuiSelection++;
-
-                        if (sortGuiSelection == AllFolders.Items.Count)
+                        if (DirectoryTreeList.Visibility == Visibility.Visible)
                         {
-                            sortGuiSelection = 0;
+                            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+                            string[] folder = new string[1];
+                            currentFolder = currentFolder + "\\" + selectedBox.Content;
+
+                            if ((string)selectedBox.Content == rootTitleText)
+                            {
+                                currentFolder = rootFolder;
+                            }
+                            if ((string)selectedBox.Content == prevDirTitleText)
+                            {
+                                currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                            }
+                            folder[0] = currentFolder;
+                            CreateNewContext(folder);
                         }
+                        UpdateTitle();
+                        break;
 
-                        RepaintSortSelector();
-                    }
-                    break;
+                    // Toggle subdirectories in view mode
+                    case Key.LeftShift:
+                        allowSubDir = !allowSubDir;
+                        UpdateTitle();
+                        break;
 
-                // Select directory above
-                case Key.W:
-                    if (DirectoryTreeList.Visibility == Visibility.Visible)
-                    {
-                        guiSelection--;
+                    case Key.X:
+                        showSets = !showSets;
+                        UpdateTitle();
+                        break;
 
-                        if (guiSelection < 0)
+                    // Toggle directory list
+                    case Key.Tab:
+                        ToggleViewMode();
+                        break;
+
+                    // Undo last move
+                    case Key.Z:
+                        UndoMove();
+                        break;
+
+                    // Select directory below
+                    case Key.S:
+                        if (DirectoryTreeList.Visibility == Visibility.Visible)
                         {
-                            guiSelection = DirectoryTreeList.Items.Count - 1;
+                            guiSelection++;
+
+                            if (guiSelection == DirectoryTreeList.Items.Count)
+                            {
+                                guiSelection = 0;
+                            }
+
+                            RepaintSelector();
                         }
-
-                        RepaintSelector();
-                    }
-                    else if (currentMode == 2)
-                    {
-                        sortGuiSelection--;
-
-                        if (sortGuiSelection < 0)
+                        else if (currentMode == 2)
                         {
-                            sortGuiSelection = AllFolders.Items.Count - 1;
+                            sortGuiSelection++;
+
+                            if (sortGuiSelection == AllFolders.Items.Count)
+                            {
+                                sortGuiSelection = 0;
+                            }
+
+                            RepaintSortSelector();
                         }
+                        break;
 
-                        RepaintSortSelector();
-                    }
-                    break;
+                    // Select directory above
+                    case Key.W:
+                        if (DirectoryTreeList.Visibility == Visibility.Visible)
+                        {
+                            guiSelection--;
 
-                // Previous image
-                case Key.Left:
-                case Key.A:
-                    if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum--;
-                        UpdateContent();
-                    }
-                    break;
+                            if (guiSelection < 0)
+                            {
+                                guiSelection = DirectoryTreeList.Items.Count - 1;
+                            }
 
-                // Next image
-                case Key.Right:
-                case Key.D:
-                    if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum++;
-                        UpdateContent();
-                    }
-                    break;
+                            RepaintSelector();
+                        }
+                        else if (currentMode == 2)
+                        {
+                            sortGuiSelection--;
 
-                // First image
-                case Key.Home:
-                    if (!(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum = 0;
-                        cache.Clear();
-                        System.GC.Collect();
-                        UpdateContent();
-                    }
-                    break;
+                            if (sortGuiSelection < 0)
+                            {
+                                sortGuiSelection = AllFolders.Items.Count - 1;
+                            }
 
-                // Last image
-                case Key.End:
-                    if (!(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum = filepaths.Count - 1;
-                        cache.Clear();
-                        System.GC.Collect();
-                        UpdateContent();
-                    }
-                    break;
+                            RepaintSortSelector();
+                        }
+                        break;
+
+                    // Previous image
+                    case Key.Left:
+                    case Key.A:
+                        if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
+                        {
+                            currentImageNum--;
+                            UpdateContent();
+                        }
+                        break;
+
+                    // Next image
+                    case Key.Right:
+                    case Key.D:
+                        if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
+                        {
+                            currentImageNum++;
+                            UpdateContent();
+                        }
+                        break;
+
+                    // First image
+                    case Key.Home:
+                        if (!(setFocus && currentContentType == "text"))
+                        {
+                            currentImageNum = 0;
+                            cache.Clear();
+                            System.GC.Collect();
+                            UpdateContent();
+                        }
+                        break;
+
+                    // Last image
+                    case Key.End:
+                        if (!(setFocus && currentContentType == "text"))
+                        {
+                            currentImageNum = filepaths.Count - 1;
+                            cache.Clear();
+                            System.GC.Collect();
+                            UpdateContent();
+                        }
+                        break;
+                }
+            // Toggle fullscreen
+            if (e.Key == Key.F11)
+            {
+                switch (WindowState)
+                {
+                    // Make fullscreen
+                    case (System.Windows.WindowState.Normal):
+                        ResizeMode = ResizeMode.NoResize;
+                        WindowStyle = System.Windows.WindowStyle.None;
+                        WindowState = System.Windows.WindowState.Maximized;
+
+                        MakeMenuStripInvisible();
+                        break;
+                    // Make normal
+                    case (System.Windows.WindowState.Maximized):
+                        ResizeMode = ResizeMode.CanResize;
+                        WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
+                        WindowState = System.Windows.WindowState.Normal;
+
+                        MakeMenuStripVisible();
+                        break;
+                }
             }
+            // Start typing mode
+            else if (e.Key == Key.LeftCtrl)
+            {
+                if (currentMode == 2 && establishedRoot)
+                {
+                    if (isTyping)
+                    {
+                        SortTypeBox.Visibility = Visibility.Hidden;
+                        isTyping = false;
+                        RepaintSortSelector();
+                    }
+                    else
+                    {
+                        SortTypeBox.Text = "";
+                        SortTypeBox.Visibility = Visibility.Visible;
+                        SortTypeBox.Focus();
+                        isTyping = true;
+                    }
+                }
+            }
+        }
+
+        private void SortTypeBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            FilterSort();
+        }
+
+        private void FilterSort()
+        {
+            if (SortTypeBox.Text != "" && isTyping)
+            {
+                //char[] characters = SortTypeBox.Text.ToCharArray();
+                Dictionary<string, string> findDict = new Dictionary<string, string>(folderDict);
+
+                foreach (KeyValuePair<string, string> item in folderDict)
+                {
+                    if (!ContainsWord(SortTypeBox.Text, item.Key))
+                    {
+                        findDict.Remove(item.Key);
+                    }
+                }
+
+                if (findDict.Count == 0) return;
+
+                sortGuiSelection = 0;
+                UpdateSortTree(findDict);
+            }
+            else
+            {
+                UpdateSortTree(folderDict);
+            }
+        }
+
+
+        public static bool ContainsWord(string word, string otherword)
+        {
+            word = word.ToLower();
+            otherword = otherword.ToLower();
+
+            int lastPos = -1;
+            foreach (char c in word)
+            {
+                lastPos++;
+                while (lastPos < otherword.Length && otherword[lastPos] != c)
+                    lastPos++;
+                if (lastPos == otherword.Length)
+                    return false;
+            }
+            return true;
         }
 
         private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -1183,7 +1304,7 @@ namespace Image_Manager
             }
         }
 
-        // Double click for special action
+        // Double click to reset view
         private void ControlWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -1246,7 +1367,7 @@ namespace Image_Manager
             }
         }
 
-        
+
         // Drag support
         private void imageViewer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1338,5 +1459,6 @@ namespace Image_Manager
             gifViewer.Margin = margin;
             textViewer.Margin = margin;
         }
+
     }
 }
