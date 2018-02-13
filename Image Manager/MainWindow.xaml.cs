@@ -39,6 +39,8 @@ namespace Image_Manager
         // Variables
         public static List<string> filepaths = new List<string>();
         public static List<string> newFiles = new List<string>();
+        public static List<string> movedFiles = new List<string>();
+        public static List<string> movedFilesOldLocations = new List<string>();
         public static List<string> folderPaths = new List<string>();
         private Dictionary<string, string> folderDict = new Dictionary<string, string>();
 
@@ -243,16 +245,25 @@ namespace Image_Manager
 
         private void UpdateInfobar()
         {
+            if (filepaths.Count == 0)
+            {
+                CurrentFileInfoLabel.Content = "End of directory";
+                return;
+            }
             if (currentContentType == "image")
             {
                 if (curFileName.ToLower().EndsWith(".gif"))
                 {
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
-                    CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
+                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
+                        curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
                 } else
                 {
                     CurrentFileInfoLabel.Foreground = imageViewer.Source.Height >= 1000 ? defaultTextColor : warningTextColor;
-                    CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
+                        curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                         "    -    ( " + (int)imageViewer.Source.Width + " x " + (int)imageViewer.Source.Height + " )   ";
                 }
             }
@@ -273,8 +284,12 @@ namespace Image_Manager
                     counter += fields.Length;
                 }
 
+                sr.Close();
+
                 CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = curFileName + "    -    " + Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + 
+                    curFileName + "    -    " + Path.GetFileName(rootFolder) + 
+                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                     "    -    " + counter + " words   ";
 
             } else if (currentContentType == "video")
@@ -322,8 +337,8 @@ namespace Image_Manager
 
                 string formattedTime = string.Join(" ", parts);
 
-                string textInfo = curFileName + "    -    " + Path.GetFileName(rootFolder) + 
-                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName +"    -    " + 
+                    Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                     "    -    ( " + width + " x " + height + " )" +
                     "    -    ( " + formattedTime + " )   ";
 
@@ -339,8 +354,6 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            CompleteFolderTree(rootFolder);
-
             cacheHandler.UpdateCache();
             cacheHandler.lastPos = currentImageNum;
 
@@ -604,6 +617,7 @@ namespace Image_Manager
             RemoveOldContext();
             establishedRoot = false;
             CreateNewContext(folder);
+            CompleteFolderTree(rootFolder);
         }
 
         // Resets the program and starts over with new files
@@ -643,6 +657,8 @@ namespace Image_Manager
             folderPaths.Clear();
             filepaths.Clear();
             newFiles.Clear();
+            movedFiles.Clear();
+            movedFilesOldLocations.Clear();
 
             System.GC.Collect();
         }
@@ -685,7 +701,7 @@ namespace Image_Manager
                 if (File.Exists(newFileName))
                 {
                     if (isTopDir == false)
-                    {                     
+                    {
                         string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString());
                         string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString());
 
@@ -707,6 +723,8 @@ namespace Image_Manager
                 }
             }
 
+            movedFiles.Insert(0, newFileName);
+            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
             File.Move(originalPath, newFileName);
 
             filepaths.RemoveAt(currentImageNum);
@@ -714,11 +732,16 @@ namespace Image_Manager
             // When last file has been moved
             if (filepaths.Count == 0)
             {
-                string[] refreshFolder = new string[1];
+                textViewer.Visibility = Visibility.Hidden;
+                imageViewer.Visibility = Visibility.Hidden;
+                VideoPlayIcon.Visibility = Visibility.Hidden;
+                gifViewer.Visibility = Visibility.Hidden;
+                UpdateInfobar();
+                /*string[] refreshFolder = new string[1];
                 refreshFolder[0] = rootFolder;
                 RemoveOldContext();
                 currentFolder = rootFolder;
-                CreateNewContext(refreshFolder);
+                CreateNewContext(refreshFolder);*/
             } else if (currentImageNum == filepaths.Count)
             {
                 currentImageNum--;
@@ -765,6 +788,8 @@ namespace Image_Manager
                 }
             }
 
+            movedFiles.Insert(0, newFileName);
+            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
             File.Move(originalPath, newFileName);
 
             filepaths.RemoveAt(currentImageNum);
@@ -772,11 +797,16 @@ namespace Image_Manager
             // When last file has been moved
             if (filepaths.Count == 0)
             {
-                string[] refreshFolder = new string[1];
+                textViewer.Visibility = Visibility.Hidden;
+                imageViewer.Visibility = Visibility.Hidden;
+                VideoPlayIcon.Visibility = Visibility.Hidden;
+                gifViewer.Visibility = Visibility.Hidden;
+                UpdateInfobar();
+                /*string[] refreshFolder = new string[1];
                 refreshFolder[0] = rootFolder;
                 RemoveOldContext();
                 currentFolder = rootFolder;
-                CreateNewContext(refreshFolder);
+                CreateNewContext(refreshFolder);*/
             }
             else if (currentImageNum == filepaths.Count)
             {
@@ -787,6 +817,22 @@ namespace Image_Manager
             UpdateTitle();
 
             cache.Remove(originalPath);
+        }
+
+        private void UndoMove()
+        {
+            if (movedFiles.Count != 0)
+            {
+                string fileToUndo = movedFiles.ElementAt(0);
+                string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
+                filepaths.Insert(currentImageNum, locationToMoveTo);
+
+                File.Move(fileToUndo, locationToMoveTo);
+
+                movedFiles.RemoveAt(0);
+                movedFilesOldLocations.RemoveAt(0);
+                UpdateContent();
+            }
         }
 
         private void RenameFile(string input)
@@ -908,6 +954,28 @@ namespace Image_Manager
                     RenameFile(HQnoInput);
                     break;
 
+                // Toggle fullscreen
+                case Key.F11:
+                    switch (WindowState) {
+                        // Make fullscreen
+                        case (System.Windows.WindowState.Normal):
+                            ResizeMode = ResizeMode.NoResize;
+                            WindowStyle = System.Windows.WindowStyle.None;
+                            WindowState = System.Windows.WindowState.Maximized;
+
+                            MakeMenuStripInvisible();
+                            break;
+                        // Make normal
+                        case (System.Windows.WindowState.Maximized):
+                            ResizeMode = ResizeMode.CanResize;
+                            WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
+                            WindowState = System.Windows.WindowState.Normal;
+
+                            MakeMenuStripVisible();
+                            break;
+                    }
+                    break;
+
                 // Move file to selected directory
                 case Key.R:
                     if (currentMode == 1)
@@ -979,6 +1047,11 @@ namespace Image_Manager
                 // Toggle directory list
                 case Key.Tab:
                     ToggleViewMode();
+                    break;
+
+                // Undo last move
+                case Key.Z:
+                    UndoMove();
                     break;
 
                 // Select directory below
@@ -1206,6 +1279,64 @@ namespace Image_Manager
         private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ToggleFocus();
+        }
+
+        private void MenuStrip_MouseEnter(object sender, MouseEventArgs e)
+        {
+            MakeMenuStripVisible();
+        }
+
+        private void MenuStrip_MouseLeave(object sender, MouseEventArgs e)
+        {
+            MakeMenuStripInvisible();
+        }
+
+        private void MakeMenuStripInvisible()
+        {
+            if (WindowState == System.Windows.WindowState.Normal)
+            {
+                return;
+            }
+
+            foreach (MenuItem item in MenuStrip.Items)
+            {
+                item.Visibility = Visibility.Hidden;
+            }
+
+            MenuStrip.Background = new SolidColorBrush(Colors.Transparent);
+            MenuStrip.Visibility = Visibility.Visible;
+
+            var margin = Margin;
+            margin.Top = 0;
+
+            imageViewer.Margin = margin;
+            gifViewer.Margin = margin;
+            textViewer.Margin = margin;
+        }
+
+        private void MakeMenuStripVisible()
+        {
+            if (WindowState == System.Windows.WindowState.Normal)
+            {
+                return;
+            }
+
+            foreach (MenuItem item in MenuStrip.Items)
+            {
+                item.Visibility = Visibility.Visible;
+            }
+
+            var bc = new BrushConverter();
+            MenuStrip.Background = (System.Windows.Media.Brush)bc.ConvertFrom("#FF171717");
+            MenuStrip.Visibility = Visibility.Visible;
+
+            var margin = Margin;
+            margin.Top = 18;
+
+            ImageBorder.Margin = margin;
+            imageViewer.Margin = margin;
+            gifViewer.Margin = margin;
+            textViewer.Margin = margin;
         }
     }
 }

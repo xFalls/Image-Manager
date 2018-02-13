@@ -12,7 +12,6 @@ C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.csproj.CoreCompileInputs.cache
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.exe
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.pdb
-C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.csprojResolveAssemblyReference.cache
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\DirectShowLib-2005.dll
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\WpfAnimatedGif.dll
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\WpfAnimatedGif.xml

@@ -26,7 +26,7 @@
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy fox jumped over the brown dog.  The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog. The lazy fox jumped over the brown dog." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
         
         <DockPanel Grid.ColumnSpan="2">
-            <Menu DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top">
+            <Menu x:Name="MenuStrip" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
                 <MenuItem Header="File" IsTabStop="False">
                 </MenuItem>
             </Menu>
@@ -36,6 +36,6 @@
         </DockPanel>
         <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" IsSynchronizedWithCurrentItem="False" IsHitTestVisible="False"/>
         <ListBox x:Name="AllFolders" HorizontalAlignment="Right" Margin="0,18,10,0" VerticalAlignment="Top" Width="300" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" SelectionChanged="DirectoryTreeList_SelectionChanged" Grid.Column="1" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" IsSynchronizedWithCurrentItem="False" IsHitTestVisible="False"/>
-        <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
+        <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
     </Grid>
 </Window>
