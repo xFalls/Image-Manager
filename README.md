@@ -12,6 +12,9 @@ All modes:
   - F11: Toggle fullscreen
   - TAB: Shift mode between View, Explore, and Sort
   - Z: Undo move
+  - F2: Rename file
+  - F3: Quickly adds a preconfigured text in front of the name of the file
+  - F4: Removes the preconfigured text
   
 
 In view mode:
@@ -35,7 +38,7 @@ In sort mode:
   
  
 In typing mode:
-- Any character: Filter list of folders
+- Any character: Filter list of folders (disables most other shortcuts)
 - Up, Down: Select folder above or below
 - Enter: Move currently displayed item to selected folder
 - Control: Close typing mode
