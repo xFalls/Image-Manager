@@ -12,7 +12,7 @@ All modes:
                       Enables scrolling in a text file
   - Scroll, Left, Right, A, D: Navigate to next or previuos image
   - F11: Toggle fullscreen
-  - TAB: Shift mode between View, Explore, and Sort
+  - TAB, Middle click: Shift mode between View, Explore, and Sort
   - Z: Undo move
   - F2: Rename file
   - F3: Quickly adds a preconfigured text in front of the name of the file
