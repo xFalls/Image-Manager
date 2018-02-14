@@ -52,6 +52,7 @@ namespace Image_Manager
         private bool setFocus = false;
         private bool allowSubDir = true;
         private bool showSets = true;
+        private bool removeFile = false;
 
         private bool establishedRoot = false;
         private string rootFolder;
@@ -768,7 +769,17 @@ namespace Image_Manager
 
             movedFiles.Insert(0, newFileName);
             movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-            File.Move(originalPath, newFileName);
+
+            if (removeFile)
+            {
+                removeFile = false;
+                // TODO - Create proper remove method
+                File.Move(originalPath, newFileName);
+            }
+            else
+            {
+                File.Move(originalPath, newFileName);
+            }
 
             filepaths.RemoveAt(currentImageNum);
 
@@ -948,7 +959,7 @@ namespace Image_Manager
                 switch (e.Key)
                 {
                     // Toggle focus, enter selected directory
-                    case Key.Enter:
+                    case Key.Space:
 
                         ToggleFocus();
 
@@ -981,26 +992,36 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
-                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                        string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
-                        RenameFile(input);
+                        if (currentImageNum > 0)
+                        {
+                            string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                            string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
+                            RenameFile(input);
+                        }
                         break;
 
                     // Adds +HQ modifier
                     case Key.F3:
-                        string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                        string HQInput = "+HQ " + HQFileName;
-                        RenameFile(HQInput);
+                        if (currentImageNum > 0)
+                        {
+                            string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                            string HQInput = "+HQ " + HQFileName;
+                            RenameFile(HQInput);
+                        }
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
-                        string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                        string HQnoInput = HQnoFileName.Replace("+HQ ", "");
-                        RenameFile(HQnoInput);
+                        if (currentImageNum > 0)
+                        {
+                            string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                            string HQnoInput = HQnoFileName.Replace("+HQ ", "");
+                            RenameFile(HQnoInput);
+                        }
                         break;
 
                     // Move file to selected directory
+                    case Key.Enter:
                     case Key.R:
                         if (currentMode == 1)
                         {
@@ -1084,6 +1105,7 @@ namespace Image_Manager
                         break;
 
                     // Select directory below
+                    case Key.Down:
                     case Key.S:
                         if (DirectoryTreeList.Visibility == Visibility.Visible)
                         {
@@ -1110,6 +1132,7 @@ namespace Image_Manager
                         break;
 
                     // Select directory above
+                    case Key.Up:
                     case Key.W:
                         if (DirectoryTreeList.Visibility == Visibility.Visible)
                         {
@@ -1176,6 +1199,14 @@ namespace Image_Manager
                             UpdateContent();
                         }
                         break;
+
+                    case Key.Delete:
+                        if (currentImageNum > 0)
+                        {
+                            removeFile = true;
+                            MoveFile();
+                        }
+                        break;
                 }
             // Toggle fullscreen
             if (e.Key == Key.F11)
@@ -1222,9 +1253,68 @@ namespace Image_Manager
             }
         }
 
+        // Occurs while typing
         private void SortTypeBox_KeyUp(object sender, KeyEventArgs e)
         {
-            FilterSort();
+            if (isTyping)
+            {
+                if (e.Key == Key.Left)
+                {
+                    if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
+                    {
+                        currentImageNum--;
+                        UpdateContent();
+                    }
+                }
+                else if (e.Key == Key.Right)
+                {
+                    if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
+                    {
+                        currentImageNum++;
+                        UpdateContent();
+                    }
+                }
+                else if (e.Key == Key.Enter)
+                {
+                    if (currentMode == 2)
+                    {
+                        MoveFileViaSort();
+                    }
+                }
+                else if (e.Key == Key.Down)
+                {
+                    if (currentMode == 2)
+                    {
+                        sortGuiSelection--;
+
+                        if (sortGuiSelection < 0)
+                        {
+                            sortGuiSelection = AllFolders.Items.Count - 1;
+                        }
+
+                        RepaintSortSelector();
+                    }
+                }
+                else if (e.Key == Key.Up)
+                {
+                    if (currentMode == 2)
+                    {
+                        sortGuiSelection++;
+
+                        if (sortGuiSelection == AllFolders.Items.Count)
+                        {
+                            sortGuiSelection = 0;
+                        }
+
+                        RepaintSortSelector();
+                    }
+                }
+                else
+                {
+                    FilterSort();
+                    RepaintSortSelector();
+                }
+            }
         }
 
         private void FilterSort()
