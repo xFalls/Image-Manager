@@ -17,6 +17,7 @@ All modes:
   - F2: Rename file
   - F3: Quickly adds a preconfigured text in front of the name of the file
   - F4: Removes the preconfigured text
+  - Delete: Moves item to root folder (temp. solution)
   
 
 In view mode:
