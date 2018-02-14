@@ -607,7 +607,8 @@ namespace Image_Manager
 
                         folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
                         foreach (string foundFolder in Directory.GetDirectories(rootFolder, "*.*", SearchOption.AllDirectories))
-                            folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
+                            if (!foundFolder.Contains("_"))
+                                folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
 
                     }
                     // Add filepath
@@ -1281,7 +1282,7 @@ namespace Image_Manager
                         MoveFileViaSort();
                     }
                 }
-                else if (e.Key == Key.Down)
+                else if (e.Key == Key.Up)
                 {
                     if (currentMode == 2)
                     {
@@ -1295,7 +1296,7 @@ namespace Image_Manager
                         RepaintSortSelector();
                     }
                 }
-                else if (e.Key == Key.Up)
+                else if (e.Key == Key.Down)
                 {
                     if (currentMode == 2)
                     {
