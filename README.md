@@ -1,6 +1,8 @@
-# Image-Sorting-Software
+# Image-Sorting-Software (name subject to change)
 
-Drag a folder or image into the main window to load them. The software will automatically create a list of subfolders in its UI for sorting into.
+Work in progress - Bugs, unexpected behavior, or lost files may occur
+
+Drag a folder or image into the main window to load them into the main view. Works with video thumbnails and text files as well. The software will automatically create a list of subfolders in its UI for easy sorting to.
 
 # Controls
 
