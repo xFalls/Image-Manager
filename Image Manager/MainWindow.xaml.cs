@@ -57,6 +57,7 @@ namespace Image_Manager
         private bool establishedRoot = false;
         private string rootFolder;
         private string currentFolder;
+        private string deleteFolder;
 
         private bool isTyping = false;
 
@@ -88,6 +89,14 @@ namespace Image_Manager
             imageTransformGroup.Children.Add(tt);
             imageViewer.RenderTransform = imageTransformGroup;
             videoBlur.Radius = 20;
+
+            // Adds the folder "Deleted Files" used for moving files to when deleted
+            if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
+            {
+                Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
+            }
+
+            deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
 
             // Remove harmless error messages from output
             System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
@@ -715,6 +724,73 @@ namespace Image_Manager
                        .ToUpperInvariant();
         }
 
+        private void RemoveFile()
+        {
+            Console.WriteLine("del");
+            if (establishedRoot == false || filepaths.Count == 0)
+            {
+                return;
+            }
+
+            ListBoxItem selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
+            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
+            string originalPath = filepaths[currentImageNum];
+            string folderPath = folderDict[selectedBoxItem.Content.ToString()];
+
+            string newFileName = deleteFolder + "\\" + currentFileName; ;
+            string ext = Path.GetExtension(currentFileName);
+
+
+
+            // Renames file if file with same name already exists
+            // Also prevents the file from being moved into the same folder
+            while (true)
+            {
+                if (File.Exists(newFileName))
+                {
+                    // If current image is in the marked folder
+                    if (originalPath == newFileName) break;
+                    newFileName = folderPath + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            movedFiles.Insert(0, newFileName);
+            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
+            File.Move(originalPath, newFileName);
+            removeFile = false;
+
+            filepaths.RemoveAt(currentImageNum);
+
+
+            // When last file has been moved
+            if (filepaths.Count == 0)
+            {
+                textViewer.Visibility = Visibility.Hidden;
+                imageViewer.Visibility = Visibility.Hidden;
+                VideoPlayIcon.Visibility = Visibility.Hidden;
+                gifViewer.Visibility = Visibility.Hidden;
+                UpdateInfobar();
+                /*string[] refreshFolder = new string[1];
+                refreshFolder[0] = rootFolder;
+                RemoveOldContext();
+                currentFolder = rootFolder;
+                CreateNewContext(refreshFolder);*/
+            }
+            else if (currentImageNum == filepaths.Count)
+            {
+                currentImageNum--;
+            }
+
+            UpdateContent();
+            UpdateTitle();
+
+            cache.Remove(originalPath);
+        }
+
         private void MoveFile()
         {
             if (currentMode != 1) return;
@@ -770,17 +846,6 @@ namespace Image_Manager
 
             movedFiles.Insert(0, newFileName);
             movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-
-            if (removeFile)
-            {
-                removeFile = false;
-                // TODO - Create proper remove method
-                File.Move(originalPath, newFileName);
-            }
-            else
-            {
-                File.Move(originalPath, newFileName);
-            }
 
             filepaths.RemoveAt(currentImageNum);
 
@@ -844,11 +909,8 @@ namespace Image_Manager
                 }
             }
 
-            movedFiles.Insert(0, newFileName);
-            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-            File.Move(originalPath, newFileName);
-
             filepaths.RemoveAt(currentImageNum);
+
 
             // When last file has been moved
             if (filepaths.Count == 0)
@@ -1034,6 +1096,10 @@ namespace Image_Manager
                         }
                         break;
 
+                    case Key.Delete:
+                        RemoveFile();
+                        break;
+
                     // Zoom in
                     case Key.Add:
                         ZoomIn(0.2);
@@ -1200,14 +1266,6 @@ namespace Image_Manager
                             UpdateContent();
                         }
                         break;
-
-                    case Key.Delete:
-                        if (currentImageNum > 0)
-                        {
-                            removeFile = true;
-                            MoveFile();
-                        }
-                        break;
                 }
             // Toggle fullscreen
             if (e.Key == Key.F11)
@@ -1322,7 +1380,8 @@ namespace Image_Manager
         {
             if (SortTypeBox.Text != "" && isTyping)
             {
-                //char[] characters = SortTypeBox.Text.ToCharArray();
+                // Filter out all items that don't contain the input string in alphabetical order
+                // E.g. RiN shows Rain but not rni
                 Dictionary<string, string> findDict = new Dictionary<string, string>(folderDict);
 
                 foreach (KeyValuePair<string, string> item in folderDict)
