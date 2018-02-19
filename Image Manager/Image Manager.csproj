@@ -35,7 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005">
+    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Downloads\DirectShowLibV2-1\lib\DirectShowLib-2005.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
@@ -108,8 +109,9 @@
   <ItemGroup>
     <Resource Include="PlayIcon.png" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Deleted Files\" />
+    <Content Include="DirectShowLib-2005.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

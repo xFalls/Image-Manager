@@ -11,7 +11,7 @@ using ThumbnailGenerator;
 
 namespace Image_Manager
 {
-    class CacheHandler
+    internal class CacheHandler
     {
         private const int NUM_OF_CACHED_IMAGES = 15;
         public int lastPos = 0;
@@ -22,11 +22,7 @@ namespace Image_Manager
             int currentImageNum = MainWindow.ReturnCurrentImageNum();
             
             // Find direction moved in gallery
-            if (currentImageNum - lastPos > 0)
-            {
-                isGoingRight = true;
-            }
-            else if (currentImageNum - lastPos < 0)
+            if (currentImageNum - lastPos < 0)
             {
                 isGoingRight = false;
             }
@@ -52,38 +48,29 @@ namespace Image_Manager
 
         public void AddCache(int i)
         {
-            if (!MainWindow.cache.ContainsKey(MainWindow.filepaths[i]))
+            if (MainWindow.cache.ContainsKey(MainWindow.filepaths[i])) return;
+            if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
             {
-                if (MainWindow.FileType(MainWindow.filepaths[i]) == "text")
-                {
-                    return;
-                }
-                else if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
-                {
-                    BitmapImage imageToCache = LoadImage(MainWindow.filepaths[i]);
-                    MainWindow.cache.Add(MainWindow.filepaths[i], imageToCache);
-                }
-                else if (MainWindow.FileType(MainWindow.filepaths[i]) == "video")
-                {
-                    // Grab thumbnail from video and cache it
-                    int THUMB_SIZE = 1024;
-                    Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
-                       MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
+                BitmapImage imageToCache = LoadImage(MainWindow.filepaths[i]);
+                MainWindow.cache.Add(MainWindow.filepaths[i], imageToCache);
+            }
+            else if (MainWindow.FileType(MainWindow.filepaths[i]) == "video")
+            {
+                // Grab thumbnail from video and cache it
+                int THUMB_SIZE = 1024;
+                Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
+                    MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
 
-                    BitmapImage thumbnailImage = MainWindow.BitmapToImageSource(thumbnail);
-                    thumbnail.Dispose();
+                BitmapImage thumbnailImage = MainWindow.BitmapToImageSource(thumbnail);
+                thumbnail.Dispose();
 
-                    MainWindow.cache.Add(MainWindow.filepaths[i], thumbnailImage);
+                MainWindow.cache.Add(MainWindow.filepaths[i], thumbnailImage);
 
-                }
             }
         }
 
         private BitmapImage LoadImage(string myImageFile)
         {
-            BitmapImage retImage = null;
-
-
             BitmapImage image = new BitmapImage();
             using (FileStream stream = File.OpenRead(myImageFile))
             {
@@ -92,7 +79,7 @@ namespace Image_Manager
                 image.StreamSource = stream;
                 image.EndInit();
             }
-            retImage = image;
+            BitmapImage retImage = image;
             return retImage;
         }
 

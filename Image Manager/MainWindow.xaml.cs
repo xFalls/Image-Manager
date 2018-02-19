@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,8 +14,12 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using DirectShowLib;
 using DirectShowLib.DES;
-using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
 using WpfAnimatedGif;
+using Brush = System.Windows.Media.Brush;
+using Point = System.Windows.Point;
+using WindowState = System.Windows.WindowState;
+using WindowStyle = System.Windows.WindowStyle;
 
 namespace Image_Manager
 {
@@ -28,13 +32,14 @@ namespace Image_Manager
         private const string rootTitleText = "[ROOT FOLDER]";
         private const string prevDirTitleText = "[THIS FOLDER]";
 
-        SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
-        SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
+        private SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
+        private SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
 
-        SolidColorBrush setTextColor = new SolidColorBrush(Colors.Orange);
-        SolidColorBrush artistTextColor = new SolidColorBrush(Colors.Yellow);
-        SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
-        SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
+        private SolidColorBrush setTextColor = new SolidColorBrush(Colors.Orange);
+        private SolidColorBrush artistTextColor = new SolidColorBrush(Colors.Yellow);
+        private SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
+        private SolidColorBrush collectionTextColor = new SolidColorBrush(Colors.CornflowerBlue);
+        private SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
 
         // Variables
         public static List<string> filepaths = new List<string>();
@@ -42,31 +47,30 @@ namespace Image_Manager
         public static List<string> movedFiles = new List<string>();
         public static List<string> movedFilesOldLocations = new List<string>();
         public static List<string> folderPaths = new List<string>();
-        private Dictionary<string, string> folderDict = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> folderDict = new Dictionary<string, string>();
 
         public static Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
 
-        private static int currentImageNum = 0;
+        private static int currentImageNum;
         private string currentContentType = "null";
 
-        private bool setFocus = false;
+        private bool setFocus;
         private bool allowSubDir = true;
         private bool showSets = true;
-        private bool removeFile = false;
 
-        private bool establishedRoot = false;
+        private bool establishedRoot;
         private string rootFolder;
         private string currentFolder;
         private string deleteFolder;
 
-        private bool isTyping = false;
+        private bool isTyping;
 
         public static string curFileName = "";
         private string curFolderPath = "";
 
         // Image manipulation
-        private System.Windows.Point start;
-        private System.Windows.Point origin;
+        private Point start;
+        private Point origin;
         double initialZoom = 1;
         TransformGroup imageTransformGroup = new TransformGroup();
         TranslateTransform tt = new TranslateTransform();
@@ -74,9 +78,9 @@ namespace Image_Manager
 
         BlurEffect videoBlur = new BlurEffect();
 
-        private int guiSelection = 0;
-        private int sortGuiSelection = 0;
-        private int currentMode = 0;
+        private int guiSelection;
+        private int sortGuiSelection;
+        private int currentMode;
         CacheHandler cacheHandler = new CacheHandler();
 
 
@@ -99,7 +103,7 @@ namespace Image_Manager
             deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
 
             // Remove harmless error messages from output
-            System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
+            PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
         }
 
         private void MakeArchiveTree(string folder)
@@ -153,6 +157,10 @@ namespace Image_Manager
                 {
                     color = mangaTextColor;
                 }
+                else if (shortDir.Contains("[Collection]"))
+                {
+                    color = collectionTextColor;
+                }
 
                 DirectoryTreeList.Items.Add(new ListBoxItem
                 {
@@ -198,6 +206,10 @@ namespace Image_Manager
                 else if (dirName.Contains("[Manga]"))
                 {
                     color = mangaTextColor;
+                }
+                else if (dirName.Contains("[Collection"))
+                {
+                    color = collectionTextColor;
                 }
 
                 AllFolders.Items.Add(new ListBoxItem
@@ -251,12 +263,12 @@ namespace Image_Manager
                 return "image";
             }
 
-            else if (temp.EndsWith(".txt"))
+            if (temp.EndsWith(".txt"))
             {
                 return "text";
             }
 
-            else if (temp.EndsWith(".mp4") || temp.EndsWith(".mkv") || temp.EndsWith(".webm")
+            if (temp.EndsWith(".mp4") || temp.EndsWith(".mkv") || temp.EndsWith(".webm")
                  || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi"))
             {
                 return "video";
@@ -267,62 +279,71 @@ namespace Image_Manager
 
         private void UpdateInfobar()
         {
-            if (filepaths.Count == 0)
+            if (filepaths.Count == 0 || establishedRoot == false || imageViewer.Source == null)
             {
                 CurrentFileInfoLabel.Content = "End of directory";
                 return;
             }
-            if (currentContentType == "image")
+
+            switch (currentContentType)
             {
-                if (curFileName.ToLower().EndsWith(".gif"))
-                {
+                case "image":
+                    if (curFileName.ToLower().EndsWith(".gif"))
+                    {
+                        CurrentFileInfoLabel.Foreground = defaultTextColor;
+                        CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                                                       curFileName + "    -    " + Path.GetFileName(rootFolder) +
+                                                       curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
+                    }
+                    else
+                    {
+                        if (((BitmapImage)imageViewer.Source).PixelHeight < 1000)
+                        {
+                            CurrentFileInfoLabel.Foreground = warningTextColor;
+                        }
+                        else if (Path.GetExtension(Path.GetFileName(filepaths[currentImageNum])).ToLower() != ".webp")
+                        {
+                            CurrentFileInfoLabel.Foreground = setTextColor;
+                        }
+                        else
+                        {
+                            CurrentFileInfoLabel.Foreground = defaultTextColor;
+                        }
+
+                        CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                                                       curFileName + "    -    " + Path.GetFileName(rootFolder) +
+                                                       curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                                       "    -    ( " + ((BitmapImage)imageViewer.Source).PixelWidth + " x " + ((BitmapImage)imageViewer.Source).PixelHeight + " )   ";
+                    }
+
+                    break;
+                case "text":
+                    StreamReader sr = new StreamReader(filepaths[currentImageNum]);
+
+                    int counter = 0;
+                    const string delim = " ,.!?";
+
+                    while (!sr.EndOfStream)
+                    {
+                        string line = sr.ReadLine();
+                        line?.Trim();
+                        string[] fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                        counter += fields.Length;
+                    }
+
+                    sr.Close();
+
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
                     CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
-                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
-                }
-                else
-                {
-                    CurrentFileInfoLabel.Foreground = imageViewer.Source.Height >= 1000 ? defaultTextColor : warningTextColor;
-                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
-                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
-                        "    -    ( " + (int)imageViewer.Source.Width + " x " + (int)imageViewer.Source.Height + " )   ";
-                }
-            }
-            else if (currentContentType == "text")
-            {
-                StreamReader sr = new StreamReader(filepaths[currentImageNum]);
+                                                   curFileName + "    -    " + Path.GetFileName(rootFolder) +
+                                                   curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                                   "    -    " + counter + " words   ";
+                    break;
+                case "video":
+                    var mediaDet = (IMediaDet)new MediaDet();
+                    DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
 
-                int counter = 0;
-                string delim = " ,.!?";
-                string[] fields = null;
-                string line = null;
-
-                while (!sr.EndOfStream)
-                {
-                    line = sr.ReadLine();
-                    line.Trim();
-                    fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    counter += fields.Length;
-                }
-
-                sr.Close();
-
-                CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
-                    curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
-                    "    -    " + counter + " words   ";
-
-            }
-            else if (currentContentType == "video")
-            {
-
-                var mediaDet = (IMediaDet)new MediaDet();
-                DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
-
-                /* find the video stream in the file
+                    /* find the video stream in the file
                 int index;
                 var type = Guid.Empty;
                 for (index = 0; index < 1000 && type != MediaType.Video; index++)
@@ -331,54 +352,61 @@ namespace Image_Manager
                     mediaDet.get_StreamType(out type);
                 }*/
 
-                // retrieve some measurements from the video
+                    // retrieve some measurements from the video
 
-                double frameRate;
-                mediaDet.get_FrameRate(out frameRate);
-
-
-                var mediaType = new AMMediaType();
-                mediaDet.get_StreamMediaType(mediaType);
-                var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
-                DsUtils.FreeAMMediaType(mediaType);
-                var width = videoInfo.BmiHeader.Width;
-                var height = videoInfo.BmiHeader.Height;
-
-                double mediaLength;
-                mediaDet.get_StreamLength(out mediaLength);
-                var frameCount = (int)(frameRate * mediaLength);
-                var duration = frameCount / frameRate;
-
-                // Convert time into readable format
-                var parts = new List<string>();
-                Action<int, string> add = (val, unit) => { if (val > 0) parts.Add(val + unit); };
-                var t = TimeSpan.FromSeconds((int)mediaLength);
-
-                add(t.Days, "d");
-                add(t.Hours, "h");
-                add(t.Minutes, "m");
-                add(t.Seconds, "s");
-
-                string formattedTime = string.Join(" ", parts);
-
-                string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
-                    Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
-                    "    -    ( " + width + " x " + height + " )" +
-                    "    -    ( " + formattedTime + " )   ";
-
-                CurrentFileInfoLabel.Foreground = defaultTextColor;
-                CurrentFileInfoLabel.Content = textInfo;
+                    mediaDet.get_FrameRate(out double frameRate);
 
 
-                mediaDet.put_Filename(null);
+                    var mediaType = new AMMediaType();
+                    mediaDet.get_StreamMediaType(mediaType);
+                    var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
+                    DsUtils.FreeAMMediaType(mediaType);
+                    var width = videoInfo.BmiHeader.Width;
+                    var height = videoInfo.BmiHeader.Height;
 
+                    mediaDet.get_StreamLength(out double mediaLength);
+                    var frameCount = (int)(frameRate * mediaLength);
+                    var duration = frameCount / frameRate;
+
+                    // Convert time into readable format
+                    var parts = new List<string>();
+                    void Add(int val, string unit)
+                    { if (val > 0) parts.Add(val + unit); }
+                    var t = TimeSpan.FromSeconds((int)mediaLength);
+
+                    Add(t.Days, "d");
+                    Add(t.Hours, "h");
+                    Add(t.Minutes, "m");
+                    Add(t.Seconds, "s");
+
+                    string formattedTime = string.Join(" ", parts);
+
+                    string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
+                                      Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                      "    -    ( " + width + " x " + height + " )" +
+                                      "    -    ( " + formattedTime + " )   ";
+
+                    CurrentFileInfoLabel.Foreground = defaultTextColor;
+                    CurrentFileInfoLabel.Content = textInfo;
+
+
+                    mediaDet.put_Filename(null);
+                    break;
             }
         }
 
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            cacheHandler.UpdateCache();
+            try
+            {
+                cacheHandler.UpdateCache();
+            }
+            catch
+            {
+                // ignored
+            }
+
             cacheHandler.lastPos = currentImageNum;
 
             // Don't display an empty directory
@@ -400,7 +428,22 @@ namespace Image_Manager
 
             if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
             {
-                imageViewer.Source = cache[curItem];
+                try
+                {
+                    imageViewer.Source = cache[curItem];
+                }
+                catch
+                {
+                    imageViewer.Source = null;
+                    ResetView();
+                    textViewer.Visibility = Visibility.Hidden;
+                    imageViewer.Visibility = Visibility.Hidden;
+                    VideoPlayIcon.Visibility = Visibility.Hidden;
+                    gifViewer.Visibility = Visibility.Hidden;
+                    UpdateTitle();
+                    UpdateInfobar();
+                    return;
+                }
 
                 if (curFileName.ToLower().EndsWith(".gif"))
                 {
@@ -436,12 +479,19 @@ namespace Image_Manager
             }
             else if (currentContentType == "text")
             {
-                textViewer.Text = "\n\n" + File.ReadAllText(curItem);
+                try
+                {
+                    textViewer.Text = "\n\n" + File.ReadAllText(curItem);
 
-                imageViewer.Visibility = Visibility.Hidden;
-                textViewer.Visibility = Visibility.Visible;
-                VideoPlayIcon.Visibility = Visibility.Hidden;
-                gifViewer.Visibility = Visibility.Hidden;
+                    imageViewer.Visibility = Visibility.Hidden;
+                    textViewer.Visibility = Visibility.Visible;
+                    VideoPlayIcon.Visibility = Visibility.Hidden;
+                    gifViewer.Visibility = Visibility.Hidden;
+                }
+                catch
+                {
+                    // ignored
+                }
             }
 
             UpdateInfobar();
@@ -548,29 +598,23 @@ namespace Image_Manager
                     {
                         foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.AllDirectories))
                         {
-                            if (!filepaths.Contains(foundFile))
+                            if (filepaths.Contains(foundFile)) continue;
+                            if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
+                            if (showSets)
+                                newFiles.Add(foundFile);
+                            else
                             {
-                                if (!Path.GetDirectoryName(foundFile).Contains("_"))
-                                {
-                                    if (showSets)
-                                        newFiles.Add(foundFile);
-                                    else
-                                    {
-                                        if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]")))
-                                            newFiles.Add(foundFile);
-                                    }
-                                }
+                                if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]") && !Path.GetDirectoryName(foundFile).Contains("[Collection]")))
+                                    newFiles.Add(foundFile);
                             }
                         }
                         // Folders
                         foreach (string foundFolder in Directory.GetDirectories(s, "*", SearchOption.AllDirectories))
                         {
-                            if (!folderPaths.Contains(foundFolder))
+                            if (folderPaths.Contains(foundFolder)) continue;
+                            if (!foundFolder.Contains("_"))
                             {
-                                if (!foundFolder.Contains("_"))
-                                {
-                                    folderPaths.Add(foundFolder);
-                                }
+                                folderPaths.Add(foundFolder);
                             }
                         }
                     }
@@ -578,16 +622,17 @@ namespace Image_Manager
                     {
                         foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.TopDirectoryOnly))
                         {
-                            if (!filepaths.Contains(foundFile))
+                            if (filepaths.Contains(foundFile)) continue;
+                            if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
+                            if (showSets)
+                                newFiles.Add(foundFile);
+                            else
                             {
-                                if (!Path.GetDirectoryName(foundFile).Contains("_"))
-                                    if (showSets)
-                                        newFiles.Add(foundFile);
-                                    else
-                                    {
-                                        if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]")))
-                                            newFiles.Add(foundFile);
-                                    }
+                                if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") &&
+                                     !Path.GetDirectoryName(foundFile).Contains("[Manga]") &&
+                                     !Path.GetDirectoryName(foundFile).Contains("[Artist]") &&
+                                     !Path.GetDirectoryName(foundFile).Contains("[Collection]")))
+                                    newFiles.Add(foundFile);
                             }
                         }
                         // Folders
@@ -617,7 +662,9 @@ namespace Image_Manager
                         folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
                         foreach (string foundFolder in Directory.GetDirectories(rootFolder, "*.*", SearchOption.AllDirectories))
                             if (!foundFolder.Contains("_"))
-                                folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
+                                folderDict.Add(
+                                    Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'),
+                                    foundFolder);
 
                     }
                     // Add filepath
@@ -714,7 +761,7 @@ namespace Image_Manager
             movedFiles.Clear();
             movedFilesOldLocations.Clear();
 
-            System.GC.Collect();
+            GC.Collect();
         }
 
         public static string NormalizePath(string path)
@@ -726,7 +773,6 @@ namespace Image_Manager
 
         private void RemoveFile()
         {
-            Console.WriteLine("del");
             if (establishedRoot == false || filepaths.Count == 0)
             {
                 return;
@@ -737,7 +783,7 @@ namespace Image_Manager
             string originalPath = filepaths[currentImageNum];
             string folderPath = folderDict[selectedBoxItem.Content.ToString()];
 
-            string newFileName = deleteFolder + "\\" + currentFileName; ;
+            string newFileName = deleteFolder + "\\" + currentFileName;
             string ext = Path.GetExtension(currentFileName);
 
 
@@ -758,10 +804,20 @@ namespace Image_Manager
                 }
             }
 
-            movedFiles.Insert(0, newFileName);
-            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-            File.Move(originalPath, newFileName);
-            removeFile = false;
+
+
+            try
+            {
+                movedFiles.Insert(0, newFileName);
+                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
+                File.Move(originalPath, newFileName);
+            }
+            catch
+            {
+                Interaction.MsgBox("File is currently being used by another program");
+                return;
+            }
+
 
             filepaths.RemoveAt(currentImageNum);
 
@@ -803,17 +859,13 @@ namespace Image_Manager
             ListBoxItem selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
             string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
             string originalPath = filepaths[currentImageNum];
-            string newFileName = currentFolder + "\\" + selectedBoxItem.Content.ToString() + "\\" + currentFileName;
+            string newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
             string ext = Path.GetExtension(currentFileName);
             newFileName = newFileName.Replace(rootTitleText, "");
             newFileName = newFileName.Replace(prevDirTitleText, "");
 
-            bool isTopDir = false;
-
-            if (selectedBoxItem.Content.ToString() == rootTitleText || selectedBoxItem.Content.ToString() == prevDirTitleText)
-            {
-                isTopDir = true;
-            }
+            bool isTopDir = selectedBoxItem.Content.ToString() == rootTitleText ||
+                            selectedBoxItem.Content.ToString() == prevDirTitleText;
 
             // Renames file if file with same name already exists
             // Also prevents the file from being moved into the same folder
@@ -823,18 +875,19 @@ namespace Image_Manager
                 {
                     if (isTopDir == false)
                     {
-                        string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content.ToString());
-                        string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, "").ToString());
+                        string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content);
+                        string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, ""));
 
                         // If current image is in the marked folder
                         if (pathToCompare1 == pathToCompare2) break;
-                        newFileName = currentFolder + "\\" + selectedBoxItem.Content.ToString() + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
+                        newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" +
+                                      Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
                     }
                     else
                     {
                         // If current image is in the same folder
-                        if (currentFolder.ToString().TrimEnd('\\') ==
-                            originalPath.Replace(currentFileName, "").ToString().TrimEnd('\\')) break;
+                        if (currentFolder.TrimEnd('\\') ==
+                            originalPath.Replace(currentFileName, "").TrimEnd('\\')) break;
                         newFileName = currentFolder + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
                     }
                 }
@@ -844,10 +897,22 @@ namespace Image_Manager
                 }
             }
 
-            movedFiles.Insert(0, newFileName);
-            movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
 
-            filepaths.RemoveAt(currentImageNum);
+            try
+            {
+                movedFiles.Insert(0, newFileName);
+                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
+
+                File.Move(originalPath, newFileName);
+                filepaths.RemoveAt(currentImageNum);
+            }
+            catch
+            {
+                Interaction.MsgBox("File is currently being used by another program");
+                return;
+            }
+
+
 
             // When last file has been moved
             if (filepaths.Count == 0)
@@ -909,8 +974,20 @@ namespace Image_Manager
                 }
             }
 
-            filepaths.RemoveAt(currentImageNum);
 
+            try
+            {
+                movedFiles.Insert(0, newFileName);
+                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
+
+                File.Move(originalPath, newFileName);
+                filepaths.RemoveAt(currentImageNum);
+            }
+            catch
+            {
+                Interaction.MsgBox("File is currently being used by another program");
+                return;
+            }
 
             // When last file has been moved
             if (filepaths.Count == 0)
@@ -939,36 +1016,57 @@ namespace Image_Manager
 
         private void UndoMove()
         {
-            if (movedFiles.Count != 0)
-            {
-                string fileToUndo = movedFiles.ElementAt(0);
-                string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
-                filepaths.Insert(currentImageNum, locationToMoveTo);
+            if (movedFiles.Count == 0) return;
+            string fileToUndo = movedFiles.ElementAt(0);
+            string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
+            filepaths.Insert(currentImageNum, locationToMoveTo);
 
-                File.Move(fileToUndo, locationToMoveTo);
+            File.Move(fileToUndo, locationToMoveTo);
 
-                movedFiles.RemoveAt(0);
-                movedFilesOldLocations.RemoveAt(0);
-                UpdateContent();
-            }
+            movedFiles.RemoveAt(0);
+            movedFilesOldLocations.RemoveAt(0);
+            UpdateContent();
         }
 
         private void RenameFile(string input)
         {
-            string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-            string currentFileExt = Path.GetExtension(filepaths[currentImageNum]);
-            string currentLocation = Path.GetFullPath(filepaths[currentImageNum]).Replace(currentFileName, "").Replace(currentFileExt, "");
+            if (input == "") return;
+            string currentFileName;
+            string currentFileExt;
+            string currentLocation;
+
+            try
+            {
+                currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                currentFileExt = Path.GetExtension(filepaths[currentImageNum]);
+                currentLocation = Path.GetFullPath(filepaths[currentImageNum]).Replace(currentFileName, "")
+                    .Replace(currentFileExt, "");
+            }
+            catch
+            {
+                Interaction.MsgBox("Name can't be empty");
+                return;
+            }
 
             if (!File.Exists(currentLocation + "\\" + input + currentFileExt))
             {
-                File.Move(currentLocation + "\\" + currentFileName + currentFileExt, currentLocation + "\\" + input + currentFileExt);
-                filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
-                UpdateContent();
+                try
+                {
+                    File.Move(currentLocation + "\\" + currentFileName + currentFileExt,
+                        currentLocation + "\\" + input + currentFileExt);
+                    filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
+                    UpdateContent();
+                }
+                catch
+                {
+                    Interaction.MsgBox("File is currently being used by another program");
+                }
             }
             else
             {
-                Microsoft.VisualBasic.Interaction.MsgBox("File with name already exists");
+                Interaction.MsgBox("File with name already exists");
             }
+
         }
 
         private void ToggleViewMode()
@@ -1002,7 +1100,7 @@ namespace Image_Manager
         {
             using (MemoryStream memory = new MemoryStream())
             {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                bitmap.Save(memory, ImageFormat.Bmp);
                 memory.Position = 0;
                 BitmapImage bitmapimage = new BitmapImage();
 
@@ -1055,32 +1153,23 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
-                        if (currentImageNum > 0)
-                        {
-                            string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                            string input = Microsoft.VisualBasic.Interaction.InputBox("Rename", "Select a new name", currentFileName, -1, -1);
-                            RenameFile(input);
-                        }
+                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string input = Interaction.InputBox("Rename", "Select a new name", currentFileName);
+                        RenameFile(input);
                         break;
 
                     // Adds +HQ modifier
                     case Key.F3:
-                        if (currentImageNum > 0)
-                        {
-                            string HQFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                            string HQInput = "+HQ " + HQFileName;
-                            RenameFile(HQInput);
-                        }
+                        string hqFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string hqInput = "+HQ " + hqFileName;
+                        RenameFile(hqInput);
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
-                        if (currentImageNum > 0)
-                        {
-                            string HQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                            string HQnoInput = HQnoFileName.Replace("+HQ ", "");
-                            RenameFile(HQnoInput);
-                        }
+                        string hQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string hQnoInput = hQnoFileName?.Replace("+HQ ", "");
+                        RenameFile(hQnoInput);
                         break;
 
                     // Move file to selected directory
@@ -1251,7 +1340,7 @@ namespace Image_Manager
                         {
                             currentImageNum = 0;
                             cache.Clear();
-                            System.GC.Collect();
+                            GC.Collect();
                             UpdateContent();
                         }
                         break;
@@ -1262,7 +1351,7 @@ namespace Image_Manager
                         {
                             currentImageNum = filepaths.Count - 1;
                             cache.Clear();
-                            System.GC.Collect();
+                            GC.Collect();
                             UpdateContent();
                         }
                         break;
@@ -1273,18 +1362,18 @@ namespace Image_Manager
                 switch (WindowState)
                 {
                     // Make fullscreen
-                    case (System.Windows.WindowState.Normal):
+                    case (WindowState.Normal):
                         ResizeMode = ResizeMode.NoResize;
-                        WindowStyle = System.Windows.WindowStyle.None;
-                        WindowState = System.Windows.WindowState.Maximized;
+                        WindowStyle = WindowStyle.None;
+                        WindowState = WindowState.Maximized;
 
                         MakeMenuStripInvisible();
                         break;
                     // Make normal
-                    case (System.Windows.WindowState.Maximized):
+                    case (WindowState.Maximized):
                         ResizeMode = ResizeMode.CanResize;
-                        WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
-                        WindowState = System.Windows.WindowState.Normal;
+                        WindowStyle = WindowStyle.SingleBorderWindow;
+                        WindowState = WindowState.Normal;
 
                         MakeMenuStripVisible();
                         break;
@@ -1315,64 +1404,54 @@ namespace Image_Manager
         // Occurs while typing
         private void SortTypeBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (isTyping)
+            if (!isTyping) return;
+            if (e.Key == Key.Left)
             {
-                if (e.Key == Key.Left)
+                if (currentImageNum <= 0 || setFocus && currentContentType == "text") return;
+                currentImageNum--;
+                UpdateContent();
+            }
+            else if (e.Key == Key.Right)
+            {
+                if (currentImageNum + 1 >= filepaths.Count || setFocus && currentContentType == "text") return;
+                currentImageNum++;
+                UpdateContent();
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (currentMode == 2)
                 {
-                    if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum--;
-                        UpdateContent();
-                    }
+                    MoveFileViaSort();
                 }
-                else if (e.Key == Key.Right)
-                {
-                    if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
-                    {
-                        currentImageNum++;
-                        UpdateContent();
-                    }
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    if (currentMode == 2)
-                    {
-                        MoveFileViaSort();
-                    }
-                }
-                else if (e.Key == Key.Up)
-                {
-                    if (currentMode == 2)
-                    {
-                        sortGuiSelection--;
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (currentMode != 2) return;
+                sortGuiSelection--;
 
-                        if (sortGuiSelection < 0)
-                        {
-                            sortGuiSelection = AllFolders.Items.Count - 1;
-                        }
-
-                        RepaintSortSelector();
-                    }
-                }
-                else if (e.Key == Key.Down)
+                if (sortGuiSelection < 0)
                 {
-                    if (currentMode == 2)
-                    {
-                        sortGuiSelection++;
-
-                        if (sortGuiSelection == AllFolders.Items.Count)
-                        {
-                            sortGuiSelection = 0;
-                        }
-
-                        RepaintSortSelector();
-                    }
+                    sortGuiSelection = AllFolders.Items.Count - 1;
                 }
-                else
+
+                RepaintSortSelector();
+            }
+            else if (e.Key == Key.Down)
+            {
+                if (currentMode != 2) return;
+                sortGuiSelection++;
+
+                if (sortGuiSelection == AllFolders.Items.Count)
                 {
-                    FilterSort();
-                    RepaintSortSelector();
+                    sortGuiSelection = 0;
                 }
+
+                RepaintSortSelector();
+            }
+            else
+            {
+                FilterSort();
+                RepaintSortSelector();
             }
         }
 
@@ -1467,8 +1546,7 @@ namespace Image_Manager
         private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (currentMode != 1) return;
-            var item = ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) as ListBoxItem;
-            if (item != null)
+            if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
             {
                 string[] folder = new string[1];
                 currentFolder = currentFolder + "\\" + item.Content;
@@ -1527,7 +1605,7 @@ namespace Image_Manager
             imageViewer.RenderTransform = imageTransformGroup;
 
             start = e.GetPosition(ImageBorder);
-            origin = new System.Windows.Point(tt.X, tt.Y);
+            origin = new Point(tt.X, tt.Y);
         }
 
         private void imageViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -1537,14 +1615,12 @@ namespace Image_Manager
 
         private void imageViewer_MouseMove(object sender, MouseEventArgs e)
         {
-            if (imageViewer.IsMouseCaptured)
-            {
-                Vector v = start - e.GetPosition(ImageBorder);
-                tt.X = origin.X - v.X;
-                tt.Y = origin.Y - v.Y;
+            if (!imageViewer.IsMouseCaptured) return;
+            Vector v = start - e.GetPosition(ImageBorder);
+            tt.X = origin.X - v.X;
+            tt.Y = origin.Y - v.Y;
 
-                imageViewer.RenderTransform = imageTransformGroup;
-            }
+            imageViewer.RenderTransform = imageTransformGroup;
         }
 
         private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -1564,7 +1640,7 @@ namespace Image_Manager
 
         private void MakeMenuStripInvisible()
         {
-            if (WindowState == System.Windows.WindowState.Normal)
+            if (WindowState == WindowState.Normal)
             {
                 return;
             }
@@ -1587,7 +1663,7 @@ namespace Image_Manager
 
         private void MakeMenuStripVisible()
         {
-            if (WindowState == System.Windows.WindowState.Normal)
+            if (WindowState == WindowState.Normal)
             {
                 return;
             }
@@ -1598,7 +1674,7 @@ namespace Image_Manager
             }
 
             var bc = new BrushConverter();
-            MenuStrip.Background = (System.Windows.Media.Brush)bc.ConvertFrom("#FF171717");
+            MenuStrip.Background = (Brush)bc.ConvertFrom("#FF171717");
             MenuStrip.Visibility = Visibility.Visible;
 
             var margin = Margin;
