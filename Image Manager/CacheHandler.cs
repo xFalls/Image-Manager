@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using ThumbnailGenerator;
 
 namespace Image_Manager
 {
-    internal class CacheHandler
+    internal partial class CacheHandler
     {
         private const int NUM_OF_CACHED_IMAGES = 15;
         public int lastPos = 0;
@@ -19,7 +12,7 @@ namespace Image_Manager
         public void UpdateCache()
         {
             bool isGoingRight = true;
-            int currentImageNum = MainWindow.ReturnCurrentImageNum();
+            int currentImageNum = Image_Manager.MainWindow.ReturnCurrentImageNum();
             
             // Find direction moved in gallery
             if (currentImageNum - lastPos < 0)
@@ -30,7 +23,7 @@ namespace Image_Manager
             // Load images NUM_OF_CACHED_IMAGES steps
             if (isGoingRight)
             {
-                for (int i = currentImageNum; i < currentImageNum + NUM_OF_CACHED_IMAGES && i < MainWindow.filepaths.Count; i++)
+                for (int i = currentImageNum; i < currentImageNum + NUM_OF_CACHED_IMAGES && i < Image_Manager.MainWindow.filepaths.Count; i++)
                 {
                     AddCache(i);
                 }
@@ -48,23 +41,23 @@ namespace Image_Manager
 
         public void AddCache(int i)
         {
-            if (MainWindow.cache.ContainsKey(MainWindow.filepaths[i])) return;
-            if (MainWindow.FileType(MainWindow.filepaths[i]) == "image")
+            if (Image_Manager.MainWindow.cache.ContainsKey(Image_Manager.MainWindow.filepaths[i])) return;
+            if (Image_Manager.MainWindow.FileType(Image_Manager.MainWindow.filepaths[i]) == "image")
             {
-                BitmapImage imageToCache = LoadImage(MainWindow.filepaths[i]);
-                MainWindow.cache.Add(MainWindow.filepaths[i], imageToCache);
+                BitmapImage imageToCache = LoadImage(Image_Manager.MainWindow.filepaths[i]);
+                Image_Manager.MainWindow.cache.Add(Image_Manager.MainWindow.filepaths[i], imageToCache);
             }
-            else if (MainWindow.FileType(MainWindow.filepaths[i]) == "video")
+            else if (Image_Manager.MainWindow.FileType(Image_Manager.MainWindow.filepaths[i]) == "video")
             {
                 // Grab thumbnail from video and cache it
                 int THUMB_SIZE = 1024;
                 Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
-                    MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
+                    Image_Manager.MainWindow.filepaths[i], THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
 
-                BitmapImage thumbnailImage = MainWindow.BitmapToImageSource(thumbnail);
+                BitmapImage thumbnailImage = Image_Manager.MainWindow.BitmapToImageSource(thumbnail);
                 thumbnail.Dispose();
 
-                MainWindow.cache.Add(MainWindow.filepaths[i], thumbnailImage);
+                Image_Manager.MainWindow.cache.Add(Image_Manager.MainWindow.filepaths[i], thumbnailImage);
 
             }
         }
@@ -85,20 +78,20 @@ namespace Image_Manager
 
         public void DropCache()
         {
-            int currentImageNum = MainWindow.ReturnCurrentImageNum();
+            int currentImageNum = Image_Manager.MainWindow.ReturnCurrentImageNum();
 
             // Remove image N steps back
             if (currentImageNum - NUM_OF_CACHED_IMAGES >= 0 &&
-                MainWindow.cache.ContainsKey(MainWindow.filepaths[currentImageNum - NUM_OF_CACHED_IMAGES]))
+                Image_Manager.MainWindow.cache.ContainsKey(Image_Manager.MainWindow.filepaths[currentImageNum - NUM_OF_CACHED_IMAGES]))
             {
-                MainWindow.cache.Remove(MainWindow.filepaths[currentImageNum - NUM_OF_CACHED_IMAGES]);
+                Image_Manager.MainWindow.cache.Remove(Image_Manager.MainWindow.filepaths[currentImageNum - NUM_OF_CACHED_IMAGES]);
             }
 
             // Remove image N steps forward
-            if (currentImageNum + NUM_OF_CACHED_IMAGES + 1 < MainWindow.filepaths.Count && 
-                MainWindow.cache.ContainsKey(MainWindow.filepaths[currentImageNum + NUM_OF_CACHED_IMAGES + 1]))
+            if (currentImageNum + NUM_OF_CACHED_IMAGES + 1 < Image_Manager.MainWindow.filepaths.Count && 
+                Image_Manager.MainWindow.cache.ContainsKey(Image_Manager.MainWindow.filepaths[currentImageNum + NUM_OF_CACHED_IMAGES + 1]))
             {
-                MainWindow.cache.Remove(MainWindow.filepaths[currentImageNum + NUM_OF_CACHED_IMAGES + 1]);
+                Image_Manager.MainWindow.cache.Remove(Image_Manager.MainWindow.filepaths[currentImageNum + NUM_OF_CACHED_IMAGES + 1]);
             }
         }
 

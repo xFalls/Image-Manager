@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.IO;
+using System.Runtime.InteropServices;
 
 // @author Daniel Peñalba
 // https://stackoverflow.com/a/21752100
 
-namespace ThumbnailGenerator
+namespace Image_Manager
 {
     [Flags]
     public enum ThumbnailOptions

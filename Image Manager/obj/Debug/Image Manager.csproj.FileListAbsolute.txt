@@ -1,11 +1,9 @@
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\Image Manager.exe.config
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\Image Manager.exe
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\Image Manager.pdb
-C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.g.cs
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\App.g.cs
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager_MarkupCompile.cache
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager_MarkupCompile.lref
-C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.baml
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.g.resources
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image_Manager.Properties.Resources.resources
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.csproj.GenerateResource.Cache
@@ -17,3 +15,5 @@ C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\WpfAnimatedGif
 C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\WpfAnimatedGif.xml
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.csprojResolveAssemblyReference.cache
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager_Content.g.cs
+C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.g.cs
+C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.baml

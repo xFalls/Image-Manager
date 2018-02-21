@@ -65,7 +65,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CacheHandler.cs" />
+    <Compile Include="Controls.cs" />
+    <Compile Include="DefaultValues.cs" />
+    <Compile Include="FileEditHandler.cs" />
     <Compile Include="Thumbnail.cs" />
+    <Compile Include="UserInterface.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
