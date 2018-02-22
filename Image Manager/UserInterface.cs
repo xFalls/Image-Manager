@@ -16,7 +16,7 @@ namespace Image_Manager
     {
         private void UpdateInfobar()
         {
-            if (filepaths.Count == 0 || establishedRoot == false || imageViewer.Source == null)
+            if (_displayItems.Count == 0 || establishedRoot == false || imageViewer.Source == null)
             {
                 CurrentFileInfoLabel.Content = "End of directory";
                 return;
@@ -28,7 +28,7 @@ namespace Image_Manager
                     if (curFileName.ToLower().EndsWith(".gif"))
                     {
                         CurrentFileInfoLabel.Foreground = defaultTextColor;
-                        CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
                                                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
                     }
@@ -38,7 +38,7 @@ namespace Image_Manager
                         {
                             CurrentFileInfoLabel.Foreground = warningTextColor;
                         }
-                        else if (Path.GetExtension(Path.GetFileName(filepaths[currentImageNum])).ToLower() != ".webp")
+                        else if (Path.GetExtension(Path.GetFileName(filepaths[displayedItemIndex])).ToLower() != ".webp")
                         {
                             CurrentFileInfoLabel.Foreground = setTextColor;
                         }
@@ -47,7 +47,7 @@ namespace Image_Manager
                             CurrentFileInfoLabel.Foreground = defaultTextColor;
                         }
 
-                        CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
                                                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                                        "    -    ( " + ((BitmapImage)imageViewer.Source).PixelWidth + " x " + ((BitmapImage)imageViewer.Source).PixelHeight + " )   ";
@@ -55,7 +55,7 @@ namespace Image_Manager
 
                     break;
                 case "text":
-                    StreamReader sr = new StreamReader(filepaths[currentImageNum]);
+                    StreamReader sr = new StreamReader(filepaths[displayedItemIndex]);
 
                     int counter = 0;
                     const string delim = " ,.!?";
@@ -71,14 +71,14 @@ namespace Image_Manager
                     sr.Close();
 
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
-                    CurrentFileInfoLabel.Content = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " +
+                    CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
                                                    curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                                    "    -    " + counter + " words   ";
                     break;
                 case "video":
                     var mediaDet = (IMediaDet)new MediaDet();
-                    DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[currentImageNum]));
+                    DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[displayedItemIndex]));
 
                     /* find the video stream in the file
                 int index;
@@ -118,7 +118,7 @@ namespace Image_Manager
 
                     string formattedTime = string.Join(" ", parts);
 
-                    string textInfo = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
+                    string textInfo = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
                                       Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                       "    -    ( " + width + " x " + height + " )" +
                                       "    -    ( " + formattedTime + " )   ";
@@ -160,10 +160,10 @@ namespace Image_Manager
         {
             if (filepaths.Count > 0)
             {
-                string curItem = filepaths[currentImageNum];
-                Title = "(" + (currentImageNum + 1) + "/" + filepaths.Count + ") ";
+                string curItem = filepaths[displayedItemIndex];
+                Title = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") ";
 
-                if (!allowSubDir)
+                if (!showSubDir)
                 {
                     Title = Title + " -subdir ";
                 }
@@ -171,7 +171,7 @@ namespace Image_Manager
                 {
                     Title = Title + " -sets ";
                 }
-                if (!showSets || !allowSubDir)
+                if (!showSets || !showSubDir)
                 {
                     Title = Title + "| ";
                 }
@@ -181,7 +181,7 @@ namespace Image_Manager
             else
             {
                 Title = "Image Manager";
-                if (!allowSubDir)
+                if (!showSubDir)
                 {
                     Title = Title + " -subdir";
                 }

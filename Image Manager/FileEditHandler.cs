@@ -11,96 +11,65 @@ namespace Image_Manager
 
         private void RemoveFile()
         {
-            if (establishedRoot == false || filepaths.Count == 0)
-            {
-                return;
-            }
-
-            ListBoxItem selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
-            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
-            string originalPath = filepaths[currentImageNum];
-            string folderPath = folderDict[selectedBoxItem.Content.ToString()];
-
-            string newFileName = deleteFolder + "\\" + currentFileName;
-            string ext = Path.GetExtension(currentFileName);
-
-
-
-            // Renames file if file with same name already exists
-            // Also prevents the file from being moved into the same folder
-            while (true)
-            {
-                if (File.Exists(newFileName))
-                {
-                    // If current image is in the marked folder
-                    if (originalPath == newFileName) break;
-                    newFileName = folderPath + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-
-
-            try
-            {
-                movedFiles.Insert(0, newFileName);
-                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-                File.Move(originalPath, newFileName);
-            }
-            catch
-            {
-                Interaction.MsgBox("File is currently being used by another program");
-                return;
-            }
-
-
-            filepaths.RemoveAt(currentImageNum);
-
-
-            // When last file has been moved
-            if (filepaths.Count == 0)
-            {
-                textViewer.Visibility = Visibility.Hidden;
-                imageViewer.Visibility = Visibility.Hidden;
-                VideoPlayIcon.Visibility = Visibility.Hidden;
-                gifViewer.Visibility = Visibility.Hidden;
-                UpdateInfobar();
-                /*string[] refreshFolder = new string[1];
-                refreshFolder[0] = rootFolder;
-                RemoveOldContext();
-                currentFolder = rootFolder;
-                CreateNewContext(refreshFolder);*/
-            }
-            else if (currentImageNum == filepaths.Count)
-            {
-                currentImageNum--;
-            }
-
-            UpdateContent();
-            UpdateTitle();
-
-            cache.Remove(originalPath);
+            MoveFile(0);
         }
 
-        private void MoveFile()
+        private void MoveFileViaExplore()
         {
-            if (currentMode != 1) return;
+            if (currentMode != 1) return;       
+            MoveFile(1);
+        }
 
+        private void MoveFileViaSort()
+        {
+            if (currentMode != 2) return;
+            MoveFile(2);
+        }
+
+
+
+        //////////////////////////////////////
+        
+        private void MoveFile(int mode)
+        {
             if (establishedRoot == false || filepaths.Count == 0)
             {
                 return;
             }
 
-            ListBoxItem selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
-            string originalPath = filepaths[currentImageNum];
-            string newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
-            string ext = Path.GetExtension(currentFileName);
-            newFileName = newFileName.Replace(rootTitleText, "");
-            newFileName = newFileName.Replace(prevDirTitleText, "");
+            ListBoxItem selectedBoxItem;
+            string currentFileName = Path.GetFileName(filepaths[displayedItemIndex]); ;
+            string originalPath = filepaths[displayedItemIndex]; ;
+            string newFileName;
+            string ext = Path.GetExtension(currentFileName); ;
+            
+
+            // Explore
+            if (mode == 1)
+            {
+                selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
+                newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
+                ext = Path.GetExtension(currentFileName);
+                newFileName = newFileName.Replace(rootTitleText, "");
+                newFileName = newFileName.Replace(prevDirTitleText, "");
+            }
+            // Sort
+            if (mode == 2)
+            {
+                selectedBoxItem = (ListBoxItem) AllFolders.Items[sortGuiSelection];
+
+                string folderPath = folderDict[selectedBoxItem.Content.ToString()];
+                newFileName = folderPath + "\\" + currentFileName;
+            }
+            // Delete
+            else
+            {
+                selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
+
+                newFileName = deleteFolder + "\\" + currentFileName;
+
+            }
+
 
             bool isTopDir = selectedBoxItem.Content.ToString() == rootTitleText ||
                             selectedBoxItem.Content.ToString() == prevDirTitleText;
@@ -113,8 +82,8 @@ namespace Image_Manager
                 {
                     if (isTopDir == false)
                     {
-                        string pathToCompare1 = NormalizePath(currentFolder + "\\" + selectedBoxItem.Content);
-                        string pathToCompare2 = NormalizePath(originalPath.TrimEnd('\\').Replace(currentFileName, ""));
+                        string pathToCompare1 = currentFolder + "\\" + selectedBoxItem.Content;
+                        string pathToCompare2 = originalPath.TrimEnd('\\').Replace(currentFileName, "");
 
                         // If current image is in the marked folder
                         if (pathToCompare1 == pathToCompare2) break;
@@ -139,87 +108,10 @@ namespace Image_Manager
             try
             {
                 movedFiles.Insert(0, newFileName);
-                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
+                movedFilesOldLocations.Insert(0, filepaths[displayedItemIndex]);
 
                 File.Move(originalPath, newFileName);
-                filepaths.RemoveAt(currentImageNum);
-            }
-            catch
-            {
-                Interaction.MsgBox("File is currently being used by another program");
-                return;
-            }
-
-
-
-            // When last file has been moved
-            if (filepaths.Count == 0)
-            {
-                textViewer.Visibility = Visibility.Hidden;
-                imageViewer.Visibility = Visibility.Hidden;
-                VideoPlayIcon.Visibility = Visibility.Hidden;
-                gifViewer.Visibility = Visibility.Hidden;
-                UpdateInfobar();
-                /*string[] refreshFolder = new string[1];
-                refreshFolder[0] = rootFolder;
-                RemoveOldContext();
-                currentFolder = rootFolder;
-                CreateNewContext(refreshFolder);*/
-            }
-            else if (currentImageNum == filepaths.Count)
-            {
-                currentImageNum--;
-            }
-
-            UpdateContent();
-            UpdateTitle();
-
-            cache.Remove(originalPath);
-        }
-
-        private void MoveFileViaSort()
-        {
-            if (currentMode != 2) return;
-
-            if (establishedRoot == false || filepaths.Count == 0)
-            {
-                return;
-            }
-
-            ListBoxItem selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
-            string currentFileName = Path.GetFileName(filepaths[currentImageNum]);
-            string originalPath = filepaths[currentImageNum];
-            string folderPath = folderDict[selectedBoxItem.Content.ToString()];
-
-            string newFileName = folderPath + "\\" + currentFileName;
-            string ext = Path.GetExtension(currentFileName);
-
-
-
-            // Renames file if file with same name already exists
-            // Also prevents the file from being moved into the same folder
-            while (true)
-            {
-                if (File.Exists(newFileName))
-                {
-                    // If current image is in the marked folder
-                    if (originalPath == newFileName) break;
-                    newFileName = folderPath + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-
-            try
-            {
-                movedFiles.Insert(0, newFileName);
-                movedFilesOldLocations.Insert(0, filepaths[currentImageNum]);
-
-                File.Move(originalPath, newFileName);
-                filepaths.RemoveAt(currentImageNum);
+                filepaths.RemoveAt(displayedItemIndex);
             }
             catch
             {
@@ -235,29 +127,25 @@ namespace Image_Manager
                 VideoPlayIcon.Visibility = Visibility.Hidden;
                 gifViewer.Visibility = Visibility.Hidden;
                 UpdateInfobar();
-                /*string[] refreshFolder = new string[1];
-                refreshFolder[0] = rootFolder;
-                RemoveOldContext();
-                currentFolder = rootFolder;
-                CreateNewContext(refreshFolder);*/
             }
-            else if (currentImageNum == filepaths.Count)
+            else if (displayedItemIndex == filepaths.Count)
             {
-                currentImageNum--;
+                displayedItemIndex--;
             }
 
             UpdateContent();
             UpdateTitle();
-
-            cache.Remove(originalPath);
         }
+
+
+
 
         private void UndoMove()
         {
             if (movedFiles.Count == 0) return;
             string fileToUndo = movedFiles.ElementAt(0);
             string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
-            filepaths.Insert(currentImageNum, locationToMoveTo);
+            filepaths.Insert(displayedItemIndex, locationToMoveTo);
 
             File.Move(fileToUndo, locationToMoveTo);
 
@@ -275,9 +163,9 @@ namespace Image_Manager
 
             try
             {
-                currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
-                currentFileExt = Path.GetExtension(filepaths[currentImageNum]);
-                currentLocation = Path.GetFullPath(filepaths[currentImageNum]).Replace(currentFileName, "")
+                currentFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
+                currentFileExt = Path.GetExtension(filepaths[displayedItemIndex]);
+                currentLocation = Path.GetFullPath(filepaths[displayedItemIndex]).Replace(currentFileName, "")
                     .Replace(currentFileExt, "");
             }
             catch
@@ -292,7 +180,7 @@ namespace Image_Manager
                 {
                     File.Move(currentLocation + "\\" + currentFileName + currentFileExt,
                         currentLocation + "\\" + input + currentFileExt);
-                    filepaths[currentImageNum] = currentLocation + "\\" + input + currentFileExt;
+                    filepaths[displayedItemIndex] = currentLocation + "\\" + input + currentFileExt;
                     UpdateContent();
                 }
                 catch

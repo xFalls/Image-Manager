@@ -14,5 +14,8 @@ namespace Image_Manager
         private const double ZoomAmountWheel = 0.1;
         private const double MaxZoom = 3.0;
         private const double MinZoom = 0.5;
+
+        // Special folders
+        private readonly string[] specialFoldersArray = { "[Artist]", "[Collection]", "[Manga]", "[Set]" };
     }
 }

@@ -21,7 +21,7 @@ namespace Image_Manager
                     // Toggle focus, enter selected directory
                     case Key.Space:
 
-                        ToggleFocus();
+                        ToggleAction();
 
                         break;
 
@@ -52,21 +52,21 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
-                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
                         string input = Interaction.InputBox("Rename", "Select a new name", currentFileName);
                         RenameFile(input);
                         break;
 
                     // Adds +HQ modifier
                     case Key.F3:
-                        string hqFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string hqFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
                         string hqInput = "+HQ " + hqFileName;
                         RenameFile(hqInput);
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
-                        string hQnoFileName = Path.GetFileNameWithoutExtension(filepaths[currentImageNum]);
+                        string hQnoFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
                         string hQnoInput = hQnoFileName?.Replace("+HQ ", "");
                         RenameFile(hQnoInput);
                         break;
@@ -76,7 +76,7 @@ namespace Image_Manager
                     case Key.R:
                         if (currentMode == 1)
                         {
-                            MoveFile();
+                            MoveFileViaExplore();
                         }
                         else if (currentMode == 2)
                         {
@@ -140,7 +140,7 @@ namespace Image_Manager
 
                     // Toggle subdirectories in view mode
                     case Key.LeftShift:
-                        allowSubDir = !allowSubDir;
+                        showSubDir = !showSubDir;
                         UpdateTitle();
                         break;
 
@@ -216,9 +216,9 @@ namespace Image_Manager
                     // Previous image
                     case Key.Left:
                     case Key.A:
-                        if (currentImageNum > 0 && !(setFocus && currentContentType == "text"))
+                        if (displayedItemIndex > 0 && !(isActive && currentContentType == "text"))
                         {
-                            currentImageNum--;
+                            displayedItemIndex--;
                             UpdateContent();
                         }
                         break;
@@ -226,19 +226,18 @@ namespace Image_Manager
                     // Next image
                     case Key.Right:
                     case Key.D:
-                        if (currentImageNum + 1 < filepaths.Count && !(setFocus && currentContentType == "text"))
+                        if (displayedItemIndex + 1 < filepaths.Count && !(isActive && currentContentType == "text"))
                         {
-                            currentImageNum++;
+                            displayedItemIndex++;
                             UpdateContent();
                         }
                         break;
 
                     // First image
                     case Key.Home:
-                        if (!(setFocus && currentContentType == "text"))
+                        if (!(isActive && currentContentType == "text"))
                         {
-                            currentImageNum = 0;
-                            cache.Clear();
+                            displayedItemIndex = 0;
                             GC.Collect();
                             UpdateContent();
                         }
@@ -246,10 +245,9 @@ namespace Image_Manager
 
                     // Last image
                     case Key.End:
-                        if (!(setFocus && currentContentType == "text"))
+                        if (!(isActive && currentContentType == "text"))
                         {
-                            currentImageNum = filepaths.Count - 1;
-                            cache.Clear();
+                            displayedItemIndex = filepaths.Count - 1;
                             GC.Collect();
                             UpdateContent();
                         }
@@ -306,14 +304,14 @@ namespace Image_Manager
             if (!isTyping) return;
             if (e.Key == Key.Left)
             {
-                if (currentImageNum <= 0 || setFocus && currentContentType == "text") return;
-                currentImageNum--;
+                if (displayedItemIndex <= 0 || isActive && currentContentType == "text") return;
+                displayedItemIndex--;
                 UpdateContent();
             }
             else if (e.Key == Key.Right)
             {
-                if (currentImageNum + 1 >= filepaths.Count || setFocus && currentContentType == "text") return;
-                currentImageNum++;
+                if (displayedItemIndex + 1 >= filepaths.Count || isActive && currentContentType == "text") return;
+                displayedItemIndex++;
                 UpdateContent();
             }
             else if (e.Key == Key.Enter)
@@ -402,11 +400,11 @@ namespace Image_Manager
         private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             // Disable switching image when on a focused text item
-            if (setFocus && currentContentType == "text")
+            if (isActive && currentContentType == "text")
             {
                 return;
             }
-            if (setFocus)
+            if (isActive)
             {
                 double zoom = e.Delta > 0 ? .2 : -.2;
                 if (zoom > 0)
@@ -420,14 +418,14 @@ namespace Image_Manager
                 return;
             }
 
-            if (e.Delta > 0 && currentImageNum > 0)
+            if (e.Delta > 0 && displayedItemIndex > 0)
             {
-                currentImageNum--;
+                displayedItemIndex--;
                 UpdateContent();
             }
-            else if (e.Delta < 0 && currentImageNum + 1 < filepaths.Count)
+            else if (e.Delta < 0 && displayedItemIndex + 1 < _displayItems.Count)
             {
-                currentImageNum++;
+                displayedItemIndex++;
                 UpdateContent();
             }
         }
@@ -499,7 +497,7 @@ namespace Image_Manager
         private void imageViewer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (currentContentType == "video") return;
-            if (setFocus == false) return;
+            if (isActive == false) return;
             imageViewer.CaptureMouse();
             imageViewer.RenderTransform = imageTransformGroup;
 
@@ -524,7 +522,7 @@ namespace Image_Manager
 
         private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            ToggleFocus();
+            ToggleAction();
         }
 
         private void MenuStrip_MouseEnter(object sender, MouseEventArgs e)

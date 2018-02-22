@@ -67,6 +67,7 @@
     <Compile Include="CacheHandler.cs" />
     <Compile Include="Controls.cs" />
     <Compile Include="DefaultValues.cs" />
+    <Compile Include="DisplayItem.cs" />
     <Compile Include="FileEditHandler.cs" />
     <Compile Include="Thumbnail.cs" />
     <Compile Include="UserInterface.cs" />

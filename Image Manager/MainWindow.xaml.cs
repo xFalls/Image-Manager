@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
@@ -39,13 +42,11 @@ namespace Image_Manager
         public static List<string> folderPaths = new List<string>();
         private readonly Dictionary<string, string> folderDict = new Dictionary<string, string>();
 
-        public static Dictionary<string, BitmapImage> cache = new Dictionary<string, BitmapImage>();
-
-        private static int currentImageNum;
+       
         private string currentContentType = "null";
 
-        private bool setFocus;
-        private bool allowSubDir = true;
+        
+        private bool showSubDir = true;
         private bool showSets = true;
 
         private bool establishedRoot;
@@ -71,7 +72,24 @@ namespace Image_Manager
         private int guiSelection;
         private int sortGuiSelection;
         private int currentMode;
-        CacheHandler cacheHandler = new CacheHandler();
+
+
+        //////////////
+
+        // List of all stored objects
+        private readonly List<DisplayItem> _displayItems = new List<DisplayItem>();
+
+        // The index of the displayed item in _displayItems
+        private static int displayedItemIndex;
+        private DisplayItem currentItem;
+
+        private bool isActive;
+
+        //////////////
+
+
+
+
 
 
 
@@ -86,10 +104,7 @@ namespace Image_Manager
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
-            {
                 Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
-            }
-
             deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
 
             // Remove harmless error messages from output
@@ -100,7 +115,7 @@ namespace Image_Manager
 
         public static int ReturnCurrentImageNum()
         {
-            return currentImageNum;
+            return displayedItemIndex;
         }
 
         /// <summary>
@@ -114,140 +129,81 @@ namespace Image_Manager
 
             // Image file
             if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".tif") ||
-                    temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".gif") ||
-                    temp.EndsWith(".bmp") || temp.EndsWith(".ico") || temp.EndsWith(".wmf") ||
-                    temp.EndsWith(".emf") || temp.EndsWith(".webp"))
-            {
+                    temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".bmp") || 
+                    temp.EndsWith(".ico") || temp.EndsWith(".wmf") || temp.EndsWith(".emf") || 
+                    temp.EndsWith(".webp"))
                 return "image";
-            }
+
+            if (temp.EndsWith(".gif"))
+                return "gif";
 
             // Text file
             if (temp.EndsWith(".txt"))
-            {
                 return "text";
-            }
 
             // Video file
             if (temp.EndsWith(".mp4") || temp.EndsWith(".mkv") || temp.EndsWith(".webm")
                  || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi"))
-            {
                 return "video";
-            }
 
             return "invalidType";
         }
 
-        
+        // Changes the visibility of all UI elements not related to the current displayed item
+        private void MakeTypeVisible(string fileType)
+        {
+            imageViewer.Visibility = gifViewer.Visibility = gifViewer.Visibility =
+                    textViewer.Visibility = VideoPlayIcon.Visibility = Visibility.Hidden;
+            imageViewer.Effect = null;
+
+            switch (fileType)
+            {
+                case "image":
+                    imageViewer.Visibility = Visibility.Visible;
+                    break;
+                case "gif":
+                    gifViewer.Visibility = Visibility.Visible;
+                    break;
+                case "video":
+                    VideoPlayIcon.Visibility = imageViewer.Visibility = Visibility.Visible;
+                    imageViewer.Effect = videoBlur;
+                    break;
+                case "text":
+                    textViewer.Visibility = Visibility.Visible;
+                    break;
+            }
+        }
 
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            try
-            {
-                cacheHandler.UpdateCache();
-            }
-            catch
-            {
-                // ignored
-            }
-
-            cacheHandler.lastPos = currentImageNum;
-
-            // Don't display an empty directory
-            if (filepaths.Count == 0)
-            {
-                return;
-            }
+            if (_displayItems.Count == 0) return;
+            
+            currentItem = _displayItems[displayedItemIndex];
 
             ResetView();
-
-            // Update widely used variables
-            curFileName = Path.GetFileName(filepaths[currentImageNum]);
-            curFolderPath = Path.GetFullPath(filepaths[currentImageNum]);
-
-            string curItem = filepaths[currentImageNum];
-            currentContentType = FileType(curItem);
-
             UpdateTitle();
-
-            if ((currentContentType == "image" || currentContentType == "video") && cache.ContainsKey(curItem))
-            {
-                try
-                {
-                    imageViewer.Source = cache[curItem];
-                }
-                catch
-                {
-                    imageViewer.Source = null;
-                    ResetView();
-                    textViewer.Visibility = Visibility.Hidden;
-                    imageViewer.Visibility = Visibility.Hidden;
-                    VideoPlayIcon.Visibility = Visibility.Hidden;
-                    gifViewer.Visibility = Visibility.Hidden;
-                    UpdateTitle();
-                    UpdateInfobar();
-                    return;
-                }
-
-                if (curFileName.ToLower().EndsWith(".gif"))
-                {
-                    gifViewer.Visibility = Visibility.Visible;
-                    BitmapImage image = new BitmapImage();
-                    using (FileStream stream = File.OpenRead(curItem))
-                    {
-                        image.BeginInit();
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.StreamSource = stream;
-                        ImageBehavior.SetAnimatedSource(gifViewer, image);
-                        image.EndInit();
-                    }
-                }
-                else
-                {
-                    gifViewer.Visibility = Visibility.Hidden;
-                }
-
-                imageViewer.Effect = null;
-
-                imageViewer.Visibility = Visibility.Visible;
-                textViewer.Visibility = Visibility.Hidden;
-                VideoPlayIcon.Visibility = Visibility.Hidden;
-
-                if (currentContentType == "video")
-                {
-                    VideoPlayIcon.Visibility = Visibility.Visible;
-                    gifViewer.Visibility = Visibility.Hidden;
-
-                    imageViewer.Effect = videoBlur;
-                }
-            }
-            else if (currentContentType == "text")
-            {
-                try
-                {
-                    textViewer.Text = "\n\n" + File.ReadAllText(curItem);
-
-                    imageViewer.Visibility = Visibility.Hidden;
-                    textViewer.Visibility = Visibility.Visible;
-                    VideoPlayIcon.Visibility = Visibility.Hidden;
-                    gifViewer.Visibility = Visibility.Hidden;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
             UpdateInfobar();
+
+            MakeTypeVisible(currentItem.GetTypeOfFile());
+
+            if (currentItem.GetTypeOfFile() == "image")
+                imageViewer.Source = ((ImageItem) currentItem).GetImage();
+            else if (currentItem.GetTypeOfFile() == "gif")
+                gifViewer.Source = ((GifItem) currentItem).GetGif(gifViewer);
+            else if (currentItem.GetTypeOfFile() == "video")
+                imageViewer.Source = ((VideoItem) currentItem).GetThumbnail();
+            else if (currentItem.GetTypeOfFile() == "text")
+                textViewer.Text = ((TextItem) currentItem).GetText();
         }
 
         /// <summary>
         /// Zooms in or out of the current viewed image
         /// </summary>
         /// <param name="zoomAmount">The amount to zoom, where 0.5 is 50% and 2 is 200% zoomed</param>
-        private void Zoom(double zoomAmount)
+        public void Zoom(double zoomAmount)
         {
-            // Only allow zooming the image
+            // Only allow zooming in an image
             if (currentContentType != "image") return;
             
             // Disallow zooming beyond the specified limits
@@ -263,16 +219,29 @@ namespace Image_Manager
 
         
 
-        // Adds all valid files to a list
-        private void InitializeValidFiles()
+        // Adds all valid new files to a list
+        private void ProcessNewFiles()
         {
             foreach (var item in newFiles)
             {
-                if (FileType(item) == "image" || FileType(item) == "text" || FileType(item) == "video")
+                string fileType = FileType(item);
+                switch (fileType)
                 {
-                    filepaths.Add(item);
+                    case "image":
+                        _displayItems.Add(new ImageItem(item));
+                        break;
+                    case "gif":
+                        _displayItems.Add(new GifItem(item));
+                        break;
+                    case "video":
+                        _displayItems.Add(new VideoItem(item));
+                        break;
+                    case "text":
+                        _displayItems.Add(new TextItem(item));
+                        break;
                 }
             }
+
             newFiles.Clear();
         }
 
@@ -299,60 +268,33 @@ namespace Image_Manager
                                 folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
                             }
                     }
-                    // Files
-                    if (allowSubDir)
+
+                    SearchOption scanFolderStructure =
+                        showSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
+                    // Files to add
+                    foreach (string foundFile in Directory.GetFiles(s, "*.*", scanFolderStructure))
                     {
-                        foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.AllDirectories))
-                        {
-                            if (filepaths.Contains(foundFile)) continue;
-                            if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
-                            if (showSets)
-                                newFiles.Add(foundFile);
-                            else
-                            {
-                                if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") && !Path.GetDirectoryName(foundFile).Contains("[Manga]") && !Path.GetDirectoryName(foundFile).Contains("[Artist]") && !Path.GetDirectoryName(foundFile).Contains("[Collection]")))
-                                    newFiles.Add(foundFile);
-                            }
-                        }
-                        // Folders
-                        foreach (string foundFolder in Directory.GetDirectories(s, "*", SearchOption.AllDirectories))
-                        {
-                            if (folderPaths.Contains(foundFolder)) continue;
-                            if (!foundFolder.Contains("_"))
-                            {
-                                folderPaths.Add(foundFolder);
-                            }
-                        }
+                        // Do not add files that already exist
+                        //if (_displayItems.Any(o => ()))
+                        /////if (filepaths.Contains(foundFile)) continue;
+                        
+                        // Exlude folders started with an underscore
+                        if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
+                        // Exclude special folders when set to do so
+                        if (!showSets && specialFoldersArray.Any(o => Path.GetDirectoryName(foundFile).Contains(o))) continue;
+
+                        newFiles.Add(foundFile);
                     }
-                    else
+
+                    // Folders to add
+                    foreach (string foundFolder in Directory.GetDirectories(s, "*", scanFolderStructure))
                     {
-                        foreach (string foundFile in Directory.GetFiles(s, "*.*", SearchOption.TopDirectoryOnly))
-                        {
-                            if (filepaths.Contains(foundFile)) continue;
-                            if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
-                            if (showSets)
-                                newFiles.Add(foundFile);
-                            else
-                            {
-                                if ((!Path.GetDirectoryName(foundFile).Contains("[Set]") &&
-                                     !Path.GetDirectoryName(foundFile).Contains("[Manga]") &&
-                                     !Path.GetDirectoryName(foundFile).Contains("[Artist]") &&
-                                     !Path.GetDirectoryName(foundFile).Contains("[Collection]")))
-                                    newFiles.Add(foundFile);
-                            }
-                        }
-                        // Folders
-                        foreach (string foundFolder in Directory.GetDirectories(s, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            if (!folderPaths.Contains(foundFolder))
-                            {
-                                if (!foundFolder.Contains("_"))
-                                {
-                                    folderPaths.Add(foundFolder);
-                                }
-                            }
-                        }
+                        if (folderPaths.Contains(foundFolder)) continue;
+                        if (foundFolder.Contains("_")) continue;
+                        folderPaths.Add(foundFolder);
                     }
+                    
                 }
                 else if (File.Exists(s))
                 {
@@ -374,23 +316,21 @@ namespace Image_Manager
 
                     }
                     // Add filepath
-                    if (!filepaths.Contains(s))
-                    {
+
                         newFiles.Add(s);
-                    }
+                    
                 }
             }
         }
 
-        private void ToggleFocus()
+        private void ToggleAction()
         {
-            // Text viewer
             if (currentContentType == "text" || currentContentType == "image")
             {
-                setFocus = !setFocus;
-                textViewer.IsEnabled = setFocus;
+                isActive = !isActive;
+                textViewer.IsEnabled = isActive;
 
-                if (setFocus == false)
+                if (isActive == false)
                 {
                     ResetView();
                 }
@@ -399,12 +339,14 @@ namespace Image_Manager
             // Start video in default player
             else if (currentContentType == "video")
             {
-                Process.Start(filepaths[currentImageNum]);
+                Process.Start(filepaths[displayedItemIndex]);
             }
         }
 
-        // Resets the zoom level and panning
-        private void ResetView()
+        /// <summary>
+        /// Resets the current image's zoom level and panning to default
+        /// </summary>
+        public void ResetView()
         {
             tt.Y = 0.5;
             tt.X = 0.5;
@@ -433,7 +375,7 @@ namespace Image_Manager
 
             FindFilesInSubfolders(folder);
 
-            InitializeValidFiles();
+            ProcessNewFiles();
 
             UpdateContent();
 
@@ -444,12 +386,12 @@ namespace Image_Manager
         // Resets the program
         private void RemoveOldContext()
         {
-            setFocus = false;
+            isActive = false;
             imageViewer.Source = null;
             textViewer.Visibility = Visibility.Hidden;
             currentContentType = "";
 
-            currentImageNum = 0;
+            displayedItemIndex = 0;
             guiSelection = 0;
             sortGuiSelection = 0;
             UpdateTitle();
@@ -457,10 +399,8 @@ namespace Image_Manager
 
             DirectoryTreeList.Items.Clear();
             AllFolders.Items.Clear();
+            _displayItems.Clear();
 
-            cache.Clear();
-
-            //folderDict.Clear();
             folderPaths.Clear();
             filepaths.Clear();
             newFiles.Clear();
@@ -468,34 +408,6 @@ namespace Image_Manager
             movedFilesOldLocations.Clear();
 
             GC.Collect();
-        }
-
-        public static string NormalizePath(string path)
-        {
-            return Path.GetFullPath(new Uri(path).LocalPath)
-                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                       .ToUpperInvariant();
-        }
-
-
-
-
-
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-
-                bitmapimage.BeginInit();
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.StreamSource = memory;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
-            }
         }
     }
 }
