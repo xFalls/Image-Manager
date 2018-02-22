@@ -35,13 +35,38 @@ namespace Image_Manager
 
             FileName = Path.GetFileName(name);
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(name);
-            FileExtension = Path.GetExtension(name);
+            FileExtension = Path.GetExtension(name).ToLower();
             FileLocation = Path.GetDirectoryName(name);
         }
 
         public string GetTypeOfFile()
         {
             return FileType;
+        }
+
+        public string GetFileNameExcludingExtension()
+        {
+            return FileNameExludingExtension;
+        }
+
+        public string GetFileName()
+        {
+            return FileName;
+        }
+
+        public string GetFilePath()
+        {
+            return FilePath;
+        }
+
+        public string GetFileExtension()
+        {
+            return FileExtension;
+        }
+
+        public string GetFileLocation()
+        {
+            return FileLocation;
         }
     }
 

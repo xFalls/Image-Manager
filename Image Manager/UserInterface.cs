@@ -28,7 +28,7 @@ namespace Image_Manager
                     if (curFileName.ToLower().EndsWith(".gif"))
                     {
                         CurrentFileInfoLabel.Foreground = defaultTextColor;
-                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
+                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
                                                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
                     }
@@ -38,16 +38,16 @@ namespace Image_Manager
                         {
                             CurrentFileInfoLabel.Foreground = warningTextColor;
                         }
-                        else if (Path.GetExtension(Path.GetFileName(filepaths[displayedItemIndex])).ToLower() != ".webp")
+                        else if (currentItem.GetFileExtension() != ".webp")
                         {
-                            CurrentFileInfoLabel.Foreground = setTextColor;
+                            CurrentFileInfoLabel.Foreground = warningTextColor;
                         }
                         else
                         {
                             CurrentFileInfoLabel.Foreground = defaultTextColor;
                         }
 
-                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
+                        CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
                                                        curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                        curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                                        "    -    ( " + ((BitmapImage)imageViewer.Source).PixelWidth + " x " + ((BitmapImage)imageViewer.Source).PixelHeight + " )   ";
@@ -55,7 +55,7 @@ namespace Image_Manager
 
                     break;
                 case "text":
-                    StreamReader sr = new StreamReader(filepaths[displayedItemIndex]);
+                    StreamReader sr = new StreamReader(currentItem.GetFilePath());
 
                     int counter = 0;
                     const string delim = " ,.!?";
@@ -71,14 +71,14 @@ namespace Image_Manager
                     sr.Close();
 
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
-                    CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " +
+                    CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
                                                    curFileName + "    -    " + Path.GetFileName(rootFolder) +
                                                    curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                                    "    -    " + counter + " words   ";
                     break;
                 case "video":
                     var mediaDet = (IMediaDet)new MediaDet();
-                    DsError.ThrowExceptionForHR(mediaDet.put_Filename(filepaths[displayedItemIndex]));
+                    DsError.ThrowExceptionForHR(mediaDet.put_Filename(currentItem.GetFilePath()));
 
                     /* find the video stream in the file
                 int index;
@@ -118,7 +118,7 @@ namespace Image_Manager
 
                     string formattedTime = string.Join(" ", parts);
 
-                    string textInfo = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") " + curFileName + "    -    " +
+                    string textInfo = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " + curFileName + "    -    " +
                                       Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
                                       "    -    ( " + width + " x " + height + " )" +
                                       "    -    ( " + formattedTime + " )   ";
@@ -158,10 +158,10 @@ namespace Image_Manager
 
         private void UpdateTitle()
         {
-            if (filepaths.Count > 0)
+            if (_displayItems.Count > 0)
             {
-                string curItem = filepaths[displayedItemIndex];
-                Title = "(" + (displayedItemIndex + 1) + "/" + filepaths.Count + ") ";
+                string curItem = currentItem.GetFilePath();
+                Title = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
 
                 if (!showSubDir)
                 {
@@ -228,25 +228,10 @@ namespace Image_Manager
                 if (foundFolder.Contains('_')) continue;
 
                 string shortDir = Path.GetFileName(foundFolder);
-                SolidColorBrush color = new SolidColorBrush(Colors.White);
+                SolidColorBrush color = defaultTextColor;
 
                 // Color directories based on content
-                if (shortDir.Contains("[Artist]"))
-                {
-                    color = artistTextColor;
-                }
-                else if (shortDir.Contains("[Set]"))
-                {
-                    color = setTextColor;
-                }
-                else if (shortDir.Contains("[Manga]"))
-                {
-                    color = mangaTextColor;
-                }
-                else if (shortDir.Contains("[Collection]"))
-                {
-                    color = collectionTextColor;
-                }
+                specialFolders.Where(c => foundFolder.Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
 
                 DirectoryTreeList.Items.Add(new ListBoxItem
                 {
@@ -278,25 +263,11 @@ namespace Image_Manager
             {
 
                 string dirName = storedFolder.Key;
-                SolidColorBrush color = new SolidColorBrush(Colors.White);
+                SolidColorBrush color = defaultTextColor;
 
                 // Color directories based on content
-                if (dirName.Contains("[Set]"))
-                {
-                    color = setTextColor;
-                }
-                else if (dirName.Contains("[Artist]"))
-                {
-                    color = artistTextColor;
-                }
-                else if (dirName.Contains("[Manga]"))
-                {
-                    color = mangaTextColor;
-                }
-                else if (dirName.Contains("[Collection"))
-                {
-                    color = collectionTextColor;
-                }
+
+                specialFolders.Where(c => storedFolder.Key.Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
 
                 AllFolders.Items.Add(new ListBoxItem
                 {

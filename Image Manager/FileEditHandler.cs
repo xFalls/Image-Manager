@@ -32,16 +32,16 @@ namespace Image_Manager
         
         private void MoveFile(int mode)
         {
-            if (establishedRoot == false || filepaths.Count == 0)
+            if (establishedRoot == false || _displayItems.Count == 0)
             {
                 return;
             }
 
             ListBoxItem selectedBoxItem;
-            string currentFileName = Path.GetFileName(filepaths[displayedItemIndex]); ;
-            string originalPath = filepaths[displayedItemIndex]; ;
+            string currentFileName = currentItem.GetFileName();
+            string originalPath = currentItem.GetFilePath();
             string newFileName;
-            string ext = Path.GetExtension(currentFileName); ;
+            string ext = Path.GetExtension(currentFileName);
             
 
             // Explore
@@ -108,10 +108,10 @@ namespace Image_Manager
             try
             {
                 movedFiles.Insert(0, newFileName);
-                movedFilesOldLocations.Insert(0, filepaths[displayedItemIndex]);
+                //movedFilesOldLocations.Insert(0, currentItem);
 
                 File.Move(originalPath, newFileName);
-                filepaths.RemoveAt(displayedItemIndex);
+                //filepaths.RemoveAt(displayedItemIndex);
             }
             catch
             {
@@ -120,7 +120,7 @@ namespace Image_Manager
             }
 
             // When last file has been moved
-            if (filepaths.Count == 0)
+            if (_displayItems.Count == 0)
             {
                 textViewer.Visibility = Visibility.Hidden;
                 imageViewer.Visibility = Visibility.Hidden;
@@ -128,7 +128,7 @@ namespace Image_Manager
                 gifViewer.Visibility = Visibility.Hidden;
                 UpdateInfobar();
             }
-            else if (displayedItemIndex == filepaths.Count)
+            else if (displayedItemIndex == _displayItems.Count)
             {
                 displayedItemIndex--;
             }
@@ -145,7 +145,7 @@ namespace Image_Manager
             if (movedFiles.Count == 0) return;
             string fileToUndo = movedFiles.ElementAt(0);
             string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
-            filepaths.Insert(displayedItemIndex, locationToMoveTo);
+            //filepaths.Insert(displayedItemIndex, locationToMoveTo);
 
             File.Move(fileToUndo, locationToMoveTo);
 
@@ -163,10 +163,9 @@ namespace Image_Manager
 
             try
             {
-                currentFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
-                currentFileExt = Path.GetExtension(filepaths[displayedItemIndex]);
-                currentLocation = Path.GetFullPath(filepaths[displayedItemIndex]).Replace(currentFileName, "")
-                    .Replace(currentFileExt, "");
+                currentFileName = currentItem.GetFileName();
+                currentFileExt = currentItem.GetFileExtension();
+                currentLocation = currentItem.GetFileLocation();
             }
             catch
             {
@@ -180,7 +179,7 @@ namespace Image_Manager
                 {
                     File.Move(currentLocation + "\\" + currentFileName + currentFileExt,
                         currentLocation + "\\" + input + currentFileExt);
-                    filepaths[displayedItemIndex] = currentLocation + "\\" + input + currentFileExt;
+                    //filepaths[displayedItemIndex] = currentLocation + "\\" + input + currentFileExt;
                     UpdateContent();
                 }
                 catch

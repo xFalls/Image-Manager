@@ -52,21 +52,20 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
-                        string currentFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
-                        string input = Interaction.InputBox("Rename", "Select a new name", currentFileName);
+                        string input = Interaction.InputBox("Rename", "Select a new name", currentItem.GetFileNameExcludingExtension());
                         RenameFile(input);
                         break;
 
                     // Adds +HQ modifier
                     case Key.F3:
-                        string hqFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
+                        string hqFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
                         string hqInput = "+HQ " + hqFileName;
                         RenameFile(hqInput);
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
-                        string hQnoFileName = Path.GetFileNameWithoutExtension(filepaths[displayedItemIndex]);
+                        string hQnoFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
                         string hQnoInput = hQnoFileName?.Replace("+HQ ", "");
                         RenameFile(hQnoInput);
                         break;
@@ -226,7 +225,7 @@ namespace Image_Manager
                     // Next image
                     case Key.Right:
                     case Key.D:
-                        if (displayedItemIndex + 1 < filepaths.Count && !(isActive && currentContentType == "text"))
+                        if (displayedItemIndex + 1 < _displayItems.Count && !(isActive && currentContentType == "text"))
                         {
                             displayedItemIndex++;
                             UpdateContent();
@@ -247,7 +246,7 @@ namespace Image_Manager
                     case Key.End:
                         if (!(isActive && currentContentType == "text"))
                         {
-                            displayedItemIndex = filepaths.Count - 1;
+                            displayedItemIndex = _displayItems.Count - 1;
                             GC.Collect();
                             UpdateContent();
                         }
@@ -310,7 +309,7 @@ namespace Image_Manager
             }
             else if (e.Key == Key.Right)
             {
-                if (displayedItemIndex + 1 >= filepaths.Count || isActive && currentContentType == "text") return;
+                if (displayedItemIndex + 1 >= _displayItems.Count || isActive && currentContentType == "text") return;
                 displayedItemIndex++;
                 UpdateContent();
             }

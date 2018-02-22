@@ -25,17 +25,8 @@ namespace Image_Manager
         private const string rootTitleText = "[ROOT FOLDER]";
         private const string prevDirTitleText = "[THIS FOLDER]";
 
-        private SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
-        private SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
-
-        private SolidColorBrush setTextColor = new SolidColorBrush(Colors.Orange);
-        private SolidColorBrush artistTextColor = new SolidColorBrush(Colors.Yellow);
-        private SolidColorBrush mangaTextColor = new SolidColorBrush(Colors.MediumPurple);
-        private SolidColorBrush collectionTextColor = new SolidColorBrush(Colors.CornflowerBlue);
-        private SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
-
         // Variables
-        public static List<string> filepaths = new List<string>();
+        // public static List<string> filepaths = new List<string>();
         public static List<string> newFiles = new List<string>();
         public static List<string> movedFiles = new List<string>();
         public static List<string> movedFilesOldLocations = new List<string>();
@@ -275,14 +266,10 @@ namespace Image_Manager
                     // Files to add
                     foreach (string foundFile in Directory.GetFiles(s, "*.*", scanFolderStructure))
                     {
-                        // Do not add files that already exist
-                        //if (_displayItems.Any(o => ()))
-                        /////if (filepaths.Contains(foundFile)) continue;
-                        
                         // Exlude folders started with an underscore
                         if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
                         // Exclude special folders when set to do so
-                        if (!showSets && specialFoldersArray.Any(o => Path.GetDirectoryName(foundFile).Contains(o))) continue;
+                        if (!showSets && specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
 
                         newFiles.Add(foundFile);
                     }
@@ -339,7 +326,7 @@ namespace Image_Manager
             // Start video in default player
             else if (currentContentType == "video")
             {
-                Process.Start(filepaths[displayedItemIndex]);
+                Process.Start(_displayItems[displayedItemIndex].GetFilePath());
             }
         }
 
@@ -402,7 +389,6 @@ namespace Image_Manager
             _displayItems.Clear();
 
             folderPaths.Clear();
-            filepaths.Clear();
             newFiles.Clear();
             movedFiles.Clear();
             movedFilesOldLocations.Clear();
