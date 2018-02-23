@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DirectShowLib;
@@ -29,8 +30,7 @@ namespace Image_Manager
                     {
                         CurrentFileInfoLabel.Foreground = defaultTextColor;
                         CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
-                                                       curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                                                       curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') + "   ";
+                                                       curFileName + "    -    " + Path.GetFileName(originFolder.GetFolderPath()).Replace(curFileName, "").TrimEnd('\\') + "   ";
                     }
                     else
                     {
@@ -48,8 +48,7 @@ namespace Image_Manager
                         }
 
                         CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
-                                                       curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                                                       curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                                       curFileName + "    -    " + Path.GetFileName(originFolder.GetFolderPath()).Replace(curFileName, "").TrimEnd('\\') +
                                                        "    -    ( " + ((BitmapImage)imageViewer.Source).PixelWidth + " x " + ((BitmapImage)imageViewer.Source).PixelHeight + " )   ";
                     }
 
@@ -72,8 +71,7 @@ namespace Image_Manager
 
                     CurrentFileInfoLabel.Foreground = defaultTextColor;
                     CurrentFileInfoLabel.Content = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " +
-                                                   curFileName + "    -    " + Path.GetFileName(rootFolder) +
-                                                   curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                                   curFileName + "    -    " + Path.GetFileName(originFolder.GetFolderPath()).Replace(curFileName, "").TrimEnd('\\') +
                                                    "    -    " + counter + " words   ";
                     break;
                 case "video":
@@ -119,7 +117,7 @@ namespace Image_Manager
                     string formattedTime = string.Join(" ", parts);
 
                     string textInfo = "(" + (displayedItemIndex + 1) + "/" + _displayItems.Count + ") " + curFileName + "    -    " +
-                                      Path.GetFileName(rootFolder) + curFolderPath.Replace(rootFolder, "").Replace(curFileName, "").TrimEnd('\\') +
+                                      Path.GetFileName(originFolder.GetFolderPath()).Replace(curFileName, "").TrimEnd('\\') +
                                       "    -    ( " + width + " x " + height + " )" +
                                       "    -    ( " + formattedTime + " )   ";
 
@@ -132,28 +130,9 @@ namespace Image_Manager
             }
         }
 
-        private void RepaintSelector()
-        {
-            if (!establishedRoot) return;
-            foreach (ListBoxItem item in DirectoryTreeList.Items)
-            {
-                item.Background = new SolidColorBrush(Colors.Transparent);
-            }
 
-            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-            selectedBox.Background = selectionColor;
-        }
 
-        private void RepaintSortSelector()
-        {
-            if (!establishedRoot) return;
-            foreach (ListBoxItem item in AllFolders.Items)
-            {
-                item.Background = new SolidColorBrush(Colors.Transparent);
-            }
-            ListBoxItem selectedBox = (ListBoxItem)AllFolders.Items[sortGuiSelection];
-            selectedBox.Background = selectionColor;
-        }
+
 
 
         private void UpdateTitle()
@@ -192,116 +171,46 @@ namespace Image_Manager
             }
         }
 
-        private void MakeArchiveTree(string folder)
+        private void CreateSortMenu()
         {
             DirectoryTreeList.Items.Clear();
-            DirectoryTreeList.Items.Clear();
 
-            guiSelection = 0;
-
-            string compareRoot = new DirectoryInfo(rootFolder).FullName;
-
-            // Converts string to valid file path
-            currentFolder = currentFolder.Replace("System.Windows.Controls.ListBoxItem: ", "");
-            folder = folder.Replace("System.Windows.Controls.ListBoxItem: ", "");
-
-            if (compareRoot != new DirectoryInfo(currentFolder).FullName &&
-                new DirectoryInfo(currentFolder).FullName != compareRoot + "\\")
+            foreach (Folder foundFolder in originFolder.GetAllFolders())
             {
-                DirectoryTreeList.Items.Add(new ListBoxItem
-                {
-                    Content = prevDirTitleText,
-                    FontWeight = FontWeights.Bold
-                });
-            }
-            else
-            {
-                DirectoryTreeList.Items.Add(new ListBoxItem
-                {
-                    Content = rootTitleText,
-                    FontWeight = FontWeights.Bold
-                });
-            }
-
-            foreach (string foundFolder in Directory.GetDirectories(folder, "*", SearchOption.TopDirectoryOnly))
-            {
-                if (foundFolder.Contains('_')) continue;
-
-                string shortDir = Path.GetFileName(foundFolder);
                 SolidColorBrush color = defaultTextColor;
 
                 // Color directories based on content
-                specialFolders.Where(c => foundFolder.Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
+                specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
 
                 DirectoryTreeList.Items.Add(new ListBoxItem
                 {
-                    Content = shortDir,
-                    Foreground = color
-                });
-            }
-
-            RepaintSelector();
-            DirectoryTreeList.Items.Refresh();
-        }
-
-        private void CompleteFolderTree(string folder)
-        {
-            AllFolders.Items.Clear();
-
-            sortGuiSelection = 0;
-
-            UpdateSortTree(folderDict);
-
-            RepaintSortSelector();
-            AllFolders.Items.Refresh();
-        }
-
-        private void UpdateSortTree(Dictionary<string, string> listToUse)
-        {
-            AllFolders.Items.Clear();
-            foreach (KeyValuePair<string, string> storedFolder in listToUse)
-            {
-
-                string dirName = storedFolder.Key;
-                SolidColorBrush color = defaultTextColor;
-
-                // Color directories based on content
-
-                specialFolders.Where(c => storedFolder.Key.Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
-
-                AllFolders.Items.Add(new ListBoxItem
-                {
-                    Content = dirName,
-                    Foreground = color
+                    Content = foundFolder.GetFolderName(),
+                    Foreground = color,
+                    Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(),0,0,0)
                 });
             }
         }
 
+        private void MoveUp()
+        {
+            if (sortMode)
+                DirectoryTreeList.SelectedIndex = DirectoryTreeList.SelectedIndex - 1 < 0
+                    ? originFolder.GetAllFolders().Count - 1
+                    : DirectoryTreeList.SelectedIndex - 1;
+        }
+
+        private void MoveDown()
+        {
+            if (sortMode)
+                DirectoryTreeList.SelectedIndex = DirectoryTreeList.SelectedIndex + 1 == 
+                    originFolder.GetAllFolders().Count ? 
+                    0 : DirectoryTreeList.SelectedIndex + 1;
+        }
+        
         private void ToggleViewMode()
         {
-            // View mode
-            if (currentMode == 0)
-            {
-                DirectoryTreeList.Visibility = Visibility.Visible;
-                AllFolders.Visibility = Visibility.Hidden;
-                currentMode = 1;
-            }
-
-            // Explore mode
-            else if (currentMode == 1)
-            {
-                DirectoryTreeList.Visibility = Visibility.Hidden;
-                AllFolders.Visibility = Visibility.Visible;
-                currentMode = 2;
-            }
-
-            // Sort mode
-            else if (currentMode == 2)
-            {
-                DirectoryTreeList.Visibility = Visibility.Hidden;
-                AllFolders.Visibility = Visibility.Hidden;
-                currentMode = 0;
-            }
+            sortMode = !sortMode;
+            DirectoryTreeList.Visibility = sortMode ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }

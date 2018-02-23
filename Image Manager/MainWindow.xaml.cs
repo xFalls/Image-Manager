@@ -30,8 +30,8 @@ namespace Image_Manager
         public static List<string> newFiles = new List<string>();
         public static List<string> movedFiles = new List<string>();
         public static List<string> movedFilesOldLocations = new List<string>();
-        public static List<string> folderPaths = new List<string>();
-        private readonly Dictionary<string, string> folderDict = new Dictionary<string, string>();
+        //public static List<string> folderPaths = new List<string>();
+        //private readonly Dictionary<string, string> folderDict = new Dictionary<string, string>();
 
        
         private string currentContentType = "null";
@@ -41,8 +41,8 @@ namespace Image_Manager
         private bool showSets = true;
 
         private bool establishedRoot;
-        private string rootFolder;
-        private string currentFolder;
+        //private string rootFolder;
+        //private string currentFolder;
         private string deleteFolder;
 
         private bool isTyping;
@@ -74,7 +74,13 @@ namespace Image_Manager
         private static int displayedItemIndex;
         private DisplayItem currentItem;
 
+        private Folder originFolder;
+
         private bool isActive;
+        private bool isDrop;
+        private bool sortMode = false;
+
+        private int cursor = 0;
 
         //////////////
 
@@ -103,11 +109,6 @@ namespace Image_Manager
         }
 
 
-
-        public static int ReturnCurrentImageNum()
-        {
-            return displayedItemIndex;
-        }
 
         /// <summary>
         /// Accepts a file and then returns its type as a string
@@ -243,22 +244,7 @@ namespace Image_Manager
             {
                 if (Directory.Exists(s))
                 {
-                    // Sets initial root folder to work with
-                    if (establishedRoot == false)
-                    {
-                        establishedRoot = true;
-
-                        folderDict.Clear();
-
-                        rootFolder = currentFolder = s;
-
-                        folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
-                        foreach (string foundFolder in Directory.GetDirectories(s, "*.*", SearchOption.AllDirectories))
-                            if (!foundFolder.Contains("_"))
-                            {
-                                folderDict.Add(Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'), foundFolder);
-                            }
-                    }
+                    if (isDrop) InitializeDrop(s);
 
                     SearchOption scanFolderStructure =
                         showSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -273,41 +259,32 @@ namespace Image_Manager
 
                         newFiles.Add(foundFile);
                     }
-
-                    // Folders to add
-                    foreach (string foundFolder in Directory.GetDirectories(s, "*", scanFolderStructure))
-                    {
-                        if (folderPaths.Contains(foundFolder)) continue;
-                        if (foundFolder.Contains("_")) continue;
-                        folderPaths.Add(foundFolder);
-                    }
-                    
                 }
                 else if (File.Exists(s))
                 {
-                    // Sets root folder to work with
-                    if (establishedRoot == false)
-                    {
-                        establishedRoot = true;
-
-                        folderDict.Clear();
-
-                        rootFolder = currentFolder = Directory.GetParent(s).ToString();
-
-                        folderDict.Add(Path.GetFileName(rootFolder), rootFolder);
-                        foreach (string foundFolder in Directory.GetDirectories(rootFolder, "*.*", SearchOption.AllDirectories))
-                            if (!foundFolder.Contains("_"))
-                                folderDict.Add(
-                                    Path.GetFullPath(foundFolder).TrimEnd('\\').Replace(rootFolder, "").TrimStart('\\'),
-                                    foundFolder);
-
-                    }
                     // Add filepath
-
-                        newFiles.Add(s);
-                    
+                    newFiles.Add(s);
                 }
             }
+        }
+
+        private void InitializeDrop(string s)
+        {
+            // The folder highest in the tree
+            originFolder = new Folder(s);
+
+            isDrop = false;
+        }
+
+        // Handler for drag-dropping files
+        private void ControlWindow_Drop(object sender, DragEventArgs e)
+        {
+            // Finds all filepaths of a dropped object
+            string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+            RemoveOldContext();
+            isDrop = true;
+            CreateNewContext(folder);
         }
 
         private void ToggleAction()
@@ -343,17 +320,6 @@ namespace Image_Manager
             imageViewer.RenderTransform = imageTransformGroup;
         }
 
-        // Handler for drag-dropping files
-        private void ControlWindow_Drop(object sender, DragEventArgs e)
-        {
-            // Finds all filepaths of a dropped object
-            string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-
-            RemoveOldContext();
-            establishedRoot = false;
-            CreateNewContext(folder);
-            CompleteFolderTree(rootFolder);
-        }
 
         // Resets the program and starts over with new files
         private void CreateNewContext(string[] folder)
@@ -366,8 +332,9 @@ namespace Image_Manager
 
             UpdateContent();
 
-            MakeArchiveTree(currentFolder);
-            CompleteFolderTree(rootFolder);
+            CreateSortMenu();
+            //MakeArchiveTree(currentFolder);
+            //CompleteFolderTree(rootFolder);
         }
 
         // Resets the program
@@ -385,10 +352,8 @@ namespace Image_Manager
             ResetView();
 
             DirectoryTreeList.Items.Clear();
-            AllFolders.Items.Clear();
             _displayItems.Clear();
 
-            folderPaths.Clear();
             newFiles.Clear();
             movedFiles.Clear();
             movedFilesOldLocations.Clear();

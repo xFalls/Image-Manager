@@ -27,27 +27,7 @@ namespace Image_Manager
 
                     // Enter directory
                     case Key.E:
-                        if (establishedRoot == false)
-                        {
-                            return;
-                        }
-                        if (DirectoryTreeList.Visibility == Visibility.Visible)
-                        {
-                            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-                            if (guiSelection != 0)
-                            {
-                                currentFolder = currentFolder + "\\" + selectedBox.Content;
-                                MakeArchiveTree(currentFolder);
-                            }
-                            else
-                            {
-                                if ((string)selectedBox.Content != rootTitleText)
-                                {
-                                    currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                                    MakeArchiveTree(currentFolder);
-                                }
-                            }
-                        }
+                        //CreateSortMenu(openFolder.GetChildFolders()[openFolder.GetSelected()]);
                         break;
 
                     // Rename current file
@@ -73,14 +53,8 @@ namespace Image_Manager
                     // Move file to selected directory
                     case Key.Enter:
                     case Key.R:
-                        if (currentMode == 1)
-                        {
+                        if (sortMode)
                             MoveFileViaExplore();
-                        }
-                        else if (currentMode == 2)
-                        {
-                            MoveFileViaSort();
-                        }
                         break;
 
                     case Key.Delete:
@@ -106,8 +80,8 @@ namespace Image_Manager
                         ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
                         if (DirectoryTreeList.Visibility == Visibility.Visible && (string)firstBox.Content != rootTitleText)
                         {
-                            currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                            MakeArchiveTree(currentFolder);
+                            //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                            //MakeArchiveTree(currentFolder);
                         }
                         break;
 
@@ -121,17 +95,17 @@ namespace Image_Manager
                         {
                             ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
                             string[] folder = new string[1];
-                            currentFolder = currentFolder + "\\" + selectedBox.Content;
+                            //currentFolder = currentFolder + "\\" + selectedBox.Content;
 
                             if ((string)selectedBox.Content == rootTitleText)
                             {
-                                currentFolder = rootFolder;
+                                //currentFolder = rootFolder;
                             }
                             if ((string)selectedBox.Content == prevDirTitleText)
                             {
-                                currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                                //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
                             }
-                            folder[0] = currentFolder;
+                            //folder[0] = currentFolder;
                             CreateNewContext(folder);
                         }
                         UpdateTitle();
@@ -161,55 +135,13 @@ namespace Image_Manager
                     // Select directory below
                     case Key.Down:
                     case Key.S:
-                        if (DirectoryTreeList.Visibility == Visibility.Visible)
-                        {
-                            guiSelection++;
-
-                            if (guiSelection == DirectoryTreeList.Items.Count)
-                            {
-                                guiSelection = 0;
-                            }
-
-                            RepaintSelector();
-                        }
-                        else if (currentMode == 2)
-                        {
-                            sortGuiSelection++;
-
-                            if (sortGuiSelection == AllFolders.Items.Count)
-                            {
-                                sortGuiSelection = 0;
-                            }
-
-                            RepaintSortSelector();
-                        }
+                            MoveDown();
                         break;
 
                     // Select directory above
                     case Key.Up:
                     case Key.W:
-                        if (DirectoryTreeList.Visibility == Visibility.Visible)
-                        {
-                            guiSelection--;
-
-                            if (guiSelection < 0)
-                            {
-                                guiSelection = DirectoryTreeList.Items.Count - 1;
-                            }
-
-                            RepaintSelector();
-                        }
-                        else if (currentMode == 2)
-                        {
-                            sortGuiSelection--;
-
-                            if (sortGuiSelection < 0)
-                            {
-                                sortGuiSelection = AllFolders.Items.Count - 1;
-                            }
-
-                            RepaintSortSelector();
-                        }
+                            MoveUp();
                         break;
 
                     // Previous image
@@ -284,7 +216,7 @@ namespace Image_Manager
                     {
                         SortTypeBox.Visibility = Visibility.Hidden;
                         isTyping = false;
-                        RepaintSortSelector();
+                        //RepaintSortSelector();
                     }
                     else
                     {
@@ -317,40 +249,28 @@ namespace Image_Manager
             {
                 if (currentMode == 2)
                 {
-                    MoveFileViaSort();
+                    MoveFileViaExplore();
                 }
             }
             else if (e.Key == Key.Up)
             {
-                if (currentMode != 2) return;
-                sortGuiSelection--;
+                
 
-                if (sortGuiSelection < 0)
-                {
-                    sortGuiSelection = AllFolders.Items.Count - 1;
-                }
 
-                RepaintSortSelector();
             }
             else if (e.Key == Key.Down)
             {
-                if (currentMode != 2) return;
-                sortGuiSelection++;
+                
 
-                if (sortGuiSelection == AllFolders.Items.Count)
-                {
-                    sortGuiSelection = 0;
-                }
 
-                RepaintSortSelector();
             }
             else
             {
-                FilterSort();
-                RepaintSortSelector();
+                //FilterSort();
+
             }
         }
-
+        /*
         private void FilterSort()
         {
             if (SortTypeBox.Text != "" && isTyping)
@@ -376,7 +296,7 @@ namespace Image_Manager
             {
                 UpdateSortTree(folderDict);
             }
-        }
+        }*/
 
 
         public static bool ContainsWord(string word, string otherword)
@@ -439,8 +359,9 @@ namespace Image_Manager
         }
 
         // A right click opens the selected directory in the gallery
+        
         private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
+        {/*
             if (currentMode != 1) return;
             if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
             {
@@ -459,7 +380,7 @@ namespace Image_Manager
                 folder[0] = currentFolder;
                 CreateNewContext(folder);
             }
-            //e.Handled = true; 
+            //e.Handled = true; */
         }
 
         // Explores the selected gallery
@@ -468,16 +389,16 @@ namespace Image_Manager
             if (currentMode != 1) return;
             if (DirectoryTreeList.SelectedIndex != 0)
             {
-                currentFolder = currentFolder + "\\" + DirectoryTreeList.SelectedItem;
-                MakeArchiveTree(currentFolder);
+                //currentFolder = currentFolder + "\\" + DirectoryTreeList.SelectedItem;
+                //MakeArchiveTree(currentFolder);
             }
             else
             {
                 ListBoxItem lb = (ListBoxItem)DirectoryTreeList.SelectedItem;
                 if ((string)lb.Content != rootTitleText)
                 {
-                    currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                    MakeArchiveTree(currentFolder);
+                    //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
+                    //MakeArchiveTree(currentFolder);
                 }
             }
         }

@@ -29,5 +29,8 @@ namespace Image_Manager
         private SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
         private SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
         private SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
+        private SolidColorBrush unSelectedColor = new SolidColorBrush(Colors.Transparent);
+
+        private const int IndentDistance = 20;
     }
 }

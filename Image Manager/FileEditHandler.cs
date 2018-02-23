@@ -11,25 +11,19 @@ namespace Image_Manager
 
         private void RemoveFile()
         {
-            MoveFile(0);
+            //MoveFile(0);
         }
 
         private void MoveFileViaExplore()
         {
             if (currentMode != 1) return;       
-            MoveFile(1);
-        }
-
-        private void MoveFileViaSort()
-        {
-            if (currentMode != 2) return;
-            MoveFile(2);
+            //MoveFile(1);
         }
 
 
 
         //////////////////////////////////////
-        
+        /*
         private void MoveFile(int mode)
         {
             if (establishedRoot == false || _displayItems.Count == 0)
@@ -48,7 +42,7 @@ namespace Image_Manager
             if (mode == 1)
             {
                 selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-                newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
+                //newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
                 ext = Path.GetExtension(currentFileName);
                 newFileName = newFileName.Replace(rootTitleText, "");
                 newFileName = newFileName.Replace(prevDirTitleText, "");
@@ -136,7 +130,7 @@ namespace Image_Manager
             UpdateContent();
             UpdateTitle();
         }
-
+        */
 
 
 

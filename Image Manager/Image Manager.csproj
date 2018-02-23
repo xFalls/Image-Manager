@@ -43,6 +43,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -69,6 +70,7 @@
     <Compile Include="DefaultValues.cs" />
     <Compile Include="DisplayItem.cs" />
     <Compile Include="FileEditHandler.cs" />
+    <Compile Include="Folder.cs" />
     <Compile Include="Thumbnail.cs" />
     <Compile Include="UserInterface.cs" />
     <Page Include="MainWindow.xaml">
