@@ -8,8 +8,8 @@ Drag a folder or image into the main window to load them into the main view. Wor
 
 All modes:
   - Right click, Space: Enables zooming and dragging image with the mouse
-                      Opens video in default player
-                      Enables scrolling in a text file
+                        Opens video in default player
+                        Enables scrolling in a text file
   - Scroll, Left, Right, A, D: Navigate to next or previous image
   - F11: Toggle fullscreen
   - TAB, Middle click: Shift mode between View, Explore, and Sort
@@ -17,7 +17,7 @@ All modes:
   - F2: Rename file
   - F3: Quickly adds a preconfigured text in front of the name of the file
   - F4: Removes the preconfigured text
-  - Delete: Moves item to root folder (temp. solution)
+  - Delete: Moves item to "Deleted Files" folder inside the .exe folder
   
 
 In view mode:
@@ -26,18 +26,14 @@ In view mode:
 - +: Zoom in
 - -: Zoom out
   
-
-In explore mode:
-- Up, Down, W, S: Select folder above or below
-- E: Open folder
-- F: Load folder
-- Enter, R: Move currently displayed item to selected folder
-  
   
 In sort mode:
 - Up, Down, W, S: Select folder above or below
 - Enter, R: Move currently displayed item to selected folder
+- E: Loads the selected folder
 - Control: Open typing mode
+- Left click on folder: Loads the folder
+- Right click on folder: Moves current item inside folder
   
  
 In typing mode:
