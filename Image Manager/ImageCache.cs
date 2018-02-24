@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Console = System.Console;
 
 namespace Image_Manager
 {
@@ -11,7 +10,7 @@ namespace Image_Manager
 
         private void AddToCache()
         {
-            for (int scanRange = displayedItemIndex - preloadRange; scanRange < displayedItemIndex + preloadRange; scanRange++)
+            for (int scanRange = _displayedItemIndex - _preloadRange; scanRange < _displayedItemIndex + _preloadRange; scanRange++)
             {
                 if (scanRange < 0 || scanRange >= isInCache.Count || isInCache[scanRange]) continue;
 
@@ -26,7 +25,7 @@ namespace Image_Manager
         {
             for (var index = 0; index < isInCache.Count; index++)
             {
-                if (index >= displayedItemIndex - preloadRange && index <= displayedItemIndex + preloadRange) continue;
+                if (index >= _displayedItemIndex - _preloadRange && index <= _displayedItemIndex + _preloadRange) continue;
 
                 isInCache[index] = false;
                 _displayItems[index].RemovePreloadedContent();

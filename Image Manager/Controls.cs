@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +13,7 @@ namespace Image_Manager
         // Various keyboard shortcuts
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            if (!isTyping)
+            if (!_isTyping)
                 switch (e.Key)
                 {
                     // Toggle focus, enter selected directory
@@ -32,29 +30,29 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
-                        string input = Interaction.InputBox("Rename", "Select a new name", currentItem.GetFileNameExcludingExtension());
+                        string input = Interaction.InputBox("Rename", "Select a new name", _currentItem.GetFileNameExcludingExtension());
                         RenameFile(input);
                         break;
 
                     // Adds +HQ modifier
                     case Key.F3:
-                        string hqFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
-                        string hqInput = quickPrefix + hqFileName;
+                        string hqFileName = Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
+                        string hqInput = QuickPrefix + hqFileName;
                         RenameFile(hqInput);
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
-                        string hQnoFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
-                        string hQnoInput = hQnoFileName?.Replace(quickPrefix, "");
+                        string hQnoFileName = Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
+                        string hQnoInput = hQnoFileName?.Replace(QuickPrefix, "");
                         RenameFile(hQnoInput);
                         break;
 
                     // Move file to selected directory
                     case Key.Enter:
                     case Key.R:
-                        if (sortMode)
-                            MoveFile(0);
+                        if (_sortMode)
+                            MoveFile();
                         break;
 
                     case Key.Delete:
@@ -73,11 +71,11 @@ namespace Image_Manager
 
                     // Open directory in view mode
                     case Key.F:
-                        if (!isDrop && sortMode)
+                        if (!_isDrop && _sortMode)
                         {
                             string[] folder = new string[1];
 
-                            folder[0] = originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath();
+                            folder[0] = _originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath();
                             CreateNewContext(folder);
                         }
                         UpdateTitle();
@@ -85,13 +83,13 @@ namespace Image_Manager
 
                     // Toggle subdirectories in view mode
                     case Key.LeftShift:
-                        showSubDir = !showSubDir;
+                        _showSubDir = !_showSubDir;
                         UpdateTitle();
                         break;
 
                     // Toggle special folders
                     case Key.X:
-                        showSets = !showSets;
+                        _showSets = !_showSets;
                         UpdateTitle();
                         break;
 
@@ -120,9 +118,9 @@ namespace Image_Manager
                     // Previous image
                     case Key.Left:
                     case Key.A:
-                        if (displayedItemIndex > 0 && !(isActive && currentContentType == "text"))
+                        if (_displayedItemIndex > 0 && !(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
-                            displayedItemIndex--;
+                            _displayedItemIndex--;
                             UpdateContent();
                         }
                         break;
@@ -130,27 +128,27 @@ namespace Image_Manager
                     // Next image
                     case Key.Right:
                     case Key.D:
-                        if (displayedItemIndex + 1 < _displayItems.Count && !(isActive && currentContentType == "text"))
+                        if (_displayedItemIndex + 1 < _displayItems.Count && !(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
-                            displayedItemIndex++;
+                            _displayedItemIndex++;
                             UpdateContent();
                         }
                         break;
 
                     // First image
                     case Key.Home:
-                        if (!(isActive && currentContentType == "text"))
+                        if (!(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
-                            displayedItemIndex = 0;
+                            _displayedItemIndex = 0;
                             UpdateContent();
                         }
                         break;
 
                     // Last image
                     case Key.End:
-                        if (!(isActive && currentContentType == "text"))
+                        if (!(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
-                            displayedItemIndex = _displayItems.Count - 1;
+                            _displayedItemIndex = _displayItems.Count - 1;
                             UpdateContent();
                         }
                         break;
@@ -181,12 +179,12 @@ namespace Image_Manager
             // Start typing mode
             else if (e.Key == Key.LeftCtrl)
             {
-                if (sortMode && !isDrop)
+                if (_sortMode && !_isDrop)
                 {
-                    if (isTyping)
+                    if (_isTyping)
                     {
                         SortTypeBox.Visibility = Visibility.Hidden;
-                        isTyping = false;
+                        _isTyping = false;
                         //RepaintSortSelector();
                     }
                     else
@@ -194,7 +192,7 @@ namespace Image_Manager
                         SortTypeBox.Text = "";
                         SortTypeBox.Visibility = Visibility.Visible;
                         SortTypeBox.Focus();
-                        isTyping = true;
+                        _isTyping = true;
                     }
                 }
             }
@@ -203,24 +201,24 @@ namespace Image_Manager
         // Occurs while typing
         private void SortTypeBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!isTyping) return;
+            if (!_isTyping) return;
             if (e.Key == Key.Left)
             {
-                if (displayedItemIndex <= 0 || isActive && currentContentType == "text") return;
-                displayedItemIndex--;
+                if (_displayedItemIndex <= 0 || _isActive && _currentItem.GetTypeOfFile() == "text") return;
+                _displayedItemIndex--;
                 UpdateContent();
             }
             else if (e.Key == Key.Right)
             {
-                if (displayedItemIndex + 1 >= _displayItems.Count || isActive && currentContentType == "text") return;
-                displayedItemIndex++;
+                if (_displayedItemIndex + 1 >= _displayItems.Count || _isActive && _currentItem.GetTypeOfFile() == "text") return;
+                _displayedItemIndex++;
                 UpdateContent();
             }
             else if (e.Key == Key.Enter)
             {
-                if (sortMode)
+                if (_sortMode)
                 {
-                    MoveFile(0);
+                    MoveFile();
                 }
             }
             else if (e.Key == Key.Up)
@@ -244,17 +242,17 @@ namespace Image_Manager
         
         private void FilterSort()
         {
-            originFolder.RemoveAllShownFolders();
-            if (SortTypeBox.Text != "" && isTyping)
+            _originFolder.RemoveAllShownFolders();
+            if (SortTypeBox.Text != "" && _isTyping)
             {
                 // Filter out all items that don't contain the input string in alphabetical order
                 // E.g. RiN shows Rain but not rni
 
-                foreach (Folder item in originFolder.GetAllFolders())
+                foreach (Folder item in _originFolder.GetAllFolders())
                 {
                     if (ContainsWord(SortTypeBox.Text, item.GetFolderName()))
                     {
-                        originFolder.GetAllShownFolders().Add(item);
+                        _originFolder.GetAllShownFolders().Add(item);
                     }
                     else
                     {
@@ -262,11 +260,11 @@ namespace Image_Manager
                     }
                 }
 
-                if (originFolder.GetAllShownFolders().Count == 0) return;
+                if (_originFolder.GetAllShownFolders().Count == 0) return;
             }
             else
             {
-                originFolder.GetAllShownFolders().AddRange(originFolder.GetAllFolders());
+                _originFolder.GetAllShownFolders().AddRange(_originFolder.GetAllFolders());
             }
             CreateSortMenu();
         }
@@ -292,11 +290,11 @@ namespace Image_Manager
         private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             // Disable switching image when on a focused text item
-            if (isActive && currentContentType == "text")
+            if (_isActive && _currentItem.GetTypeOfFile() == "text")
             {
                 return;
             }
-            if (isActive)
+            if (_isActive)
             {
                 double zoom = e.Delta > 0 ? .2 : -.2;
                 if (zoom > 0)
@@ -310,14 +308,14 @@ namespace Image_Manager
                 return;
             }
 
-            if (e.Delta > 0 && displayedItemIndex > 0)
+            if (e.Delta > 0 && _displayedItemIndex > 0)
             {
-                displayedItemIndex--;
+                _displayedItemIndex--;
                 UpdateContent();
             }
-            else if (e.Delta < 0 && displayedItemIndex + 1 < _displayItems.Count)
+            else if (e.Delta < 0 && _displayedItemIndex + 1 < _displayItems.Count)
             {
-                displayedItemIndex++;
+                _displayedItemIndex++;
                 UpdateContent();
             }
         }
@@ -356,26 +354,6 @@ namespace Image_Manager
             //e.Handled = true; */
         }
 
-        // Explores the selected gallery
-        private void DirectoryTreeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (currentMode != 1) return;
-            if (DirectoryTreeList.SelectedIndex != 0)
-            {
-                //currentFolder = currentFolder + "\\" + DirectoryTreeList.SelectedItem;
-                //MakeArchiveTree(currentFolder);
-            }
-            else
-            {
-                ListBoxItem lb = (ListBoxItem)DirectoryTreeList.SelectedItem;
-                if ((string)lb.Content != rootTitleText)
-                {
-                    //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                    //MakeArchiveTree(currentFolder);
-                }
-            }
-        }
-
         // Toggles the directory box with a mouse wheel click
         private void ControlWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -389,13 +367,13 @@ namespace Image_Manager
         // Drag support
         private void imageViewer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (currentContentType == "video") return;
-            if (isActive == false) return;
+            if (_currentItem.GetTypeOfFile() == "video") return;
+            if (_isActive == false) return;
             imageViewer.CaptureMouse();
-            imageViewer.RenderTransform = imageTransformGroup;
+            imageViewer.RenderTransform = _imageTransformGroup;
 
-            start = e.GetPosition(ImageBorder);
-            origin = new Point(tt.X, tt.Y);
+            _start = e.GetPosition(ImageBorder);
+            _origin = new Point(_tt.X, _tt.Y);
         }
 
         private void imageViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -406,11 +384,11 @@ namespace Image_Manager
         private void imageViewer_MouseMove(object sender, MouseEventArgs e)
         {
             if (!imageViewer.IsMouseCaptured) return;
-            Vector v = start - e.GetPosition(ImageBorder);
-            tt.X = origin.X - v.X;
-            tt.Y = origin.Y - v.Y;
+            Vector v = _start - e.GetPosition(ImageBorder);
+            _tt.X = _origin.X - v.X;
+            _tt.Y = _origin.Y - v.Y;
 
-            imageViewer.RenderTransform = imageTransformGroup;
+            imageViewer.RenderTransform = _imageTransformGroup;
         }
 
         private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)

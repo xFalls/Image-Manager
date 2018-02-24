@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using WpfAnimatedGif;
 using Point = System.Windows.Point;
 
 namespace Image_Manager
@@ -21,91 +13,55 @@ namespace Image_Manager
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        // Constants
-        private const string rootTitleText = "[ROOT FOLDER]";
-        private const string prevDirTitleText = "[THIS FOLDER]";
-
-        // Variables
-        // public static List<string> filepaths = new List<string>();
-        public static List<string> newFiles = new List<string>();
-        public static List<string> movedFiles = new List<string>();
-        public static List<string> movedFilesOldLocations = new List<string>();
-        //public static List<string> folderPaths = new List<string>();
-        //private readonly Dictionary<string, string> folderDict = new Dictionary<string, string>();
-
-       
-        private string currentContentType = "null";
-
-        
-        private bool showSubDir = true;
-        private bool showSets = true;
-
-        private bool establishedRoot;
-        //private string rootFolder;
-        //private string currentFolder;
-        private string deleteFolder;
-
-        private bool isTyping;
-
-        public static string curFileName = "";
-        private string curFolderPath = "";
-
-        // Image manipulation
-        private Point start;
-        private Point origin;
-        private double currentZoom = 1;
-        TransformGroup imageTransformGroup = new TransformGroup();
-        TranslateTransform tt = new TranslateTransform();
-        ScaleTransform st = new ScaleTransform();
-
-        BlurEffect videoBlur = new BlurEffect();
-
-        private int guiSelection;
-        private int sortGuiSelection;
-        private int currentMode;
-
-
-        //////////////
+        // Sets what type of folders to show
+        private bool _showSubDir = true;
+        private bool _showSets = true;
 
         // List of all stored objects
+        private Folder _originFolder;
         private readonly List<DisplayItem> _displayItems = new List<DisplayItem>();
         private readonly List<DisplayItem> _movedItems = new List<DisplayItem>();
 
+        // Keeps track of changes in the folder structure
+        public static List<string> NewFiles = new List<string>();
+        public static List<string> MovedFiles = new List<string>();
+        private readonly string _deleteFolder;
+
         // The index of the displayed item in _displayItems
-        private static int displayedItemIndex;
-        private DisplayItem currentItem;
+        private static int _displayedItemIndex;
+        private DisplayItem _currentItem;
 
-        private Folder originFolder;
+        // Other toggles
+        private bool _isActive;
+        private bool _isDrop;
+        private bool _sortMode;
+        private bool _isTyping;
 
-        private bool isActive;
-        private bool isDrop;
-        private bool sortMode = false;
-
-        private int cursor = 0;
-
-        //////////////
-
-
-
-
-
+        // Image manipulation
+        private Point _start;
+        private Point _origin;
+        private double _currentZoom = 1;
+        private readonly TransformGroup _imageTransformGroup = new TransformGroup();
+        private readonly TranslateTransform _tt = new TranslateTransform();
+        private readonly ScaleTransform _st = new ScaleTransform();
+        private readonly BlurEffect _videoBlur = new BlurEffect();
 
 
         public MainWindow()
         {
             InitializeComponent();
 
-            imageTransformGroup.Children.Add(st);
-            imageTransformGroup.Children.Add(tt);
-            imageViewer.RenderTransform = imageTransformGroup;
-            videoBlur.Radius = 20;
+            _imageTransformGroup.Children.Add(_st);
+            _imageTransformGroup.Children.Add(_tt);
+            imageViewer.RenderTransform = _imageTransformGroup;
+            _videoBlur.Radius = 20;
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
                 Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
-            deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
+            _deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
 
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
@@ -161,7 +117,7 @@ namespace Image_Manager
                     break;
                 case "video":
                     VideoPlayIcon.Visibility = imageViewer.Visibility = Visibility.Visible;
-                    imageViewer.Effect = videoBlur;
+                    imageViewer.Effect = _videoBlur;
                     break;
                 case "text":
                     textViewer.Visibility = Visibility.Visible;
@@ -172,29 +128,34 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
-            if (_displayItems.Count == 0) return;
+            if (_displayItems.Count == 0)
+            {
+                UpdateTitle();
+                UpdateInfobar();
+                return;
+            }
             
-            currentItem = _displayItems[displayedItemIndex];
-
-            ResetView();
-            UpdateTitle();
-            UpdateInfobar();
+            _currentItem = _displayItems[_displayedItemIndex];
 
             // Makes all irrelevant elements inivisible
-            MakeTypeVisible(currentItem.GetTypeOfFile());
+            MakeTypeVisible(_currentItem.GetTypeOfFile());
 
             // Preloads images ahead of time
             AddToCache();
 
             // Gets and show the content
-            if (currentItem.GetTypeOfFile() == "image")
-                imageViewer.Source = ((ImageItem) currentItem)?.GetImage();
-            else if (currentItem.GetTypeOfFile() == "gif")
-                gifViewer.Source = ((GifItem) currentItem).GetGif(gifViewer);
-            else if (currentItem.GetTypeOfFile() == "video")
-                imageViewer.Source = ((VideoItem) currentItem).GetThumbnail();
-            else if (currentItem.GetTypeOfFile() == "text")
-                textViewer.Text = ((TextItem) currentItem).GetText();
+            if (_currentItem.GetTypeOfFile() == "image")
+                imageViewer.Source = ((ImageItem) _currentItem)?.GetImage();
+            else if (_currentItem.GetTypeOfFile() == "gif")
+                gifViewer.Source = ((GifItem) _currentItem).GetGif(gifViewer);
+            else if (_currentItem.GetTypeOfFile() == "video")
+                imageViewer.Source = ((VideoItem) _currentItem).GetThumbnail();
+            else if (_currentItem.GetTypeOfFile() == "text")
+                textViewer.Text = ((TextItem) _currentItem).GetText();
+
+            ResetView();
+            UpdateTitle();
+            UpdateInfobar();
         }
 
         /// <summary>
@@ -204,17 +165,17 @@ namespace Image_Manager
         public void Zoom(double zoomAmount)
         {
             // Only allow zooming in an image
-            if (currentContentType != "image") return;
+            if (_currentItem.GetTypeOfFile() != "image") return;
             
             // Disallow zooming beyond the specified limits
-            if ((zoomAmount > 0 && currentZoom + zoomAmount >= MaxZoom) || 
-                (zoomAmount < 0 && currentZoom + zoomAmount <= MinZoom)) return;
+            if ((zoomAmount > 0 && _currentZoom + zoomAmount >= MaxZoom) || 
+                (zoomAmount < 0 && _currentZoom + zoomAmount <= MinZoom)) return;
 
             // Changes the current zoom level and updates the image
-            currentZoom += zoomAmount;
-            st.ScaleX = currentZoom;
-            st.ScaleY = currentZoom;
-            imageViewer.RenderTransform = imageTransformGroup;
+            _currentZoom += zoomAmount;
+            _st.ScaleX = _currentZoom;
+            _st.ScaleY = _currentZoom;
+            imageViewer.RenderTransform = _imageTransformGroup;
         }
 
         
@@ -222,7 +183,7 @@ namespace Image_Manager
         // Adds all valid new files to a list
         private void ProcessNewFiles()
         {
-            foreach (var item in newFiles)
+            foreach (var item in NewFiles)
             {
                 string fileType = FileType(item);
                 switch (fileType)
@@ -246,7 +207,7 @@ namespace Image_Manager
                 }
             }
 
-            newFiles.Clear();
+            NewFiles.Clear();
         }
 
         // Recursively finds all files and subfolders in a folder
@@ -256,10 +217,10 @@ namespace Image_Manager
             {
                 if (Directory.Exists(s))
                 {
-                    if (isDrop) InitializeDrop(s);
+                    if (_isDrop) InitializeDrop(s);
 
                     SearchOption scanFolderStructure =
-                        showSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                        _showSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
                     // Files to add
                     foreach (string foundFile in Directory.GetFiles(s, "*.*", scanFolderStructure))
@@ -267,17 +228,17 @@ namespace Image_Manager
                         // Exlude folders started with an underscore
                         if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
                         // Exclude special folders when set to do so
-                        if (!showSets && specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
+                        if (!_showSets && _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
 
-                        newFiles.Add(foundFile);
+                        NewFiles.Add(foundFile);
                     }
                 }
                 else if (File.Exists(s))
                 {
-                    if (isDrop) InitializeDrop(Path.GetDirectoryName(s));
+                    if (_isDrop) InitializeDrop(Path.GetDirectoryName(s));
 
                     // Add filepath
-                    newFiles.Add(s);
+                    NewFiles.Add(s);
                 }
             }
         }
@@ -285,9 +246,10 @@ namespace Image_Manager
         private void InitializeDrop(string s)
         {
             // The folder highest in the tree
-            originFolder = new Folder(s);
+            _originFolder = new Folder(s);
+            DisplayItem.RootFolder = Directory.GetParent(_originFolder.GetFolderPath()).ToString();
 
-            isDrop = false;
+            _isDrop = false;
         }
 
         // Handler for drag-dropping files
@@ -296,33 +258,33 @@ namespace Image_Manager
             // Finds all filepaths of a dropped object
             string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-            displayedItemIndex = 0;
+            _displayedItemIndex = 0;
             DirectoryTreeList.Items.Clear();
-            originFolder?.GetAllFolders()?.Clear();
-            originFolder?.GetAllShownFolders()?.Clear();
+            _originFolder?.GetAllFolders()?.Clear();
+            _originFolder?.GetAllShownFolders()?.Clear();
             RemoveOldContext();
-            isDrop = true;
+            _isDrop = true;
             CreateNewContext(folder);
             CreateSortMenu();
         }
 
         private void ToggleAction()
         {
-            if (currentContentType == "text" || currentContentType == "image")
+            if (_currentItem.GetTypeOfFile() == "text" || _currentItem.GetTypeOfFile() == "image")
             {
-                isActive = !isActive;
-                textViewer.IsEnabled = isActive;
+                _isActive = !_isActive;
+                textViewer.IsEnabled = _isActive;
 
-                if (isActive == false)
+                if (_isActive == false)
                 {
                     ResetView();
                 }
             }
 
             // Start video in default player
-            else if (currentContentType == "video")
+            else if (_currentItem.GetTypeOfFile() == "video")
             {
-                Process.Start(_displayItems[displayedItemIndex].GetFilePath());
+                Process.Start(_displayItems[_displayedItemIndex].GetFilePath());
             }
         }
 
@@ -331,19 +293,19 @@ namespace Image_Manager
         /// </summary>
         public void ResetView()
         {
-            tt.Y = 0.5;
-            tt.X = 0.5;
-            st.ScaleX = 1;
-            st.ScaleY = 1;
-            currentZoom = 1;
-            imageViewer.RenderTransform = imageTransformGroup;
+            _tt.Y = 0.5;
+            _tt.X = 0.5;
+            _st.ScaleX = 1;
+            _st.ScaleY = 1;
+            _currentZoom = 1;
+            imageViewer.RenderTransform = _imageTransformGroup;
         }
 
 
         // Resets the program and starts over with new files
         private void CreateNewContext(string[] folder)
         {
-            displayedItemIndex = 0;
+            _displayedItemIndex = 0;
             RemoveOldContext();
             FindFilesInSubfolders(folder);
             ProcessNewFiles();
@@ -353,7 +315,7 @@ namespace Image_Manager
         // Resets the program
         private void RemoveOldContext()
         {
-            isActive = false;
+            _isActive = false;
             imageViewer.Source = null;
 
             UpdateTitle();

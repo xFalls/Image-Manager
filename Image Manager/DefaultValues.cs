@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace Image_Manager
@@ -17,7 +13,7 @@ namespace Image_Manager
         private const double MinZoom = 0.5;
 
         // Special folders
-        private readonly Dictionary<string, SolidColorBrush> specialFolders = new Dictionary<string, SolidColorBrush>()
+        private readonly Dictionary<string, SolidColorBrush> _specialFolders = new Dictionary<string, SolidColorBrush>()
         {
             { "[Artist]", new SolidColorBrush(Colors.Yellow)},
             { "[Collection]", new SolidColorBrush(Colors.CornflowerBlue)},
@@ -26,16 +22,17 @@ namespace Image_Manager
         };
 
         // UI colors
-        private SolidColorBrush defaultTextColor = new SolidColorBrush(Colors.White);
-        private SolidColorBrush warningTextColor = new SolidColorBrush(Colors.Red);
-        private SolidColorBrush selectionColor = new SolidColorBrush(Colors.Blue);
-        private SolidColorBrush unSelectedColor = new SolidColorBrush(Colors.Transparent);
+        private readonly SolidColorBrush _defaultTextColor = new SolidColorBrush(Colors.White);
+        private readonly bool _preferWebP = true;
+        private readonly bool _prefer1000Px = true;
+        private readonly SolidColorBrush _notOver1000PxWarningTextColor = new SolidColorBrush(Colors.Red);
+        private readonly SolidColorBrush _notWebPWarningTextColor = new SolidColorBrush(Colors.DarkOrange);
 
         private const int IndentDistance = 20;
 
-        private const string quickPrefix = "+HQ ";
+        private const string QuickPrefix = "+HQ ";
 
         // Caching
-        private int preloadRange = 15;
+        private readonly int _preloadRange = 15;
     }
 }

@@ -4,10 +4,13 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using DirectShowLib;
+using DirectShowLib.DES;
 using WpfAnimatedGif;
 using Image = System.Windows.Controls.Image;
 
@@ -29,6 +32,10 @@ namespace Image_Manager
         protected string FileExtension;
         protected string FileType;
         protected string FileLocation;
+        protected string LocalLocation;
+        protected string InfoBarDefaultContent;
+
+        public static string RootFolder;
 
 
         protected DisplayItem(string name)
@@ -39,6 +46,9 @@ namespace Image_Manager
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(name);
             FileExtension = Path.GetExtension(name).ToLower();
             FileLocation = Path.GetDirectoryName(name);
+
+            LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
+            InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
         }
 
         public string GetTypeOfFile()
@@ -75,6 +85,7 @@ namespace Image_Manager
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(newPath);
             FileExtension = Path.GetExtension(newPath).ToLower();
             FileLocation = Path.GetDirectoryName(newPath);
+            InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
         }
 
         public string GetFileExtension()
@@ -95,8 +106,9 @@ namespace Image_Manager
         {
         }
 
-        public virtual void GetInfobarContent()
+        public virtual string GetInfobarContent()
         {
+            return InfoBarDefaultContent;
         }
 
         public override string ToString()
@@ -112,12 +124,19 @@ namespace Image_Manager
     public class ImageItem : DisplayItem
     {
         private BitmapImage ImageSource;
-        private readonly string ImageResolution;
+        public int ImageHeight;
+        private int ImageWidth;
 
 
         public ImageItem(string name) : base(name)
         {
-            FileType = "image";            
+            FileType = "image";
+        }
+
+
+        public override string GetInfobarContent()
+        {
+            return InfoBarDefaultContent + "    -    ( " + ImageWidth + " x " + ImageHeight + " )";
         }
 
         public override void PreloadContent()
@@ -128,6 +147,11 @@ namespace Image_Manager
         public override void RemovePreloadedContent()
         {
             ImageSource = null;
+        }
+
+        public int GetSize()
+        {
+            return ImageHeight;
         }
 
         public BitmapImage GetImage()
@@ -144,6 +168,10 @@ namespace Image_Manager
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.StreamSource = stream;
                 image.EndInit();
+
+                if (ImageHeight != 0 || ImageWidth != 0) return image;
+                ImageHeight = image.PixelHeight;
+                ImageWidth = image.PixelWidth;
             }
             return image;
         }
@@ -161,6 +189,7 @@ namespace Image_Manager
         {
             FileType = "gif";
         }
+
 
         public BitmapImage GetGif(Image viewer)
         {
@@ -195,18 +224,31 @@ namespace Image_Manager
     public class VideoItem : DisplayItem
     {
         private BitmapImage thumbnailSource;
-        private string videoResolution;
+        private int videoResolutionWidth;
+        private int videoResolutionHeight;
         private string videoLength;
 
 
         public VideoItem(string name) : base(name)
         {
             FileType = "video";
-            //thumbnailSource = LoadThumbnail(FilePath);
+        }
+
+
+        public override string GetInfobarContent()
+        {
+            return InfoBarDefaultContent + "    -    ( " + videoResolutionWidth + " x " + videoResolutionHeight + " )" +
+                   "    -    ( " + videoLength + " )";
         }
 
         public override void PreloadContent()
         {
+            // If the values returned are nonsensical, retry
+            while (videoResolutionHeight == 0 ||
+                   videoResolutionWidth < -100000 || videoResolutionHeight < -100000 ||
+                   videoResolutionWidth > 100000 || videoResolutionHeight > 100000)
+                GetMetaData();
+
             thumbnailSource = LoadThumbnail(FilePath);
         }
 
@@ -248,6 +290,43 @@ namespace Image_Manager
                 return bitmapimage;
             }
         }
+
+        public void GetMetaData()
+        {
+            var mediaDet = (IMediaDet) new MediaDet();
+            DsError.ThrowExceptionForHR(mediaDet.put_Filename(FilePath));
+
+            // retrieve some measurements from the video
+
+            var mediaType = new AMMediaType();
+            mediaDet.get_StreamMediaType(mediaType);
+            var videoInfo = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
+            DsUtils.FreeAMMediaType(mediaType);
+
+            videoResolutionWidth = videoInfo.BmiHeader.Width;
+            videoResolutionHeight = videoInfo.BmiHeader.Height;
+
+            mediaDet.get_StreamLength(out double mediaLength);
+
+            // Convert time into readable format
+            var parts = new List<string>();
+
+            void Add(int val, string unit)
+            {
+                if (val > 0) parts.Add(val + unit);
+            }
+
+            var t = TimeSpan.FromSeconds((int) mediaLength);
+
+            Add(t.Days, "d");
+            Add(t.Hours, "h");
+            Add(t.Minutes, "m");
+            Add(t.Seconds, "s");
+
+            videoLength = string.Join(" ", parts);
+
+            mediaDet.put_Filename(null);
+        }
     }
 
 
@@ -264,6 +343,33 @@ namespace Image_Manager
         {
             FileType = "text";
             textContent = "\n\n" + File.ReadAllText(FilePath);
+        }
+
+
+        public override string GetInfobarContent()
+        {
+            if (wordAmount == null) CountWords();
+            return InfoBarDefaultContent + "    -    ( " + wordAmount + " words )";
+        }
+
+        public void CountWords()
+        {
+            StreamReader sr = new StreamReader(FilePath);
+
+            int counter = 0;
+            const string delim = " ,.!?";
+
+            while (!sr.EndOfStream)
+            {
+                string line = sr.ReadLine();
+                line?.Trim();
+                string[] fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                counter += fields.Length;
+            }
+
+            sr.Close();
+
+            wordAmount = counter.ToString();
         }
 
         public string GetText()
