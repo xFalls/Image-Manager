@@ -268,8 +268,9 @@ namespace Image_Manager
             CreateSortMenu();
         }
 
-        private void ToggleAction()
+        private void FocusContent()
         {
+            // Sets focus on image and text files
             if (_currentItem.GetTypeOfFile() == "text" || _currentItem.GetTypeOfFile() == "image")
             {
                 _isActive = !_isActive;
