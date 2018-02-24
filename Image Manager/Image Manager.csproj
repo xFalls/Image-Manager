@@ -87,7 +87,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CacheHandler.cs" />
     <Compile Include="Controls.cs" />
     <Compile Include="DefaultValues.cs" />
     <Compile Include="DisplayItem.cs" />
@@ -142,6 +141,9 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="DirectShowLib-2005.dll" />
+    <Content Include="README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

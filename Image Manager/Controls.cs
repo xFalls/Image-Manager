@@ -239,6 +239,7 @@ namespace Image_Manager
             }
         }
         
+        // Filters the list of all shown folders according to what's typed.
         private void FilterSort()
         {
             _originFolder.RemoveAllShownFolders();
@@ -263,7 +264,12 @@ namespace Image_Manager
             CreateSortMenu();
         }
 
-
+        /// <summary>
+        /// Checks if a word contains parts of another.
+        /// </summary>
+        /// <param name="word">The word to compare with.</param>
+        /// <param name="otherword">The word to compare to.</param>
+        /// <returns>Returns whether the match is a success.</returns>
         public static bool ContainsWord(string word, string otherword)
         {
             word = word.ToLower();
@@ -281,6 +287,7 @@ namespace Image_Manager
             return true;
         }
 
+        // Sets what scrolling the mousewheel should do
         private void ControlWindow_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             // Disable switching image when on a focused text item
@@ -347,7 +354,6 @@ namespace Image_Manager
                 ToggleViewMode();
             }
         }
-
 
         // Drag support
         private void imageViewer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

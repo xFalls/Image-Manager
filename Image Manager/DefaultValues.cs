@@ -3,9 +3,11 @@ using System.Windows.Media;
 
 namespace Image_Manager
 {
+    /// <summary>
+    /// Default values that are set and used throughout the program
+    /// </summary>
     partial class MainWindow
     {
-
         // Zoom
         private const double ZoomAmountButton = 0.2;
         private const double ZoomAmountWheel = 0.1;
@@ -28,11 +30,16 @@ namespace Image_Manager
         private readonly SolidColorBrush _notOver1000PxWarningTextColor = new SolidColorBrush(Colors.Red);
         private readonly SolidColorBrush _notWebPWarningTextColor = new SolidColorBrush(Colors.DarkOrange);
 
+        // Indentation distance for each subfolder level
         private const int IndentDistance = 20;
 
+        // What to prefix to name
         private const string QuickPrefix = "+HQ ";
 
         // Caching
         private readonly int _preloadRange = 15;
+
+        // Blur effect on videos
+        private readonly int _defaultBlurRadius = 20;
     }
 }

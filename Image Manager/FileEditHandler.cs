@@ -6,39 +6,11 @@ namespace Image_Manager
 {
     partial class MainWindow
     {
-
-        private void RemoveFile()
-        {
-            MoveFile("remove");
-        }
-
-        // Renames the file if an file with the same name already exists in the directory
-        private string NewNameIfTaken(string curPath, string newPath)
-        {
-            string workingPath = newPath;
-            int iterNum = 0;
-
-            while (true)
-            {
-                iterNum++;
-                if (File.Exists(workingPath))
-                {
-                    // If current image is in the same folder
-                    if (curPath == newPath) return workingPath;
-
-                    // Tries with the same path, but appends a (#) number at the end
-                    workingPath = Path.GetDirectoryName(newPath) + "\\" + _currentItem.GetFileNameExcludingExtension() + 
-                                  " (" + iterNum + ")" + _currentItem.GetFileExtension();
-                }
-                else
-                {
-                    return workingPath;
-                }
-            }
-            
-        }
-
-        private void MoveFile(string mode = "")
+        /// <summary>
+        /// Moves the currently displayed file
+        /// </summary>
+        /// <param name="mode">Optionally set as "remove" to remove the file.</param>
+        public void MoveFile(string mode = "")
         {
             if (_displayItems.Count == 0) return;
             if (mode != "remove")
@@ -61,6 +33,7 @@ namespace Image_Manager
 
                 File.Move(_currentItem.GetFilePath(), newPath);
 
+                // Update internal representation to reflect changes
                 _movedItems.Insert(0, _currentItem);
                 _displayItems.RemoveAt(_displayedItemIndex);
                 isInCache.RemoveAt(_displayedItemIndex);
@@ -81,19 +54,20 @@ namespace Image_Manager
             UpdateContent();
         }
         
+        // Undos the previous moves and deletions
         private void UndoMove()
         {
             if (_movedItems.Count == 0) return;
+
             try { 
+                DisplayItem fileToUndo = _movedItems.ElementAt(0);
 
-            DisplayItem fileToUndo = _movedItems.ElementAt(0);
+                File.Move(fileToUndo.GetFilePath(), fileToUndo.GetOldFilePath());
+                fileToUndo.SetFilePath(fileToUndo.GetOldFilePath());
 
-            File.Move(fileToUndo.GetFilePath(), fileToUndo.GetOldFilePath());
-            fileToUndo.SetFilePath(fileToUndo.GetOldFilePath());
-
-            _displayItems.Insert(_displayedItemIndex, fileToUndo);
-            isInCache.Insert(_displayedItemIndex, false);
-            _movedItems.RemoveAt(0);
+                _displayItems.Insert(_displayedItemIndex, fileToUndo);
+                isInCache.Insert(_displayedItemIndex, false);
+                _movedItems.RemoveAt(0);
             }
                 catch
             {
@@ -103,6 +77,10 @@ namespace Image_Manager
             UpdateContent();
         }
 
+        /// <summary>
+        /// Gives the current file a new name.
+        /// </summary>
+        /// <param name="input">The new name.</param>
         private void RenameFile(string input)
         {
             if (input == "") return;
@@ -126,6 +104,38 @@ namespace Image_Manager
             {
                 Interaction.MsgBox("File with name already exists");
             }
+        }
+
+        // Removing a file simply moves it to a preset directory.
+        private void RemoveFile()
+        {
+            MoveFile("remove");
+        }
+
+        // Renames the file if an file with the same name already exists in the directory
+        private string NewNameIfTaken(string curPath, string newPath)
+        {
+            string workingPath = newPath;
+            int iterNum = 0;
+
+            while (true)
+            {
+                iterNum++;
+                if (File.Exists(workingPath))
+                {
+                    // If current image is in the same folder
+                    if (curPath == newPath) return workingPath;
+
+                    // Tries with the same path, but appends a (#) number at the end
+                    workingPath = Path.GetDirectoryName(newPath) + "\\" + _currentItem.GetFileNameExcludingExtension() +
+                                  " (" + iterNum + ")" + _currentItem.GetFileExtension();
+                }
+                else
+                {
+                    return workingPath;
+                }
+            }
+
         }
     }
 }

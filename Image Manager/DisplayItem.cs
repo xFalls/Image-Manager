@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using DirectShowLib;
 using DirectShowLib.DES;
@@ -23,7 +19,6 @@ namespace Image_Manager
     /// </summary>
     public abstract class DisplayItem
     {
-        // TODO - Make some readonly
         protected string FilePath;
         protected string PermFilePath;
 
@@ -37,7 +32,10 @@ namespace Image_Manager
 
         public static string RootFolder;
 
-
+        /// <summary>
+        /// Constructor that sets the values of each item's basic information.
+        /// </summary>
+        /// <param name="name">The path to this file</param>
         protected DisplayItem(string name)
         {
             FilePath = PermFilePath = name;
@@ -47,35 +45,61 @@ namespace Image_Manager
             FileExtension = Path.GetExtension(name).ToLower();
             FileLocation = Path.GetDirectoryName(name);
 
+            // Sets the relative location to the initial rootfolder.
             LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
             InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
         }
 
+        /// <summary>
+        /// Gets what type of file this is, set in each inherited class.
+        /// </summary>
+        /// <returns>A string describing the nature of this file.</returns>
         public string GetTypeOfFile()
         {
             return FileType;
         }
 
+        /// <summary>
+        /// Gets the filename without its extension.
+        /// </summary>
+        /// <returns>The filename sans extension.</returns>
         public string GetFileNameExcludingExtension()
         {
             return FileNameExludingExtension;
         }
 
+        /// <summary>
+        /// Gets the filename.
+        /// </summary>
+        /// <returns>This object's filename.</returns>
         public string GetFileName()
         {
             return FileName;
         }
 
+        /// <summary>
+        /// Gets the entire path to this file including its filename.
+        /// </summary>
+        /// <returns>Gets the path to this file.</returns>
         public string GetFilePath()
         {
             return FilePath;
         }
 
+        /// <summary>
+        /// Gets the initial filepath, allowing for moved files to be moved back to its first location.
+        /// </summary>
+        /// <returns>The initial filepath.</returns>
         public string GetOldFilePath()
         {
             return PermFilePath;
         }
 
+        /// <summary>
+        /// Changes the data of this file in case it has moved or been renamed. 
+        /// GetOldFilePath remains unchanged.
+        /// </summary>
+        /// <param name="newPath">Location of this object's new path and name.</param>
         public void SetFilePath(string newPath)
         {
             FilePath = newPath;
@@ -88,29 +112,52 @@ namespace Image_Manager
             InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
         }
 
+        /// <summary>
+        /// Gets the file extension.
+        /// </summary>
+        /// <returns>The file's extension.</returns>
         public string GetFileExtension()
         {
             return FileExtension;
         }
 
+        /// <summary>
+        /// Gets the location of this file, excluding its name.
+        /// </summary>
+        /// <returns>The path to the folder this file is located in.</returns>
         public string GetLocation()
         {
             return FileLocation;
         }
 
+        /// <summary>
+        /// Allows certain files to be preloaded.
+        /// </summary>
         public virtual void PreloadContent()
         {
         }
 
+        /// <summary>
+        /// Allows preloaded content to be dropped.
+        /// </summary>
         public virtual void RemovePreloadedContent()
         {
         }
 
+        /// <summary>
+        /// Gets the content that should be displayed in the infobar.
+        /// The default is the filename followed by its location.
+        /// </summary>
+        /// <returns></returns>
         public virtual string GetInfobarContent()
         {
             return InfoBarDefaultContent;
         }
 
+        /// <summary>
+        /// Gets the filepath of this object.
+        /// </summary>
+        /// <returns>The file complete path.</returns>
         public override string ToString()
         {
             return FilePath;
@@ -118,16 +165,17 @@ namespace Image_Manager
     }
 
 
+    /// <inheritdoc />
     /// <summary>
-    /// 
+    /// Contains an image and its metadata.
     /// </summary>
     public class ImageItem : DisplayItem
     {
-        private BitmapImage ImageSource;
-        public int ImageHeight;
-        private int ImageWidth;
+        private BitmapImage _imageSource;
+        private int _imageHeight;
+        private int _imageWidth;
 
-
+    
         public ImageItem(string name) : base(name)
         {
             FileType = "image";
@@ -136,29 +184,44 @@ namespace Image_Manager
 
         public override string GetInfobarContent()
         {
-            return InfoBarDefaultContent + "    -    ( " + ImageWidth + " x " + ImageHeight + " )";
+            return InfoBarDefaultContent + "    -    ( " + _imageWidth + " x " + _imageHeight + " )";
         }
 
         public override void PreloadContent()
         {
-            ImageSource = LoadImage(FilePath);
+            _imageSource = LoadImage(FilePath);
         }
 
         public override void RemovePreloadedContent()
         {
-            ImageSource = null;
+            _imageSource = null;
         }
 
+        /// <summary>
+        /// Gets the height of this image.
+        /// </summary>
+        /// <returns>Height of image in pixels.</returns>
         public int GetSize()
         {
-            return ImageHeight;
+            return _imageHeight;
         }
 
+        /// <summary>
+        /// Gets the image that has been preloaded.
+        /// </summary>
+        /// <returns>A BitmapImage.</returns>
         public BitmapImage GetImage()
         {
-            return ImageSource;
+            return _imageSource;
         }
 
+
+        /// <summary>
+        /// Loads the file and sets its source to this object,
+        /// as long as it remains preloaded.
+        /// </summary>
+        /// <param name="myImageFile">The file path.</param>
+        /// <returns>The completed image.</returns>
         private BitmapImage LoadImage(string myImageFile)
         {
             BitmapImage image = new BitmapImage();
@@ -169,9 +232,11 @@ namespace Image_Manager
                 image.StreamSource = stream;
                 image.EndInit();
 
-                if (ImageHeight != 0 || ImageWidth != 0) return image;
-                ImageHeight = image.PixelHeight;
-                ImageWidth = image.PixelWidth;
+                // If the image has been loaded before, it won't have to
+                // get the metadata of the image again.
+                if (_imageHeight != 0 || _imageWidth != 0) return image;
+                _imageHeight = image.PixelHeight;
+                _imageWidth = image.PixelWidth;
             }
             return image;
         }
@@ -179,18 +244,22 @@ namespace Image_Manager
 
 
     /// <summary>
-    /// 
+    /// Contains a gif file.
     /// </summary>
     public class GifItem : DisplayItem
     {
-        private BitmapImage gifImage;
+        private BitmapImage _gifImage;
 
         public GifItem(string name) : base(name)
         {
             FileType = "gif";
         }
 
-
+        /// <summary>
+        /// Gets the gif by loading it into memory.
+        /// </summary>
+        /// <param name="viewer">The element that will display the gif file.</param>
+        /// <returns>The ready-made image file.</returns>
         public BitmapImage GetGif(Image viewer)
         {
             return LoadGif(FilePath, viewer);
@@ -198,35 +267,46 @@ namespace Image_Manager
 
         public override void RemovePreloadedContent()
         {
-            gifImage = null;
+            _gifImage = null;
         }
 
+        /// <summary>
+        /// Due to limitations of WPF, a gif file can't be stored
+        /// into memory in an animated state, meaning the file will
+        /// have to be redrawn each time it is loaded and thus
+        /// cannot be preloaded either. There may be a not-yet-found
+        /// workaround to this problem.
+        /// </summary>
+        /// <param name="myGifFile">The path to the file.</param>
+        /// <param name="viewer">The element that will display the gif file.</param>
+        /// <returns></returns>
         public BitmapImage LoadGif(string myGifFile, Image viewer)
         {
-            gifImage = new BitmapImage();
+            _gifImage = new BitmapImage();
             using (FileStream stream = File.OpenRead(myGifFile))
             {
-                gifImage.BeginInit();
-                gifImage.CacheOption = BitmapCacheOption.OnLoad;
-                gifImage.StreamSource = stream;
-                ImageBehavior.SetAnimatedSource(viewer, gifImage);
-                gifImage.EndInit();
+                _gifImage.BeginInit();
+                _gifImage.CacheOption = BitmapCacheOption.OnLoad;
+                _gifImage.StreamSource = stream;
+                ImageBehavior.SetAnimatedSource(viewer, _gifImage);
+                _gifImage.EndInit();
             }
 
-            return gifImage;
+            return _gifImage;
         }
     }
 
 
     /// <summary>
-    /// 
+    /// A video object containing a thumbnail as well as
+    /// various metadata.
     /// </summary>
     public class VideoItem : DisplayItem
     {
-        private BitmapImage thumbnailSource;
-        private int videoResolutionWidth;
-        private int videoResolutionHeight;
-        private string videoLength;
+        private BitmapImage _thumbnailSource;
+        private int _videoResolutionWidth;
+        private int _videoResolutionHeight;
+        private string _videoLength;
 
 
         public VideoItem(string name) : base(name)
@@ -237,34 +317,47 @@ namespace Image_Manager
 
         public override string GetInfobarContent()
         {
-            return InfoBarDefaultContent + "    -    ( " + videoResolutionWidth + " x " + videoResolutionHeight + " )" +
-                   "    -    ( " + videoLength + " )";
+            return InfoBarDefaultContent + "    -    ( " + _videoResolutionWidth + " x " + _videoResolutionHeight + " )" +
+                   "    -    ( " + _videoLength + " )";
         }
 
         public override void PreloadContent()
         {
-            // If the values returned are nonsensical, retry
-            while (videoResolutionHeight == 0 ||
-                   videoResolutionWidth < -100000 || videoResolutionHeight < -100000 ||
-                   videoResolutionWidth > 100000 || videoResolutionHeight > 100000)
+            // If the values returned are nonsensical, retry until 
+            // correct values are found.
+            while (_videoResolutionHeight == 0 ||
+                   _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
+                   _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000)
                 GetMetaData();
 
-            thumbnailSource = LoadThumbnail(FilePath);
+            _thumbnailSource = LoadThumbnail(FilePath);
         }
 
         public override void RemovePreloadedContent()
         {
-            thumbnailSource = null;
+            _thumbnailSource = null;
         }
 
+        /// <summary>
+        /// Gets the thumbnail as an image file.
+        /// </summary>
+        /// <returns>An image containing the thumbnail.</returns>
         public BitmapImage GetThumbnail()
         {
-            return thumbnailSource;
+            return _thumbnailSource;
         }
 
+        /// <summary>
+        /// Loads the thumbnail via an external library and saves it as
+        /// a BitmapImage.
+        /// </summary>
+        /// <param name="myThumbnail">Path to the video file.</param>
+        /// <returns>The thumbnail image.</returns>
         private BitmapImage LoadThumbnail(string myThumbnail)
         {
+            // The desired resolution
             const int THUMB_SIZE = 1024;
+
             Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
                 myThumbnail, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
 
@@ -274,6 +367,14 @@ namespace Image_Manager
             return thumbnailImage;
         }
 
+        /// <summary>
+        /// Credits to Gerret over at StackOverflow for the following method
+        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
+        /// 
+        /// Converts a Bitmap to an easily viewable BitmapImage.
+        /// </summary>
+        /// <param name="bitmap">The supplied Bitmap to convert.</param>
+        /// <returns></returns>
         private static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -291,20 +392,25 @@ namespace Image_Manager
             }
         }
 
+        /// <summary>
+        /// Credits to nZeus over at StackOverflow for the following method (with edits)
+        /// https://stackoverflow.com/questions/6215185/getting-length-of-video
+        /// 
+        /// 
+        /// </summary>
         public void GetMetaData()
         {
             var mediaDet = (IMediaDet) new MediaDet();
             DsError.ThrowExceptionForHR(mediaDet.put_Filename(FilePath));
 
-            // retrieve some measurements from the video
-
+            // Retrieve some measurements from the video
             var mediaType = new AMMediaType();
             mediaDet.get_StreamMediaType(mediaType);
             var videoInfo = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
             DsUtils.FreeAMMediaType(mediaType);
 
-            videoResolutionWidth = videoInfo.BmiHeader.Width;
-            videoResolutionHeight = videoInfo.BmiHeader.Height;
+            _videoResolutionWidth = videoInfo.BmiHeader.Width;
+            _videoResolutionHeight = videoInfo.BmiHeader.Height;
 
             mediaDet.get_StreamLength(out double mediaLength);
 
@@ -323,7 +429,7 @@ namespace Image_Manager
             Add(t.Minutes, "m");
             Add(t.Seconds, "s");
 
-            videoLength = string.Join(" ", parts);
+            _videoLength = string.Join(" ", parts);
 
             mediaDet.put_Filename(null);
         }
@@ -331,27 +437,30 @@ namespace Image_Manager
 
 
     /// <summary>
-    /// 
+    /// A text object displaying the contents of a text file.
     /// </summary>
     public class TextItem : DisplayItem
     {
-        private string wordAmount;
-        private string textContent;
+        private string _wordAmount;
+        private readonly string _textContent;
 
 
         public TextItem(string name) : base(name)
         {
             FileType = "text";
-            textContent = "\n\n" + File.ReadAllText(FilePath);
+            _textContent = "\n\n" + File.ReadAllText(FilePath);
         }
 
 
         public override string GetInfobarContent()
         {
-            if (wordAmount == null) CountWords();
-            return InfoBarDefaultContent + "    -    ( " + wordAmount + " words )";
+            if (_wordAmount == null) CountWords();
+            return InfoBarDefaultContent + "    -    ( " + _wordAmount + " words )";
         }
 
+        /// <summary>
+        /// Sets the number of words found in the file.
+        /// </summary>
         public void CountWords()
         {
             StreamReader sr = new StreamReader(FilePath);
@@ -359,22 +468,34 @@ namespace Image_Manager
             int counter = 0;
             const string delim = " ,.!?";
 
-            while (!sr.EndOfStream)
+            try
             {
-                string line = sr.ReadLine();
-                line?.Trim();
-                string[] fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                counter += fields.Length;
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    line?.Trim();
+                    string[] fields = line.Split(delim.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    counter += fields.Length;
+                }
+            }
+            catch
+            {
+                // If the file contains nothing, set the wordcount to zero.
+                _wordAmount = counter.ToString();
             }
 
             sr.Close();
 
-            wordAmount = counter.ToString();
+            _wordAmount = counter.ToString();
         }
 
+        /// <summary>
+        /// Gets the text content of the file.
+        /// </summary>
+        /// <returns>String containing all text</returns>
         public string GetText()
         {
-            return textContent;
+            return _textContent;
         }
     }
 }

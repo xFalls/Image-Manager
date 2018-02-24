@@ -11,7 +11,7 @@ using Point = System.Windows.Point;
 namespace Image_Manager
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// The main window where content is loaded
     /// </summary>
     public partial class MainWindow
     {
@@ -51,12 +51,16 @@ namespace Image_Manager
 
         public MainWindow()
         {
+            // Loads all elements into view
             InitializeComponent();
 
+            // Initializes variables used for zooming and panning
             _imageTransformGroup.Children.Add(_st);
             _imageTransformGroup.Children.Add(_tt);
             imageViewer.RenderTransform = _imageTransformGroup;
-            _videoBlur.Radius = 20;
+
+            // Sets the blur strength for video thumbnails
+            _videoBlur.Radius = _defaultBlurRadius;
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
@@ -85,6 +89,7 @@ namespace Image_Manager
                     temp.EndsWith(".webp"))
                 return "image";
 
+            // Gif file
             if (temp.EndsWith(".gif"))
                 return "gif";
 
@@ -128,6 +133,7 @@ namespace Image_Manager
         // Changes the currently displayed content
         private void UpdateContent()
         {
+            // Show specific view when content is empty
             if (_displayItems.Count == 0)
             {
                 UpdateTitle();
@@ -137,7 +143,7 @@ namespace Image_Manager
             
             _currentItem = _displayItems[_displayedItemIndex];
 
-            // Makes all irrelevant elements inivisible
+            // Makes all irrelevant elements invisible
             MakeTypeVisible(_currentItem.GetTypeOfFile());
 
             // Preloads images ahead of time
@@ -161,7 +167,7 @@ namespace Image_Manager
         /// <summary>
         /// Zooms in or out of the current viewed image
         /// </summary>
-        /// <param name="zoomAmount">The amount to zoom, where 0.5 is 50% and 2 is 200% zoomed</param>
+        /// <param name="zoomAmount">The amount to zoom, where 0.5 is 50% and 2 is 200% zoomed in</param>
         public void Zoom(double zoomAmount)
         {
             // Only allow zooming in an image
@@ -243,6 +249,8 @@ namespace Image_Manager
             }
         }
 
+        // Resets specific settings when content is loaded from a drop as opposed to
+        // loading an already defined subfolder
         private void InitializeDrop(string s)
         {
             // The folder highest in the tree
@@ -260,14 +268,17 @@ namespace Image_Manager
 
             _displayedItemIndex = 0;
             DirectoryTreeList.Items.Clear();
+
             _originFolder?.GetAllFolders()?.Clear();
             _originFolder?.GetAllShownFolders()?.Clear();
+
             RemoveOldContext();
             _isDrop = true;
             CreateNewContext(folder);
             CreateSortMenu();
         }
 
+        // Content-specific actions
         private void FocusContent()
         {
             // Sets focus on image and text files
@@ -303,7 +314,7 @@ namespace Image_Manager
         }
 
 
-        // Resets the program and starts over with new files
+        // Loads a new folder
         private void CreateNewContext(string[] folder)
         {
             _displayedItemIndex = 0;
@@ -313,7 +324,7 @@ namespace Image_Manager
             UpdateContent();
         }
 
-        // Resets the program
+        // Removes an old folder
         private void RemoveOldContext()
         {
             _isActive = false;

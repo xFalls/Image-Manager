@@ -8,6 +8,8 @@ namespace Image_Manager
 {
     partial class MainWindow
     {
+        // Sets the contents of the infobar according to each 
+        // displayed item's preferred representation
         private void UpdateInfobar()
         {
 
@@ -17,6 +19,7 @@ namespace Image_Manager
                 return;
             }
 
+            // Colors the text according to preset preferences
             if (_currentItem.GetTypeOfFile() == "image" && _currentItem.GetFileExtension() != ".webp" && _preferWebP)
                 CurrentFileInfoLabel.Foreground =
                     ((ImageItem) _displayItems[_displayedItemIndex]).GetSize() < 1000 && _prefer1000Px
@@ -25,10 +28,12 @@ namespace Image_Manager
             else 
                 CurrentFileInfoLabel.Foreground = _defaultTextColor;
 
+            // All content is contains its indexed number
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
             CurrentFileInfoLabel.Content = preInfo + _currentItem.GetInfobarContent() + "   ";
         }
 
+        // Updates the title of the window
         private void UpdateTitle()
         {
             if (_displayItems.Count > 0)
@@ -36,6 +41,7 @@ namespace Image_Manager
                 string curItem = _currentItem.GetFilePath();
                 Title = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
 
+                // Shows what settings are active
                 if (!_showSubDir)
                 {
                     Title = Title + " -subdir ";
@@ -53,6 +59,7 @@ namespace Image_Manager
             }
             else
             {
+                // What to show if nothing is loaded
                 Title = "Image Manager";
                 if (!_showSubDir)
                 {
@@ -65,6 +72,7 @@ namespace Image_Manager
             }
         }
 
+        // Graphically draws the loaded folder structure
         private void CreateSortMenu()
         {
             DirectoryTreeList.Items.Clear();
@@ -77,6 +85,7 @@ namespace Image_Manager
                 _specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
                     .ForEach(cc => color = cc.Value);
 
+                // How to display each item
                 DirectoryTreeList.Items.Add(new ListBoxItem
                 {
                     Content = foundFolder.GetFolderName(),
@@ -86,6 +95,7 @@ namespace Image_Manager
             }
         }
 
+        // Moves the folder selection up
         private void MoveUp()
         {
             if (_sortMode)
@@ -94,6 +104,7 @@ namespace Image_Manager
                     : DirectoryTreeList.SelectedIndex - 1;
         }
 
+        // Moves the folder selection down
         private void MoveDown()
         {
             if (_sortMode)
@@ -102,6 +113,7 @@ namespace Image_Manager
                     0 : DirectoryTreeList.SelectedIndex + 1;
         }
         
+        // Toggles the sort GUI
         private void ToggleViewMode()
         {
             _sortMode = !_sortMode;
