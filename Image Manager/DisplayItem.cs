@@ -22,6 +22,8 @@ namespace Image_Manager
     {
         // TODO - Make some readonly
         protected string FilePath;
+        protected string PermFilePath;
+
         protected string FileName;
         protected string FileNameExludingExtension;
         protected string FileExtension;
@@ -31,7 +33,7 @@ namespace Image_Manager
 
         protected DisplayItem(string name)
         {
-            FilePath = name;
+            FilePath = PermFilePath = name;
 
             FileName = Path.GetFileName(name);
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(name);
@@ -59,14 +61,47 @@ namespace Image_Manager
             return FilePath;
         }
 
+        public string GetOldFilePath()
+        {
+            return PermFilePath;
+        }
+
+        public void SetFilePath(string newPath)
+        {
+            FilePath = newPath;
+            FileLocation = Path.GetDirectoryName(newPath);
+
+            FileName = Path.GetFileName(newPath);
+            FileNameExludingExtension = Path.GetFileNameWithoutExtension(newPath);
+            FileExtension = Path.GetExtension(newPath).ToLower();
+            FileLocation = Path.GetDirectoryName(newPath);
+        }
+
         public string GetFileExtension()
         {
             return FileExtension;
         }
 
-        public string GetFileLocation()
+        public string GetLocation()
         {
             return FileLocation;
+        }
+
+        public virtual void PreloadContent()
+        {
+        }
+
+        public virtual void RemovePreloadedContent()
+        {
+        }
+
+        public virtual void GetInfobarContent()
+        {
+        }
+
+        public override string ToString()
+        {
+            return FilePath;
         }
     }
 
@@ -76,17 +111,24 @@ namespace Image_Manager
     /// </summary>
     public class ImageItem : DisplayItem
     {
-        private readonly BitmapImage ImageSource;
+        private BitmapImage ImageSource;
         private readonly string ImageResolution;
 
 
         public ImageItem(string name) : base(name)
         {
-            FileType = "image";
-            ImageSource = LoadImage(name);
-            
+            FileType = "image";            
         }
 
+        public override void PreloadContent()
+        {
+            ImageSource = LoadImage(FilePath);
+        }
+
+        public override void RemovePreloadedContent()
+        {
+            ImageSource = null;
+        }
 
         public BitmapImage GetImage()
         {
@@ -103,13 +145,7 @@ namespace Image_Manager
                 image.StreamSource = stream;
                 image.EndInit();
             }
-            BitmapImage retImage = image;
-            return retImage;
-        }
-
-        public override string ToString()
-        {
-            return FilePath;
+            return image;
         }
     }
 
@@ -119,6 +155,7 @@ namespace Image_Manager
     /// </summary>
     public class GifItem : DisplayItem
     {
+        private BitmapImage gifImage;
 
         public GifItem(string name) : base(name)
         {
@@ -130,19 +167,24 @@ namespace Image_Manager
             return LoadGif(FilePath, viewer);
         }
 
+        public override void RemovePreloadedContent()
+        {
+            gifImage = null;
+        }
+
         public BitmapImage LoadGif(string myGifFile, Image viewer)
         {
-            BitmapImage image = new BitmapImage();
+            gifImage = new BitmapImage();
             using (FileStream stream = File.OpenRead(myGifFile))
             {
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.StreamSource = stream;
-                ImageBehavior.SetAnimatedSource(viewer, image);
-                image.EndInit();
+                gifImage.BeginInit();
+                gifImage.CacheOption = BitmapCacheOption.OnLoad;
+                gifImage.StreamSource = stream;
+                ImageBehavior.SetAnimatedSource(viewer, gifImage);
+                gifImage.EndInit();
             }
 
-            return image;
+            return gifImage;
         }
     }
 
@@ -160,7 +202,17 @@ namespace Image_Manager
         public VideoItem(string name) : base(name)
         {
             FileType = "video";
+            //thumbnailSource = LoadThumbnail(FilePath);
+        }
+
+        public override void PreloadContent()
+        {
             thumbnailSource = LoadThumbnail(FilePath);
+        }
+
+        public override void RemovePreloadedContent()
+        {
+            thumbnailSource = null;
         }
 
         public BitmapImage GetThumbnail()

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,169 +12,100 @@ namespace Image_Manager
 
         private void RemoveFile()
         {
-            //MoveFile(0);
+            MoveFile(0);
         }
 
-        private void MoveFileViaExplore()
+        // Renames the file if an file with the same name already exists in the directory
+        private string NewNameIfTaken(string curPath, string newPath)
         {
-            if (currentMode != 1) return;       
-            //MoveFile(1);
-        }
+            string workingPath = newPath;
+            int iterNum = 0;
 
-
-
-        //////////////////////////////////////
-        /*
-        private void MoveFile(int mode)
-        {
-            if (establishedRoot == false || _displayItems.Count == 0)
-            {
-                return;
-            }
-
-            ListBoxItem selectedBoxItem;
-            string currentFileName = currentItem.GetFileName();
-            string originalPath = currentItem.GetFilePath();
-            string newFileName;
-            string ext = Path.GetExtension(currentFileName);
-            
-
-            // Explore
-            if (mode == 1)
-            {
-                selectedBoxItem = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
-                //newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" + currentFileName;
-                ext = Path.GetExtension(currentFileName);
-                newFileName = newFileName.Replace(rootTitleText, "");
-                newFileName = newFileName.Replace(prevDirTitleText, "");
-            }
-            // Sort
-            if (mode == 2)
-            {
-                selectedBoxItem = (ListBoxItem) AllFolders.Items[sortGuiSelection];
-
-                string folderPath = folderDict[selectedBoxItem.Content.ToString()];
-                newFileName = folderPath + "\\" + currentFileName;
-            }
-            // Delete
-            else
-            {
-                selectedBoxItem = (ListBoxItem)AllFolders.Items[sortGuiSelection];
-
-                newFileName = deleteFolder + "\\" + currentFileName;
-
-            }
-
-
-            bool isTopDir = selectedBoxItem.Content.ToString() == rootTitleText ||
-                            selectedBoxItem.Content.ToString() == prevDirTitleText;
-
-            // Renames file if file with same name already exists
-            // Also prevents the file from being moved into the same folder
             while (true)
             {
-                if (File.Exists(newFileName))
+                iterNum++;
+                if (File.Exists(workingPath))
                 {
-                    if (isTopDir == false)
-                    {
-                        string pathToCompare1 = currentFolder + "\\" + selectedBoxItem.Content;
-                        string pathToCompare2 = originalPath.TrimEnd('\\').Replace(currentFileName, "");
+                    // If current image is in the same folder
+                    if (curPath == newPath) return workingPath;
 
-                        // If current image is in the marked folder
-                        if (pathToCompare1 == pathToCompare2) break;
-                        newFileName = currentFolder + "\\" + selectedBoxItem.Content + "\\" +
-                                      Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
-                    }
-                    else
-                    {
-                        // If current image is in the same folder
-                        if (currentFolder.TrimEnd('\\') ==
-                            originalPath.Replace(currentFileName, "").TrimEnd('\\')) break;
-                        newFileName = currentFolder + "\\" + Path.GetFileNameWithoutExtension(newFileName) + "-" + ext;
-                    }
+                    // Tries with the same path, but appends a (#) number at the end
+                    workingPath = Path.GetDirectoryName(newPath) + "\\" + currentItem.GetFileNameExcludingExtension() + 
+                                  " (" + iterNum + ")" + currentItem.GetFileExtension();
                 }
                 else
                 {
-                    break;
+                    return workingPath;
                 }
             }
+            
+        }
 
-
+        private void MoveFile(int mode)
+        {
+            if (_displayItems.Count == 0) return;
+            
             try
             {
-                movedFiles.Insert(0, newFileName);
-                //movedFilesOldLocations.Insert(0, currentItem);
+                string newPath = originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath() + "\\" +
+                    currentItem.GetFileName();
 
-                File.Move(originalPath, newFileName);
-                //filepaths.RemoveAt(displayedItemIndex);
+                newPath = NewNameIfTaken(currentItem.GetFilePath(), newPath);
+
+                File.Move(currentItem.GetFilePath(), newPath);
+
+                _movedItems.Insert(0, currentItem);
+                _displayItems.Remove(currentItem);
+                currentItem.SetFilePath(newPath);
             }
             catch
             {
-                Interaction.MsgBox("File is currently being used by another program");
+                Interaction.MsgBox("File is currently being used by another program or has been removed");
                 return;
             }
-
+            
             // When last file has been moved
             if (_displayItems.Count == 0)
-            {
-                textViewer.Visibility = Visibility.Hidden;
-                imageViewer.Visibility = Visibility.Hidden;
-                VideoPlayIcon.Visibility = Visibility.Hidden;
-                gifViewer.Visibility = Visibility.Hidden;
-                UpdateInfobar();
-            }
+                MakeTypeVisible("");
             else if (displayedItemIndex == _displayItems.Count)
-            {
                 displayedItemIndex--;
-            }
 
             UpdateContent();
-            UpdateTitle();
         }
-        */
-
-
+        
 
         private void UndoMove()
         {
-            if (movedFiles.Count == 0) return;
-            string fileToUndo = movedFiles.ElementAt(0);
-            string locationToMoveTo = movedFilesOldLocations.ElementAt(0);
-            //filepaths.Insert(displayedItemIndex, locationToMoveTo);
+            if (_movedItems.Count == 0) return;
+            try { 
 
-            File.Move(fileToUndo, locationToMoveTo);
+            DisplayItem fileToUndo = _movedItems.ElementAt(0);
 
-            movedFiles.RemoveAt(0);
-            movedFilesOldLocations.RemoveAt(0);
+            File.Move(fileToUndo.GetFilePath(), fileToUndo.GetOldFilePath());
+            fileToUndo.SetFilePath(fileToUndo.GetOldFilePath());
+
+            _displayItems.Insert(displayedItemIndex, fileToUndo);
+            _movedItems.RemoveAt(0);
+            }
+                catch
+            {
+                Interaction.MsgBox("File is currently being used by another program or has been removed");
+            }
             UpdateContent();
         }
 
         private void RenameFile(string input)
         {
             if (input == "") return;
-            string currentFileName;
-            string currentFileExt;
-            string currentLocation;
-
-            try
-            {
-                currentFileName = currentItem.GetFileName();
-                currentFileExt = currentItem.GetFileExtension();
-                currentLocation = currentItem.GetFileLocation();
-            }
-            catch
-            {
-                Interaction.MsgBox("Name can't be empty");
-                return;
-            }
+            string currentFileExt = currentItem.GetFileExtension();
+            string currentLocation = currentItem.GetLocation();
 
             if (!File.Exists(currentLocation + "\\" + input + currentFileExt))
             {
                 try
                 {
-                    File.Move(currentLocation + "\\" + currentFileName + currentFileExt,
-                        currentLocation + "\\" + input + currentFileExt);
-                    //filepaths[displayedItemIndex] = currentLocation + "\\" + input + currentFileExt;
+                    File.Move(currentItem.GetFilePath(), currentLocation + "\\" + input + currentFileExt);
+                    currentItem.SetFilePath(currentLocation + "\\" + input + currentFileExt);
                     UpdateContent();
                 }
                 catch

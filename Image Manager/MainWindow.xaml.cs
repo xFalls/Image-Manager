@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -69,6 +71,7 @@ namespace Image_Manager
 
         // List of all stored objects
         private readonly List<DisplayItem> _displayItems = new List<DisplayItem>();
+        private readonly List<DisplayItem> _movedItems = new List<DisplayItem>();
 
         // The index of the displayed item in _displayItems
         private static int displayedItemIndex;
@@ -177,10 +180,15 @@ namespace Image_Manager
             UpdateTitle();
             UpdateInfobar();
 
+            // Makes all irrelevant elements inivisible
             MakeTypeVisible(currentItem.GetTypeOfFile());
 
+            // Preloads images ahead of time
+            AddToCache();
+
+            // Gets and show the content
             if (currentItem.GetTypeOfFile() == "image")
-                imageViewer.Source = ((ImageItem) currentItem).GetImage();
+                imageViewer.Source = ((ImageItem) currentItem)?.GetImage();
             else if (currentItem.GetTypeOfFile() == "gif")
                 gifViewer.Source = ((GifItem) currentItem).GetGif(gifViewer);
             else if (currentItem.GetTypeOfFile() == "video")
@@ -221,15 +229,19 @@ namespace Image_Manager
                 {
                     case "image":
                         _displayItems.Add(new ImageItem(item));
+                        isInCache.Add(false);
                         break;
                     case "gif":
                         _displayItems.Add(new GifItem(item));
+                        isInCache.Add(false);
                         break;
                     case "video":
                         _displayItems.Add(new VideoItem(item));
+                        isInCache.Add(false);
                         break;
                     case "text":
                         _displayItems.Add(new TextItem(item));
+                        isInCache.Add(false);
                         break;
                 }
             }
@@ -262,6 +274,8 @@ namespace Image_Manager
                 }
                 else if (File.Exists(s))
                 {
+                    if (isDrop) InitializeDrop(Path.GetDirectoryName(s));
+
                     // Add filepath
                     newFiles.Add(s);
                 }
@@ -282,9 +296,14 @@ namespace Image_Manager
             // Finds all filepaths of a dropped object
             string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
+            displayedItemIndex = 0;
+            DirectoryTreeList.Items.Clear();
+            originFolder?.GetAllFolders()?.Clear();
+            originFolder?.GetAllShownFolders()?.Clear();
             RemoveOldContext();
             isDrop = true;
             CreateNewContext(folder);
+            CreateSortMenu();
         }
 
         private void ToggleAction()
@@ -324,17 +343,11 @@ namespace Image_Manager
         // Resets the program and starts over with new files
         private void CreateNewContext(string[] folder)
         {
+            displayedItemIndex = 0;
             RemoveOldContext();
-
             FindFilesInSubfolders(folder);
-
             ProcessNewFiles();
-
             UpdateContent();
-
-            CreateSortMenu();
-            //MakeArchiveTree(currentFolder);
-            //CompleteFolderTree(rootFolder);
         }
 
         // Resets the program
@@ -342,21 +355,13 @@ namespace Image_Manager
         {
             isActive = false;
             imageViewer.Source = null;
-            textViewer.Visibility = Visibility.Hidden;
-            currentContentType = "";
 
-            displayedItemIndex = 0;
-            guiSelection = 0;
-            sortGuiSelection = 0;
             UpdateTitle();
             ResetView();
 
-            DirectoryTreeList.Items.Clear();
             _displayItems.Clear();
-
-            newFiles.Clear();
-            movedFiles.Clear();
-            movedFilesOldLocations.Clear();
+            _movedItems.Clear();
+            isInCache.Clear();
 
             GC.Collect();
         }

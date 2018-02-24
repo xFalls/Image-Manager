@@ -13,6 +13,7 @@ namespace Image_Manager
         private List<Folder> childFolders = new List<Folder>();
 
         private static List<Folder> allFolders = new List<Folder>();
+        private static List<Folder> shownFolders = new List<Folder>();
         private static int currentFolderDepth = 0;
         private int thisFolderDepth;
 
@@ -21,7 +22,11 @@ namespace Image_Manager
         {
             this.folderPath = folderPath;
             folderName = new DirectoryInfo(folderPath).Name;
-            allFolders.Add(this);
+            if (!folderPath.Contains("_"))
+            {
+                allFolders.Add(this);
+                shownFolders.Add(this);
+            }
 
             thisFolderDepth = currentFolderDepth;
             currentFolderDepth++;
@@ -51,6 +56,16 @@ namespace Image_Manager
         public List<Folder> GetAllFolders()
         {
             return allFolders;
+        }
+
+        public List<Folder> GetAllShownFolders()
+        {
+            return shownFolders;
+        }
+
+        public void RemoveAllShownFolders()
+        {
+            shownFolders.Clear();
         }
 
         public string GetFolderName()

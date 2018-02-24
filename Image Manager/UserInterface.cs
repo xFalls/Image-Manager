@@ -175,12 +175,13 @@ namespace Image_Manager
         {
             DirectoryTreeList.Items.Clear();
 
-            foreach (Folder foundFolder in originFolder.GetAllFolders())
+            foreach (Folder foundFolder in originFolder.GetAllShownFolders())
             {
                 SolidColorBrush color = defaultTextColor;
 
                 // Color directories based on content
-                specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList().ForEach(cc => color = cc.Value);
+                specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
+                    .ForEach(cc => color = cc.Value);
 
                 DirectoryTreeList.Items.Add(new ListBoxItem
                 {

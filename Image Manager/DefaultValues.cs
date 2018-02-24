@@ -32,5 +32,10 @@ namespace Image_Manager
         private SolidColorBrush unSelectedColor = new SolidColorBrush(Colors.Transparent);
 
         private const int IndentDistance = 20;
+
+        private const string quickPrefix = "+HQ ";
+
+        // Caching
+        private int preloadRange = 15;
     }
 }

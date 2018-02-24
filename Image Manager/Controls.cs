@@ -39,14 +39,14 @@ namespace Image_Manager
                     // Adds +HQ modifier
                     case Key.F3:
                         string hqFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
-                        string hqInput = "+HQ " + hqFileName;
+                        string hqInput = quickPrefix + hqFileName;
                         RenameFile(hqInput);
                         break;
 
                     // Remove +HQ modifier
                     case Key.F4:
                         string hQnoFileName = Path.GetFileNameWithoutExtension(currentItem.GetFileNameExcludingExtension());
-                        string hQnoInput = hQnoFileName?.Replace("+HQ ", "");
+                        string hQnoInput = hQnoFileName?.Replace(quickPrefix, "");
                         RenameFile(hQnoInput);
                         break;
 
@@ -54,7 +54,7 @@ namespace Image_Manager
                     case Key.Enter:
                     case Key.R:
                         if (sortMode)
-                            MoveFileViaExplore();
+                            MoveFile(0);
                         break;
 
                     case Key.Delete:
@@ -71,41 +71,13 @@ namespace Image_Manager
                         Zoom(-ZoomAmountButton);
                         break;
 
-                    // Go up one directory
-                    case Key.Q:
-                        if (establishedRoot == false)
-                        {
-                            return;
-                        }
-                        ListBoxItem firstBox = (ListBoxItem)DirectoryTreeList.Items[0];
-                        if (DirectoryTreeList.Visibility == Visibility.Visible && (string)firstBox.Content != rootTitleText)
-                        {
-                            //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                            //MakeArchiveTree(currentFolder);
-                        }
-                        break;
-
                     // Open directory in view mode
                     case Key.F:
-                        if (establishedRoot == false)
+                        if (!isDrop && sortMode)
                         {
-                            return;
-                        }
-                        if (DirectoryTreeList.Visibility == Visibility.Visible)
-                        {
-                            ListBoxItem selectedBox = (ListBoxItem)DirectoryTreeList.Items[guiSelection];
                             string[] folder = new string[1];
-                            //currentFolder = currentFolder + "\\" + selectedBox.Content;
 
-                            if ((string)selectedBox.Content == rootTitleText)
-                            {
-                                //currentFolder = rootFolder;
-                            }
-                            if ((string)selectedBox.Content == prevDirTitleText)
-                            {
-                                //currentFolder = Path.GetFullPath(Path.Combine(currentFolder, "..\\"));
-                            }
-                            //folder[0] = currentFolder;
+                            folder[0] = originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath();
                             CreateNewContext(folder);
                         }
                         UpdateTitle();
@@ -117,6 +89,7 @@ namespace Image_Manager
                         UpdateTitle();
                         break;
 
+                    // Toggle special folders
                     case Key.X:
                         showSets = !showSets;
                         UpdateTitle();
@@ -169,7 +142,6 @@ namespace Image_Manager
                         if (!(isActive && currentContentType == "text"))
                         {
                             displayedItemIndex = 0;
-                            GC.Collect();
                             UpdateContent();
                         }
                         break;
@@ -179,7 +151,6 @@ namespace Image_Manager
                         if (!(isActive && currentContentType == "text"))
                         {
                             displayedItemIndex = _displayItems.Count - 1;
-                            GC.Collect();
                             UpdateContent();
                         }
                         break;
@@ -210,7 +181,7 @@ namespace Image_Manager
             // Start typing mode
             else if (e.Key == Key.LeftCtrl)
             {
-                if (currentMode == 2 && establishedRoot)
+                if (sortMode && !isDrop)
                 {
                     if (isTyping)
                     {
@@ -247,9 +218,9 @@ namespace Image_Manager
             }
             else if (e.Key == Key.Enter)
             {
-                if (currentMode == 2)
+                if (sortMode)
                 {
-                    MoveFileViaExplore();
+                    MoveFile(0);
                 }
             }
             else if (e.Key == Key.Up)
@@ -266,37 +237,39 @@ namespace Image_Manager
             }
             else
             {
-                //FilterSort();
+                FilterSort();
 
             }
         }
-        /*
+        
         private void FilterSort()
         {
+            originFolder.RemoveAllShownFolders();
             if (SortTypeBox.Text != "" && isTyping)
             {
                 // Filter out all items that don't contain the input string in alphabetical order
                 // E.g. RiN shows Rain but not rni
-                Dictionary<string, string> findDict = new Dictionary<string, string>(folderDict);
 
-                foreach (KeyValuePair<string, string> item in folderDict)
+                foreach (Folder item in originFolder.GetAllFolders())
                 {
-                    if (!ContainsWord(SortTypeBox.Text, item.Key))
+                    if (ContainsWord(SortTypeBox.Text, item.GetFolderName()))
                     {
-                        findDict.Remove(item.Key);
+                        originFolder.GetAllShownFolders().Add(item);
+                    }
+                    else
+                    {
+                        //originFolder.GetAllShownFolders().Add(item);
                     }
                 }
 
-                if (findDict.Count == 0) return;
-
-                sortGuiSelection = 0;
-                UpdateSortTree(findDict);
+                if (originFolder.GetAllShownFolders().Count == 0) return;
             }
             else
             {
-                UpdateSortTree(folderDict);
+                originFolder.GetAllShownFolders().AddRange(originFolder.GetAllFolders());
             }
-        }*/
+            CreateSortMenu();
+        }
 
 
         public static bool ContainsWord(string word, string otherword)
