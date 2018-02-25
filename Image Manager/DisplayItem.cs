@@ -175,10 +175,13 @@ namespace Image_Manager
         private int _imageHeight;
         private int _imageWidth;
 
-    
+        private readonly LibwebpSharp.WebPDecoder _dec;
+
+
         public ImageItem(string name) : base(name)
         {
             FileType = "image";
+            _dec = new LibwebpSharp.WebPDecoder();
         }
 
 
@@ -225,19 +228,25 @@ namespace Image_Manager
         private BitmapImage LoadImage(string myImageFile)
         {
             BitmapImage image = new BitmapImage();
-            using (FileStream stream = File.OpenRead(myImageFile))
-            {
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.StreamSource = stream;
-                image.EndInit();
 
-                // If the image has been loaded before, it won't have to
-                // get the metadata of the image again.
-                if (_imageHeight != 0 || _imageWidth != 0) return image;
-                _imageHeight = image.PixelHeight;
-                _imageWidth = image.PixelWidth;
-            }
+            if (FileExtension != ".webp")
+                using (FileStream stream = File.OpenRead(myImageFile))
+                {
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                }
+            else
+                // Allows for loading WebP images through an included library
+                image = VideoItem.BitmapToImageSource(_dec.DecodeBGRA(FilePath));
+
+            // If the image has been loaded before, it won't have to
+            // get the metadata of the image again.
+            if (_imageHeight != 0 || _imageWidth != 0) return image;
+
+            _imageHeight = image.PixelHeight;
+            _imageWidth = image.PixelWidth;
             return image;
         }
     }
@@ -248,7 +257,7 @@ namespace Image_Manager
     /// </summary>
     public class GifItem : DisplayItem
     {
-        private BitmapImage _gifImage;
+        public static BitmapImage _gifImage;
 
         public GifItem(string name) : base(name)
         {
@@ -375,7 +384,7 @@ namespace Image_Manager
         /// </summary>
         /// <param name="bitmap">The supplied Bitmap to convert.</param>
         /// <returns></returns>
-        private static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
             {
@@ -449,12 +458,12 @@ namespace Image_Manager
         {
             FileType = "text";
             _textContent = "\n\n" + File.ReadAllText(FilePath);
+            CountWords();
         }
 
 
         public override string GetInfobarContent()
         {
-            if (_wordAmount == null) CountWords();
             return InfoBarDefaultContent + "    -    ( " + _wordAmount + " words )";
         }
 

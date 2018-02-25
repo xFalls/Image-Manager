@@ -15,7 +15,7 @@ namespace Image_Manager
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
             // Not accessible whlie typing
-            if (!_isTyping)
+            if (!_isTyping && _displayItems.Count != 0)
                 switch (e.Key)
                 {
                     // Toggle focus, enter selected directory
@@ -78,26 +78,9 @@ namespace Image_Manager
                         }
                         break;
 
-                    // Toggle subdirectories in view mode
-                    case Key.LeftShift:
-                        _showSubDir = !_showSubDir;
-                        UpdateTitle();
-                        break;
-
-                    // Toggle special folders
-                    case Key.X:
-                        _showSets = !_showSets;
-                        UpdateTitle();
-                        break;
-
                     // Toggle directory list
                     case Key.Tab:
                         ToggleViewMode();
-                        break;
-
-                    // Undo last move
-                    case Key.Z:
-                        UndoMove();
                         break;
 
                     // Select directory below
@@ -175,10 +158,28 @@ namespace Image_Manager
                 }
             }
 
+            // Toggle subdirectories in view mode
+            else if (e.Key == Key.LeftShift)
+            {
+                _showSubDir = !_showSubDir;
+                UpdateTitle();
+            }
+
+            // Toggle special folders
+            else if (e.Key == Key.X)
+            {
+                _showSets = !_showSets;
+                UpdateTitle();
+            }
+
+            // Undo last move
+            else if (e.Key == Key.Z)
+                UndoMove();
+
             // Start typing mode
             else if (e.Key == Key.LeftCtrl)
             {
-                if (!_sortMode || _isDrop) return;
+                if (!_sortMode || _isDrop || _displayItems.Count == 0) return;
                 if (_isTyping)
                 {
                     SortTypeBox.Visibility = Visibility.Hidden;
@@ -197,7 +198,7 @@ namespace Image_Manager
         // Occurs while typing
         private void SortTypeBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!_isTyping) return;
+            if (!_isTyping || _displayItems.Count == 0) return;
 
             // Keys that work while in typing mode
             switch (e.Key)
@@ -321,7 +322,7 @@ namespace Image_Manager
             }
         }
 
-        // Left clicking a folder moves the item to that folder
+        // Right clicking a folder moves the item to that folder
         private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
@@ -333,7 +334,7 @@ namespace Image_Manager
             
         }
 
-        // A right click opens the selected directory in the gallery        
+        // A left click opens the selected directory in the gallery        
         private void DirectoryTreeList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
@@ -387,7 +388,8 @@ namespace Image_Manager
         // Triggers an action on the displayed content
         private void ControlWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            FocusContent();
+            if (_displayItems.Count != 0)
+                FocusContent();
         }
 
         // Show the menu strip on hover in fullscreen

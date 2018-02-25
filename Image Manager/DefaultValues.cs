@@ -37,7 +37,7 @@ namespace Image_Manager
         private const string QuickPrefix = "+HQ ";
 
         // Caching
-        private readonly int _preloadRange = 15;
+        private readonly int _preloadRange = 3;
 
         // Blur effect on videos
         private readonly int _defaultBlurRadius = 20;

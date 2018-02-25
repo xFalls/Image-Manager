@@ -12,6 +12,7 @@ namespace Image_Manager
         // displayed item's preferred representation
         private void UpdateInfobar()
         {
+            CurrentFileInfoLabel.Foreground = _defaultTextColor;
 
             if (_displayItems.Count == 0) 
             {
@@ -19,14 +20,19 @@ namespace Image_Manager
                 return;
             }
 
+            if (_currentItem.GetTypeOfFile() != "text")
+                if (!File.Exists(_currentItem.GetFilePath()) && imageViewer.Source == null)
+                {
+                    CurrentFileInfoLabel.Content = "Could not find content" + "   ";
+                    return;
+                }
+
             // Colors the text according to preset preferences
             if (_currentItem.GetTypeOfFile() == "image" && _currentItem.GetFileExtension() != ".webp" && _preferWebP)
                 CurrentFileInfoLabel.Foreground =
                     ((ImageItem) _displayItems[_displayedItemIndex]).GetSize() < 1000 && _prefer1000Px
                     ? _notOver1000PxWarningTextColor
                     : _notWebPWarningTextColor;
-            else 
-                CurrentFileInfoLabel.Foreground = _defaultTextColor;
 
             // All content is contains its indexed number
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";

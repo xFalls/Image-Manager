@@ -17,3 +17,5 @@ C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager.
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\Image Manager_Content.g.cs
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.g.cs
 C:\Users\xofas\source\repos\Image Manager\Image Manager\obj\Debug\MainWindow.baml
+C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\libwebp.dll
+C:\Users\xofas\source\repos\Image Manager\Image Manager\bin\Debug\README.txt

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using Microsoft.VisualBasic;
 using Point = System.Windows.Point;
 
 namespace Image_Manager
@@ -111,6 +112,8 @@ namespace Image_Manager
             imageViewer.Visibility = gifViewer.Visibility = gifViewer.Visibility =
                     textViewer.Visibility = VideoPlayIcon.Visibility = Visibility.Hidden;
             imageViewer.Effect = null;
+            gifViewer.Source = null;
+            GifItem._gifImage = null;
 
             switch (fileType)
             {
@@ -146,22 +149,32 @@ namespace Image_Manager
             // Makes all irrelevant elements invisible
             MakeTypeVisible(_currentItem.GetTypeOfFile());
 
-            // Preloads images ahead of time
-            AddToCache();
+            try
+            {
+                // Preloads images ahead of time
+                AddToCache();
 
-            // Gets and show the content
-            if (_currentItem.GetTypeOfFile() == "image")
-                imageViewer.Source = ((ImageItem) _currentItem)?.GetImage();
-            else if (_currentItem.GetTypeOfFile() == "gif")
-                gifViewer.Source = ((GifItem) _currentItem).GetGif(gifViewer);
-            else if (_currentItem.GetTypeOfFile() == "video")
-                imageViewer.Source = ((VideoItem) _currentItem).GetThumbnail();
-            else if (_currentItem.GetTypeOfFile() == "text")
-                textViewer.Text = ((TextItem) _currentItem).GetText();
+                // Gets and show the content
+                if (_currentItem.GetTypeOfFile() == "image")
+                    imageViewer.Source = ((ImageItem)_currentItem).GetImage();
+                else if (_currentItem.GetTypeOfFile() == "gif")
+                    gifViewer.Source = ((GifItem)_currentItem).GetGif(gifViewer);
+                else if (_currentItem.GetTypeOfFile() == "video")
+                    imageViewer.Source = ((VideoItem)_currentItem).GetThumbnail();
+                else if (_currentItem.GetTypeOfFile() == "text")
+                    textViewer.Text = ((TextItem)_currentItem).GetText();
+            }
+            catch
+            {
+                // If content can't get loaded, show a blank black screen
+                MakeTypeVisible("");
+            }
+
+
 
             ResetView();
-            UpdateTitle();
             UpdateInfobar();
+            UpdateTitle();
         }
 
         /// <summary>
@@ -234,7 +247,8 @@ namespace Image_Manager
                         // Exlude folders started with an underscore
                         if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
                         // Exclude special folders when set to do so
-                        if (!_showSets && _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
+                        if (!_showSets &&
+                            _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
 
                         NewFiles.Add(foundFile);
                     }
@@ -263,19 +277,27 @@ namespace Image_Manager
         // Handler for drag-dropping files
         private void ControlWindow_Drop(object sender, DragEventArgs e)
         {
-            // Finds all filepaths of a dropped object
-            string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            try
+            {
+                // Finds all filepaths of a dropped object
+                string[] folder = (string[]) e.Data.GetData(DataFormats.FileDrop, false);
 
-            _displayedItemIndex = 0;
-            DirectoryTreeList.Items.Clear();
+                _displayedItemIndex = 0;
+                DirectoryTreeList.Items.Clear();
 
-            _originFolder?.GetAllFolders()?.Clear();
-            _originFolder?.GetAllShownFolders()?.Clear();
+                _originFolder?.GetAllFolders()?.Clear();
+                _originFolder?.GetAllShownFolders()?.Clear();
 
-            RemoveOldContext();
-            _isDrop = true;
-            CreateNewContext(folder);
-            CreateSortMenu();
+                RemoveOldContext();
+                _isDrop = true;
+                CreateNewContext(folder);
+                CreateSortMenu();
+            }
+            catch
+            {
+                RemoveOldContext();
+                Interaction.MsgBox("Couldn't load files");
+            }
         }
 
         // Content-specific actions
@@ -321,6 +343,7 @@ namespace Image_Manager
             RemoveOldContext();
             FindFilesInSubfolders(folder);
             ProcessNewFiles();
+
             UpdateContent();
         }
 
@@ -336,6 +359,9 @@ namespace Image_Manager
             _displayItems.Clear();
             _movedItems.Clear();
             isInCache.Clear();
+
+            UpdateTitle();
+            UpdateInfobar();
 
             GC.Collect();
         }
