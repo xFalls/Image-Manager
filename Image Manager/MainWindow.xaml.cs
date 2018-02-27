@@ -19,6 +19,7 @@ namespace Image_Manager
         // Sets what type of folders to show
         private bool _showSubDir = true;
         private bool _showSets = true;
+        private bool _showPrefix = true;
 
         // List of all stored objects
         private Folder _originFolder;
@@ -249,6 +250,9 @@ namespace Image_Manager
                         // Exclude special folders when set to do so
                         if (!_showSets &&
                             _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
+
+                        // If set, exclude showing files with the set prefix
+                        if (!_showPrefix && foundFile.Contains(QuickPrefix)) continue;
 
                         NewFiles.Add(foundFile);
                     }

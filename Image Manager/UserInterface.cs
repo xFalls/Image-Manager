@@ -56,7 +56,11 @@ namespace Image_Manager
                 {
                     Title = Title + " -sets ";
                 }
-                if (!_showSets || !_showSubDir)
+                if (!_showPrefix)
+                {
+                    Title = Title + " -prefix ";
+                }
+                if (!_showSets || !_showSubDir || !_showPrefix)
                 {
                     Title = Title + "| ";
                 }
@@ -74,6 +78,10 @@ namespace Image_Manager
                 if (!_showSets)
                 {
                     Title = Title + " -sets";
+                }
+                if (!_showPrefix)
+                {
+                    Title = Title + " -prefix";
                 }
             }
         }
