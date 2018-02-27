@@ -4,10 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using Microsoft.VisualBasic;
-using Point = System.Windows.Point;
+using DataFormats = System.Windows.DataFormats;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace Image_Manager
 {
@@ -61,8 +63,9 @@ namespace Image_Manager
             _imageTransformGroup.Children.Add(_tt);
             imageViewer.RenderTransform = _imageTransformGroup;
 
-            // Sets the blur strength for video thumbnails
+            // Sets default values
             _videoBlur.Radius = _defaultBlurRadius;
+            DisplayItem.ShortLength = FileNameSize;
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
@@ -171,8 +174,6 @@ namespace Image_Manager
                 MakeTypeVisible("");
             }
 
-
-
             ResetView();
             UpdateInfobar();
             UpdateTitle();
@@ -259,6 +260,7 @@ namespace Image_Manager
                 }
                 else if (File.Exists(s))
                 {
+                    if (Path.GetDirectoryName(s).Contains("_")) continue;
                     if (_isDrop) InitializeDrop(Path.GetDirectoryName(s));
 
                     // Add filepath
@@ -281,11 +283,15 @@ namespace Image_Manager
         // Handler for drag-dropping files
         private void ControlWindow_Drop(object sender, DragEventArgs e)
         {
+            string[] folder = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            AddNewFolder(folder);
+        }
+
+        // Initializes a new folder, removing the previous state
+        private void AddNewFolder(string[] folder)
+        {
             try
             {
-                // Finds all filepaths of a dropped object
-                string[] folder = (string[]) e.Data.GetData(DataFormats.FileDrop, false);
-
                 _displayedItemIndex = 0;
                 DirectoryTreeList.Items.Clear();
 
@@ -296,6 +302,9 @@ namespace Image_Manager
                 _isDrop = true;
                 CreateNewContext(folder);
                 CreateSortMenu();
+
+                ViewMenu.IsEnabled = true;
+                EditMenu.IsEnabled = true;
             }
             catch
             {
@@ -366,6 +375,9 @@ namespace Image_Manager
 
             UpdateTitle();
             UpdateInfobar();
+
+            ViewMenu.IsEnabled = false;
+            EditMenu.IsEnabled = false;
 
             GC.Collect();
         }

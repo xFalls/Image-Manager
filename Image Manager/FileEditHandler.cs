@@ -102,6 +102,10 @@ namespace Image_Manager
             }
             else
             {
+                if (_currentItem.GetFilePath() == currentLocation + "\\" + input + currentFileExt)
+                {
+                    return;
+                }
                 Interaction.MsgBox("File with name already exists");
             }
         }

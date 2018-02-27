@@ -33,11 +33,12 @@ namespace Image_Manager
         // Indentation distance for each subfolder level
         private const int IndentDistance = 20;
 
-        // What to prefix to name
+        // Naming
         private const string QuickPrefix = "+HQ ";
+        private readonly int FileNameSize = 30;
 
         // Caching
-        private readonly int _preloadRange = 3;
+        private readonly int _preloadRange = 7;
 
         // Blur effect on videos
         private readonly int _defaultBlurRadius = 20;

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Media.Imaging;
 using DirectShowLib;
 using DirectShowLib.DES;
@@ -19,15 +21,19 @@ namespace Image_Manager
     /// </summary>
     public abstract class DisplayItem
     {
+        public static int ShortLength;
+
         protected string FilePath;
         protected string PermFilePath;
 
         protected string FileName;
+        protected string ShortenedName;
         protected string FileNameExludingExtension;
         protected string FileExtension;
         protected string FileType;
         protected string FileLocation;
         protected string LocalLocation;
+        protected string FileSize;
         protected string InfoBarDefaultContent;
 
         public static string RootFolder;
@@ -44,10 +50,16 @@ namespace Image_Manager
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(name);
             FileExtension = Path.GetExtension(name).ToLower();
             FileLocation = Path.GetDirectoryName(name);
+            FileSize = GetFileSize(name);
+
+            ShortenedName = FileName.Length > ShortLength ? 
+                FileName.Substring(0, ShortLength) + "..." : FileName;
+            
 
             // Sets the relative location to the initial rootfolder.
             LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
-            InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
+            InfoBarDefaultContent = ShortenedName + "    -    " + LocalLocation +
+                                    "    -    " + FileSize;
         }
 
         /// <summary>
@@ -161,6 +173,28 @@ namespace Image_Manager
         public override string ToString()
         {
             return FilePath;
+        }
+
+
+        public string GetFileSize(string path)
+        {
+            return SizeSuffix(new FileInfo(path).Length);
+        }
+
+        static string SizeSuffix(long value)
+        {
+            string[] sizeSuffixes =
+            { "bytes", "KB", "MB", "GB" };
+
+            int i = 0;
+            decimal dValue = value;
+            while (Math.Round(dValue / 1024) >= 1)
+            {
+                dValue /= 1024;
+                i++;
+            }
+
+            return $"{dValue:n1} {sizeSuffixes[i]}".Replace(",", ".");
         }
     }
 
@@ -332,12 +366,27 @@ namespace Image_Manager
 
         public override void PreloadContent()
         {
-            // If the values returned are nonsensical, retry until 
+            // If the values returned are nonsensical, retry 3 times until 
             // correct values are found.
-            while (_videoResolutionHeight == 0 ||
-                   _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
-                   _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000)
-                GetMetaData();
+            for (int tries = 0; tries < 4; tries++)
+            {
+                if (_videoResolutionHeight == 0 ||
+                    _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
+                    _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000)
+                {
+                    if ((_videoResolutionHeight == 0 ||
+                        _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
+                        _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000) &&
+                        tries == 3)
+                    {
+                        _videoResolutionHeight = 0;
+                        _videoResolutionWidth = 0;
+                        break;
+                    }
+
+                    GetMetaData();
+                }
+            }
 
             _thumbnailSource = LoadThumbnail(FilePath);
         }

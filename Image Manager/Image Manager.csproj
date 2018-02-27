@@ -114,6 +114,7 @@
     <Compile Include="FileEditHandler.cs" />
     <Compile Include="Folder.cs" />
     <Compile Include="ImageCache.cs" />
+    <Compile Include="MenuBar.cs" />
     <Compile Include="Native.WebPDecoder.cs" />
     <Compile Include="Thumbnail.cs" />
     <Compile Include="UserInterface.cs" />
