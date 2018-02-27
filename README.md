@@ -8,10 +8,8 @@ Drag a folder or image into the main window to load them into the main view. Wor
 
 All modes:
   - Right click, Space: Enables zooming and dragging image with the mouse
-                        
-                        Opens video in default player
-                        
-                        Enables scrolling in a text file
+    Opens video in default player
+    Enables scrolling in a text file
   - Scroll, Left, Right, A, D: Navigate to next or previous image
   - F11: Toggle fullscreen
   - TAB, Middle click: Shift mode between View, Explore, and Sort
