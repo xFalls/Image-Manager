@@ -199,7 +199,9 @@ namespace Image_Manager
     }
 
 
-
+    /// <summary>
+    /// Generic item file, containing only a thumbnail.
+    /// </summary>
     public class FileItem : DisplayItem
     {
         private BitmapImage _thumbnailSource;
@@ -209,7 +211,7 @@ namespace Image_Manager
             FileType = "file";
         }
 
-        private BitmapImage LoadThumbnail(string myThumbnail)
+        public BitmapImage LoadThumbnail(string myThumbnail)
         {
             // The desired resolution
             const int THUMB_SIZE = 1024;
@@ -223,11 +225,25 @@ namespace Image_Manager
             return thumbnailImage;
         }
 
+        /// <summary>
+        /// Loads the thumbnail via an external library and saves it as
+        /// a BitmapImage.
+        /// </summary>
+        /// <param name="myThumbnail">Path to the video file.</param>
+        /// <returns>The thumbnail image.</returns>
         public BitmapImage GetThumbnail()
         {
             return _thumbnailSource;
         }
 
+        /// <summary>
+        /// Credits to Gerret over at StackOverflow for the following method
+        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
+        /// 
+        /// Converts a Bitmap to an easily viewable BitmapImage.
+        /// </summary>
+        /// <param name="bitmap">The supplied Bitmap to convert.</param>
+        /// <returns></returns>
         public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -401,7 +417,7 @@ namespace Image_Manager
     /// A video object containing a thumbnail as well as
     /// various metadata.
     /// </summary>
-    public class VideoItem : DisplayItem
+    public class VideoItem : FileItem
     {
         private BitmapImage _thumbnailSource;
         private int _videoResolutionWidth;
@@ -457,54 +473,9 @@ namespace Image_Manager
         /// Gets the thumbnail as an image file.
         /// </summary>
         /// <returns>An image containing the thumbnail.</returns>
-        public BitmapImage GetThumbnail()
+        public new BitmapImage GetThumbnail()
         {
             return _thumbnailSource;
-        }
-
-        /// <summary>
-        /// Loads the thumbnail via an external library and saves it as
-        /// a BitmapImage.
-        /// </summary>
-        /// <param name="myThumbnail">Path to the video file.</param>
-        /// <returns>The thumbnail image.</returns>
-        private BitmapImage LoadThumbnail(string myThumbnail)
-        {
-            // The desired resolution
-            const int THUMB_SIZE = 1024;
-
-            Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
-                myThumbnail, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
-
-            BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
-            thumbnail.Dispose();
-
-            return thumbnailImage;
-        }
-
-        /// <summary>
-        /// Credits to Gerret over at StackOverflow for the following method
-        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
-        /// 
-        /// Converts a Bitmap to an easily viewable BitmapImage.
-        /// </summary>
-        /// <param name="bitmap">The supplied Bitmap to convert.</param>
-        /// <returns></returns>
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-
-                bitmapimage.BeginInit();
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.StreamSource = memory;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
-            }
         }
 
         /// <summary>

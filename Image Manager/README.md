@@ -1,3 +1,9 @@
+﻿Created by David Sandström under the MIT license.
+This software can be found on GitHub at the following URL:
+https://github.com/xFalls/Image-Sorting-Software
+
+-----------------------------------------------------------------
+
 # Image-Sorting-Software (name subject to change)
 
 Work in progress - Bugs, unexpected behavior, or lost files may occur
