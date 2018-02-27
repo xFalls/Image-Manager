@@ -37,6 +37,9 @@ namespace Image_Manager
         private const string QuickPrefix = "+HQ ";
         private readonly int FileNameSize = 30;
 
+        // Inclusion
+        private bool _allowOtherFiles = true;
+
         // Caching
         private readonly int _preloadRange = 7;
 

@@ -24,7 +24,7 @@ namespace Image_Manager
         // Rename
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
         {
-            if (_currentItem == null) return;
+            if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
             string input = Interaction.InputBox("Rename", "Select a new name",
                 _currentItem.GetFileNameExcludingExtension());
             RenameFile(input);
@@ -33,7 +33,7 @@ namespace Image_Manager
         // Add prefix
         private void MenuItem_Click_3(object sender, RoutedEventArgs e)
         {
-            if (_currentItem == null) return;
+            if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
             string hqFileName =
                 Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
             string hqInput = QuickPrefix + hqFileName;
@@ -43,7 +43,7 @@ namespace Image_Manager
         // Remove prefix
         private void MenuItem_Click_4(object sender, RoutedEventArgs e)
         {
-            if (_currentItem == null) return;
+            if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
             string hQnoFileName =
                 Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
             string hQnoInput = hQnoFileName?.Replace(QuickPrefix, "");
@@ -65,6 +65,11 @@ namespace Image_Manager
         private void MenuItem_Click_9(object sender, RoutedEventArgs e)
         {
             RemoveOldContext();
+            DirectoryTreeList.Items.Clear();
+
+            _originFolder?.GetAllFolders()?.Clear();
+            _originFolder?.GetAllShownFolders()?.Clear();
+            MakeTypeVisible("");
         }
 
         // Toggle subfolders
@@ -89,10 +94,24 @@ namespace Image_Manager
             UpdateTitle();
         }
 
+        // Toggle prefixed content
+        private void MenuItem_Click_12(object sender, RoutedEventArgs e)
+        {
+            _allowOtherFiles = !_allowOtherFiles;
+            UpdateTitle();
+        }
+
         // Open README
         private void MenuItem_Click_10(object sender, RoutedEventArgs e)
         {
             Process.Start("README.md");
+        }
+
+        // Open externally
+        private void MenuItem_Click_11(object sender, RoutedEventArgs e)
+        {
+            if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
+            Process.Start(_currentItem.GetFilePath());
         }
     }
 }

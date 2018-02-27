@@ -107,14 +107,15 @@ namespace Image_Manager
                  || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi"))
                 return "video";
 
-            return "invalidType";
+            return "file";
         }
 
         // Changes the visibility of all UI elements not related to the current displayed item
         private void MakeTypeVisible(string fileType)
         {
             imageViewer.Visibility = gifViewer.Visibility = gifViewer.Visibility =
-                    textViewer.Visibility = VideoPlayIcon.Visibility = Visibility.Hidden;
+                textViewer.Visibility = VideoPlayIcon.Visibility = iconViewer.Visibility =
+                Visibility.Hidden;
             imageViewer.Effect = null;
             gifViewer.Source = null;
             GifItem._gifImage = null;
@@ -133,6 +134,9 @@ namespace Image_Manager
                     break;
                 case "text":
                     textViewer.Visibility = Visibility.Visible;
+                    break;
+                case "file":
+                    iconViewer.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -167,6 +171,8 @@ namespace Image_Manager
                     imageViewer.Source = ((VideoItem)_currentItem).GetThumbnail();
                 else if (_currentItem.GetTypeOfFile() == "text")
                     textViewer.Text = ((TextItem)_currentItem).GetText();
+                else if (_currentItem.GetTypeOfFile() == "file")
+                    iconViewer.Source = ((FileItem)_currentItem).GetThumbnail();
             }
             catch
             {
@@ -189,8 +195,8 @@ namespace Image_Manager
             if (_currentItem.GetTypeOfFile() != "image") return;
             
             // Disallow zooming beyond the specified limits
-            if ((zoomAmount > 0 && _currentZoom + zoomAmount >= MaxZoom) || 
-                (zoomAmount < 0 && _currentZoom + zoomAmount <= MinZoom)) return;
+            if (zoomAmount > 0 && _currentZoom + zoomAmount >= MaxZoom || 
+                zoomAmount < 0 && _currentZoom + zoomAmount <= MinZoom) return;
 
             // Changes the current zoom level and updates the image
             _currentZoom += zoomAmount;
@@ -225,9 +231,14 @@ namespace Image_Manager
                         _displayItems.Add(new TextItem(item));
                         isInCache.Add(false);
                         break;
+                    case "file":
+                        if (!_allowOtherFiles || 
+                            File.GetAttributes(item).HasFlag(FileAttributes.Hidden)) continue;
+                        _displayItems.Add(new FileItem(item));
+                        isInCache.Add(false);
+                        break;
                 }
             }
-
             NewFiles.Clear();
         }
 
@@ -302,9 +313,6 @@ namespace Image_Manager
                 _isDrop = true;
                 CreateNewContext(folder);
                 CreateSortMenu();
-
-                ViewMenu.IsEnabled = true;
-                EditMenu.IsEnabled = true;
             }
             catch
             {
@@ -329,7 +337,7 @@ namespace Image_Manager
             }
 
             // Start video in default player
-            else if (_currentItem.GetTypeOfFile() == "video")
+            else if (_currentItem.GetTypeOfFile() == "video" || _currentItem.GetTypeOfFile() == "file")
             {
                 Process.Start(_displayItems[_displayedItemIndex].GetFilePath());
             }
@@ -358,6 +366,10 @@ namespace Image_Manager
             ProcessNewFiles();
 
             UpdateContent();
+
+            ViewMenu.IsEnabled = true;
+            EditMenu.IsEnabled = true;
+            OpenMenu.IsEnabled = true;
         }
 
         // Removes an old folder
@@ -378,6 +390,7 @@ namespace Image_Manager
 
             ViewMenu.IsEnabled = false;
             EditMenu.IsEnabled = false;
+            OpenMenu.IsEnabled = false;
 
             GC.Collect();
         }

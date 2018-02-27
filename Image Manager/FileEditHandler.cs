@@ -97,7 +97,7 @@ namespace Image_Manager
                 }
                 catch
                 {
-                    Interaction.MsgBox("File is currently being used by another program");
+                    Interaction.MsgBox("File is currently being used by another program or has been removed");
                 }
             }
             else

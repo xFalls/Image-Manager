@@ -27,6 +27,7 @@
 
         <Image x:Name="gifViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Visibility="Hidden"/>
         <Image x:Name="imageViewer" Margin="0,18,0,0" Grid.ColumnSpan="2" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" MouseLeftButtonDown="imageViewer_MouseLeftButtonDown" MouseLeftButtonUp="imageViewer_MouseLeftButtonUp" MouseMove="imageViewer_MouseMove" Panel.ZIndex="-1"/>
+        <Image x:Name="iconViewer" Margin="0,18,0,0" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Panel.ZIndex="-1" Width="150" Height="150" Grid.ColumnSpan="2"/>
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
 
         <DockPanel Grid.ColumnSpan="2">
@@ -34,10 +35,11 @@
 
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
+                    <Separator></Separator>
                     <MenuItem Name="Reset" Header="Clear files" Foreground="Black" Click="MenuItem_Click_9"></MenuItem>
                 </MenuItem>
 
-                <MenuItem Name="EditMenu" Header="Edit" IsTabStop="False" IsEnabled="false">
+                <MenuItem Name="EditMenu" Header="Edit" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="UndoMenu" Header="Undo" Foreground="Black" InputGestureText="Z" Click="MenuItem_Click"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="RenameMenu" Header="Rename" Foreground="Black" InputGestureText="F2" Click="MenuItem_Click_2"></MenuItem>
@@ -45,12 +47,17 @@
                     <MenuItem Name="RemovePrefixMenu" Header="Remove prefix" Foreground="Black" InputGestureText="F4" Click="MenuItem_Click_4"></MenuItem>
                 </MenuItem>
 
-                <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="false">
+                <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Name="IncludeSubMenu" Header="Include subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6"></MenuItem>
-                    <MenuItem Name="IncludeSpecialMenu" Header="Include special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7"></MenuItem>
-                    <MenuItem Name="IncludePrefixMenu" Header="Include prefixed content" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_8"></MenuItem>
+                    <MenuItem Name="IncludeSubMenu" Header="Exclude subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6" IsCheckable="True" IsChecked="False"></MenuItem>
+                    <MenuItem Name="IncludeSpecialMenu" Header="Exclude special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7" IsCheckable="True" IsChecked="False"></MenuItem>
+                    <MenuItem Name="IncludePrefixMenu" Header="Exclude prefixed content" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_8" IsCheckable="True" IsChecked="False"></MenuItem>
+                    <MenuItem Name="IncludeOtherFilesMenu" Header="Exclude other files" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_12" IsCheckable="True" IsChecked="False"></MenuItem>
+                </MenuItem>
+
+                <MenuItem Name="OpenMenu" Header="Open" IsTabStop="False" IsEnabled="False">
+                    <MenuItem Name="OpenInMenu" Header="Open in..." Foreground="Black" Click="MenuItem_Click_11"></MenuItem>
                 </MenuItem>
 
                 <MenuItem Name="AboutMenu" Header="About" IsTabStop="False">

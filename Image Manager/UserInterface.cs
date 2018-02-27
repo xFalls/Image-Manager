@@ -60,7 +60,11 @@ namespace Image_Manager
                 {
                     Title = Title + " -prefix ";
                 }
-                if (!_showSets || !_showSubDir || !_showPrefix)
+                if (!_allowOtherFiles)
+                {
+                    Title = Title + " -other ";
+                }
+                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles)
                 {
                     Title = Title + "| ";
                 }
@@ -82,6 +86,10 @@ namespace Image_Manager
                 if (!_showPrefix)
                 {
                     Title = Title + " -prefix";
+                }
+                if (!_allowOtherFiles)
+                {
+                    Title = Title + " -other";
                 }
             }
         }

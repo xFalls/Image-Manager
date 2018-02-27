@@ -179,6 +179,13 @@ namespace Image_Manager
                 UpdateTitle();
             }
 
+            // Toggle prefixed files
+            else if (e.Key == Key.V)
+            {
+                _allowOtherFiles = !_allowOtherFiles;
+                UpdateTitle();
+            }
+
             // Undo last move
             else if (e.Key == Key.Z)
                 UndoMove();

@@ -52,9 +52,9 @@ namespace Image_Manager
             FileLocation = Path.GetDirectoryName(name);
             FileSize = GetFileSize(name);
 
-            ShortenedName = FileName.Length > ShortLength ? 
+            ShortenedName = FileName.Length > ShortLength ?
                 FileName.Substring(0, ShortLength) + "..." : FileName;
-            
+
 
             // Sets the relative location to the initial rootfolder.
             LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
@@ -198,6 +198,63 @@ namespace Image_Manager
         }
     }
 
+
+
+    public class FileItem : DisplayItem
+    {
+        private BitmapImage _thumbnailSource;
+
+        public FileItem(string name) : base(name)
+        {
+            FileType = "file";
+        }
+
+        private BitmapImage LoadThumbnail(string myThumbnail)
+        {
+            // The desired resolution
+            const int THUMB_SIZE = 1024;
+
+            Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
+                myThumbnail, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
+
+            BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
+            thumbnail.Dispose();
+
+            return thumbnailImage;
+        }
+
+        public BitmapImage GetThumbnail()
+        {
+            return _thumbnailSource;
+        }
+
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+
+                bitmapimage.BeginInit();
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.StreamSource = memory;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
+        }
+
+        public override void PreloadContent()
+        {
+            _thumbnailSource = LoadThumbnail(FilePath);
+        }
+
+        public override void RemovePreloadedContent()
+        {
+            _thumbnailSource = null;
+        }
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -458,13 +515,13 @@ namespace Image_Manager
         /// </summary>
         public void GetMetaData()
         {
-            var mediaDet = (IMediaDet) new MediaDet();
+            var mediaDet = (IMediaDet)new MediaDet();
             DsError.ThrowExceptionForHR(mediaDet.put_Filename(FilePath));
 
             // Retrieve some measurements from the video
             var mediaType = new AMMediaType();
             mediaDet.get_StreamMediaType(mediaType);
-            var videoInfo = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
+            var videoInfo = (VideoInfoHeader)Marshal.PtrToStructure(mediaType.formatPtr, typeof(VideoInfoHeader));
             DsUtils.FreeAMMediaType(mediaType);
 
             _videoResolutionWidth = videoInfo.BmiHeader.Width;
@@ -480,7 +537,7 @@ namespace Image_Manager
                 if (val > 0) parts.Add(val + unit);
             }
 
-            var t = TimeSpan.FromSeconds((int) mediaLength);
+            var t = TimeSpan.FromSeconds((int)mediaLength);
 
             Add(t.Days, "d");
             Add(t.Hours, "h");

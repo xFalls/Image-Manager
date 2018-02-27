@@ -33,7 +33,7 @@ namespace Image_Manager
                 isInCache[index] = false;
                 _displayItems[index].RemovePreloadedContent();
             }
-            // In case files are large, throw them away 
+            // Just in case files are large, throw them away 
             // immediately to prevent potential memory errors
             GC.Collect();
         }
