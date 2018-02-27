@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
@@ -60,7 +61,7 @@ namespace Image_Manager
             }
         }
 
-        // Toggle subfolders
+        // Clear view
         private void MenuItem_Click_9(object sender, RoutedEventArgs e)
         {
             RemoveOldContext();
@@ -86,6 +87,12 @@ namespace Image_Manager
         {
             _showPrefix = !_showPrefix;
             UpdateTitle();
+        }
+
+        // Open README
+        private void MenuItem_Click_10(object sender, RoutedEventArgs e)
+        {
+            Process.Start("README.md");
         }
     }
 }

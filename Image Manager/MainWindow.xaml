@@ -53,6 +53,10 @@
                     <MenuItem Name="IncludePrefixMenu" Header="Include prefixed content" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_8"></MenuItem>
                 </MenuItem>
 
+                <MenuItem Name="AboutMenu" Header="About" IsTabStop="False">
+                    <MenuItem Name="HelpMenu" Header="Help" Foreground="Black" Click="MenuItem_Click_10"></MenuItem>
+                </MenuItem>
+
             </Menu>
             <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="1">
                 <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
