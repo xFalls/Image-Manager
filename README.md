@@ -45,6 +45,4 @@ When loading a new set of images:
 - Shift: Only load the folder without the content of any subfolders
 - X: Prevents loading of folders with specific preconfigured names
 - C: Toggles showing files with the preset prefix
-  
-  
-  
+- V: Toggles showing non-media files
