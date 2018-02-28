@@ -53,7 +53,7 @@
                     <MenuItem Name="IncludeSubMenu" Header="Exclude subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6" IsCheckable="True" IsChecked="False"></MenuItem>
                     <MenuItem Name="IncludeSpecialMenu" Header="Exclude special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7" IsCheckable="True" IsChecked="False"></MenuItem>
                     <MenuItem Name="IncludePrefixMenu" Header="Exclude prefixed content" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_8" IsCheckable="True" IsChecked="False"></MenuItem>
-                    <MenuItem Name="IncludeOtherFilesMenu" Header="Exclude other files" Foreground="Black" InputGestureText="C" Click="MenuItem_Click_12" IsCheckable="True" IsChecked="False"></MenuItem>
+                    <MenuItem Name="IncludeOtherFilesMenu" Header="Exclude non-media files" Foreground="Black" InputGestureText="V" Click="MenuItem_Click_12" IsCheckable="True" IsChecked="False"></MenuItem>
                 </MenuItem>
 
                 <MenuItem Name="OpenMenu" Header="Open" IsTabStop="False" IsEnabled="False">

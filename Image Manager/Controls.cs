@@ -161,6 +161,7 @@ namespace Image_Manager
             // Toggle subdirectories in view mode
             else if (e.Key == Key.LeftShift)
             {
+                IncludeSubMenu.IsChecked = _showSubDir;
                 _showSubDir = !_showSubDir;
                 UpdateTitle();
             }
@@ -168,6 +169,7 @@ namespace Image_Manager
             // Toggle special folders
             else if (e.Key == Key.X)
             {
+                IncludeSpecialMenu.IsChecked = _showSets;
                 _showSets = !_showSets;
                 UpdateTitle();
             }
@@ -175,6 +177,7 @@ namespace Image_Manager
             // Toggle prefixed files
             else if (e.Key == Key.C)
             {
+                IncludePrefixMenu.IsChecked = _showPrefix;
                 _showPrefix = !_showPrefix;
                 UpdateTitle();
             }
@@ -182,6 +185,7 @@ namespace Image_Manager
             // Toggle prefixed files
             else if (e.Key == Key.V)
             {
+                IncludeOtherFilesMenu.IsChecked = _allowOtherFiles;
                 _allowOtherFiles = !_allowOtherFiles;
                 UpdateTitle();
             }
