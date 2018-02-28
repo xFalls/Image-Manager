@@ -17,8 +17,10 @@ namespace Image_Manager
 
         private static readonly List<Folder> AllFolders = new List<Folder>();
         private static readonly List<Folder> ShownFolders = new List<Folder>();
+        private static string RootFolderPath;
         private static int _currentFolderDepth;
         private readonly int _thisFolderDepth;
+        private string _localPath;
 
         /// <summary>
         /// Initializes all default values.
@@ -33,6 +35,13 @@ namespace Image_Manager
                 AllFolders.Add(this);
                 ShownFolders.Add(this);
             }
+
+            if (_currentFolderDepth == 0)
+            {
+                RootFolderPath = Directory.GetParent(folderPath).ToString();
+            }
+
+            _localPath = folderPath.Replace(RootFolderPath, "");
 
             _thisFolderDepth = _currentFolderDepth;
             _currentFolderDepth++;
@@ -79,6 +88,15 @@ namespace Image_Manager
         public List<Folder> GetAllShownFolders()
         {
             return ShownFolders;
+        }
+
+        /// <summary>
+        /// Returns this folder's path in relation to the root folder.
+        /// </summary>
+        /// <returns>A path excluding everything above the root folder.</returns>
+        public string GetLocalPath()
+        {
+            return _localPath;
         }
 
         /// <summary>

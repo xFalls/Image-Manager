@@ -269,8 +269,12 @@ namespace Image_Manager
                 // E.g. RiN shows Rain but not rni
                 foreach (Folder item in _originFolder.GetAllFolders())
                 {
-                    if (ContainsWord(SortTypeBox.Text, item.GetFolderName()))
+                    // Matches all items that exist in the local path 
+                    // (working up from the root folder)
+                    if (ContainsWord(SortTypeBox.Text.Replace(" ", ""), item.GetLocalPath()))
+                    {
                         _originFolder.GetAllShownFolders().Add(item);
+                    }
                 }
 
                 if (_originFolder.GetAllShownFolders().Count == 0) return;
