@@ -58,7 +58,7 @@ namespace Image_Manager
 
             // Sets the relative location to the initial rootfolder.
             LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
-            InfoBarDefaultContent = ShortenedName + "    -    " + LocalLocation +
+            InfoBarDefaultContent = FileName + "    -    " + LocalLocation +
                                     "    -    " + FileSize;
         }
 
@@ -121,7 +121,7 @@ namespace Image_Manager
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(newPath);
             FileExtension = Path.GetExtension(newPath).ToLower();
             FileLocation = Path.GetDirectoryName(newPath);
-            InfoBarDefaultContent = FileName + "    -    " + LocalLocation;
+            InfoBarDefaultContent = FileName + "    -    " + LocalLocation + "    -    " + FileSize;
         }
 
         /// <summary>
