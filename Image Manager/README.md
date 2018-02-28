@@ -6,9 +6,9 @@ https://github.com/xFalls/Image-Sorting-Software
 
 # Image-Sorting-Software (name subject to change)
 
-Work in progress - Bugs, unexpected behavior, or lost files may occur
+Work in progress - Bugs or unexpected behavior may occur
 
-Drag a folder or image into the main window to load them into the main view. Works with video thumbnails and text files as well. The software will automatically create a list of subfolders in its UI for easy sorting to.
+Drag a folder or file into the window to load them into the view. It will automatically display image files, contents of text files, or thumbnails of videos and other files. An interface showing all showfolders can be toggled, and selecting one of the folders will automatically send the currently displayed item into that folder as the next item gets loaded into view, allowing you to quickly sort through a large amount of files.
 
 # Controls
 
