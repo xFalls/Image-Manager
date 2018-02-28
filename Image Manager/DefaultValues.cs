@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
+using Image_Manager.Properties;
 
 namespace Image_Manager
 {
@@ -25,25 +29,37 @@ namespace Image_Manager
 
         // UI colors
         private readonly SolidColorBrush _defaultTextColor = new SolidColorBrush(Colors.White);
-        private readonly bool _preferWebP = true;
-        private readonly bool _prefer1000Px = true;
-        private readonly SolidColorBrush _notOver1000PxWarningTextColor = new SolidColorBrush(Colors.Red);
-        private readonly SolidColorBrush _notWebPWarningTextColor = new SolidColorBrush(Colors.DarkOrange);
+        private bool _preferWebP = Settings.Default.PreferWebP;
+        private bool _prefer1000Px = Settings.Default.Prefer1000px;
+        private readonly SolidColorBrush redWarning = new SolidColorBrush(Colors.Red);
+        private readonly SolidColorBrush orangeWarning = new SolidColorBrush(Colors.DarkOrange);
 
         // Indentation distance for each subfolder level
         private const int IndentDistance = 20;
 
         // Naming
-        private const string QuickPrefix = "+HQ ";
+        private string QuickPrefix = Settings.Default.PrefixName;
         private readonly int FileNameSize = 30;
 
         // Inclusion
-        private bool _allowOtherFiles = true;
+        public bool _allowOtherFiles = true;
 
         // Caching
         private readonly int _preloadRange = 7;
 
         // Blur effect on videos
         private readonly int _defaultBlurRadius = 20;
+
+
+        // Apply settings
+        public void UpdateSettingsChanged()
+        {
+            QuickPrefix = Settings.Default.PrefixName + " ";
+            _prefer1000Px = Settings.Default.Prefer1000px;
+            _preferWebP = Settings.Default.PreferWebP;
+
+            UpdateTitle();
+            UpdateInfobar();
+        }
     }
 }

@@ -83,7 +83,7 @@ namespace Image_Manager
         /// <param name="input">The new name.</param>
         private void RenameFile(string input)
         {
-            if (input == "") return;
+            if (string.IsNullOrWhiteSpace(input)) return;
             string currentFileExt = _currentItem.GetFileExtension();
             string currentLocation = _currentItem.GetLocation();
 

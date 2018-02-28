@@ -142,13 +142,12 @@ namespace Image_Manager
         }
 
         // Changes the currently displayed content
-        private void UpdateContent()
+        public void UpdateContent()
         {
             // Show specific view when content is empty
             if (_displayItems.Count == 0)
             {
-                UpdateTitle();
-                UpdateInfobar();
+                UpdateSettingsChanged();
                 return;
             }
             
@@ -181,8 +180,7 @@ namespace Image_Manager
             }
 
             ResetView();
-            UpdateInfobar();
-            UpdateTitle();
+            UpdateSettingsChanged();
         }
 
         /// <summary>

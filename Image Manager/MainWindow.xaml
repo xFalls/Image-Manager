@@ -36,6 +36,8 @@
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
                     <Separator></Separator>
+                    <MenuItem Name="SettingsMenu" Header="Settings" Foreground="Black" Click="MenuItem_Click_13"></MenuItem>
+                    <Separator></Separator>
                     <MenuItem Name="Reset" Header="Clear files" Foreground="Black" Click="MenuItem_Click_9"></MenuItem>
                 </MenuItem>
 

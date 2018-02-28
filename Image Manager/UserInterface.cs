@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,20 +28,40 @@ namespace Image_Manager
                     return;
                 }
 
-            // Colors the text according to preset preferences
-            if (_currentItem.GetTypeOfFile() == "image" && _currentItem.GetFileExtension() != ".webp" && _preferWebP)
-                CurrentFileInfoLabel.Foreground =
-                    ((ImageItem) _displayItems[_displayedItemIndex]).GetSize() < 1000 && _prefer1000Px
-                    ? _notOver1000PxWarningTextColor
-                    : _notWebPWarningTextColor;
+            bool isWebP = _currentItem.GetFileExtension() == ".webp";
+            bool isOver = ((ImageItem)_displayItems[_displayedItemIndex]).GetSize() >= 1000;
 
-            // All content is contains its indexed number
+            // Colors the text according to preset preferences
+            if (_currentItem.GetTypeOfFile() == "image")
+                // Check if both
+                if (_prefer1000Px && _preferWebP)
+                    // Neither
+                    if (!isWebP && !isOver)
+                        CurrentFileInfoLabel.Foreground = redWarning;
+                    // Either
+                    else if (!isWebP || !isOver)
+                        CurrentFileInfoLabel.Foreground = orangeWarning;
+                    // Both
+                    else
+                        CurrentFileInfoLabel.Foreground = _defaultTextColor;
+                // Check for webP
+                else if (!_prefer1000Px && _preferWebP)
+                    CurrentFileInfoLabel.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
+                // Check for 1000px
+                else if (!_preferWebP && _prefer1000Px)
+                    CurrentFileInfoLabel.Foreground = !isOver ? orangeWarning : _defaultTextColor;
+                // Default
+                else
+                    CurrentFileInfoLabel.Foreground = _defaultTextColor;
+
+
+            // All content is added after its indexed number
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
             CurrentFileInfoLabel.Content = preInfo + _currentItem.GetInfobarContent() + "   ";
         }
 
         // Updates the title of the window
-        private void UpdateTitle()
+        public void UpdateTitle()
         {
             if (_displayItems.Count > 0)
             {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
+using Image_Manager.Properties;
 using Microsoft.VisualBasic;
 
 namespace Image_Manager
@@ -99,6 +100,12 @@ namespace Image_Manager
         {
             _allowOtherFiles = !_allowOtherFiles;
             UpdateTitle();
+        }
+
+        // Settings Window
+        private void MenuItem_Click_13(object sender, RoutedEventArgs e)
+        {
+            new SettingsWindow(this).Show();
         }
 
         // Open README

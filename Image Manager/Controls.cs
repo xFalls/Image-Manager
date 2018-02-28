@@ -8,7 +8,7 @@ using System.Windows.Media;
 using Microsoft.VisualBasic;
 
 namespace Image_Manager
-{
+{ 
     partial class MainWindow
     {
 
