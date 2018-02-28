@@ -376,6 +376,9 @@ namespace Image_Manager
         private void RemoveOldContext()
         {
             _isActive = false;
+            _isTyping = false;
+            SortTypeBox.Visibility = Visibility.Hidden;
+
             imageViewer.Source = null;
 
             UpdateTitle();

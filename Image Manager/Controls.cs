@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -86,13 +87,13 @@ namespace Image_Manager
                     // Select directory below
                     case Key.Down:
                     case Key.S:
-                            MoveDown();
+                        MoveDown();
                         break;
 
                     // Select directory above
                     case Key.Up:
                     case Key.W:
-                            MoveUp();
+                        MoveUp();
                         break;
 
                     // Previous image
@@ -159,43 +160,38 @@ namespace Image_Manager
             }
 
             // Toggle subdirectories in view mode
-            else if (e.Key == Key.LeftShift)
+            if (!_isTyping)
             {
-                IncludeSubMenu.IsChecked = _showSubDir;
-                _showSubDir = !_showSubDir;
-                UpdateTitle();
+                switch (e.Key)
+                {
+                    case Key.LeftShift:
+                        IncludeSubMenu.IsChecked = _showSubDir;
+                        _showSubDir = !_showSubDir;
+                        UpdateTitle();
+                        break;
+                    case Key.X:
+                        IncludeSpecialMenu.IsChecked = _showSets;
+                        _showSets = !_showSets;
+                        UpdateTitle();
+                        break;
+                    case Key.C:
+                        IncludePrefixMenu.IsChecked = _showPrefix;
+                        _showPrefix = !_showPrefix;
+                        UpdateTitle();
+                        break;
+                    case Key.V:
+                        IncludeOtherFilesMenu.IsChecked = _allowOtherFiles;
+                        _allowOtherFiles = !_allowOtherFiles;
+                        UpdateTitle();
+                        break;
+                    case Key.Z:
+                        UndoMove();
+                        break;
+                }
             }
-
-            // Toggle special folders
-            else if (e.Key == Key.X)
-            {
-                IncludeSpecialMenu.IsChecked = _showSets;
-                _showSets = !_showSets;
-                UpdateTitle();
-            }
-
-            // Toggle prefixed files
-            else if (e.Key == Key.C)
-            {
-                IncludePrefixMenu.IsChecked = _showPrefix;
-                _showPrefix = !_showPrefix;
-                UpdateTitle();
-            }
-
-            // Toggle prefixed files
-            else if (e.Key == Key.V)
-            {
-                IncludeOtherFilesMenu.IsChecked = _allowOtherFiles;
-                _allowOtherFiles = !_allowOtherFiles;
-                UpdateTitle();
-            }
-
-            // Undo last move
-            else if (e.Key == Key.Z)
-                UndoMove();
 
             // Start typing mode
-            else if (e.Key == Key.LeftCtrl)
+            if (e.Key == Key.LeftCtrl)
             {
                 if (!_sortMode || _isDrop || _displayItems.Count == 0) return;
                 if (_isTyping)
@@ -211,6 +207,7 @@ namespace Image_Manager
                     _isTyping = true;
                 }
             }
+
         }
 
         // Occurs while typing
@@ -240,7 +237,7 @@ namespace Image_Manager
                     if (_sortMode)
                         MoveFile();
                     break;
-                
+
                 // Selects directory above
                 case Key.Up:
                     MoveUp();
@@ -257,11 +254,13 @@ namespace Image_Manager
                     break;
             }
         }
-        
+
         // Filters the list of all shown folders according to what's typed.
         private void FilterSort()
         {
-            _originFolder.RemoveAllShownFolders();
+            List<Folder> tempList = new List<Folder>();
+            tempList.AddRange(_originFolder.GetAllShownFolders());
+           _originFolder.RemoveAllShownFolders();
 
             if (SortTypeBox.Text != "" && _isTyping)
             {
@@ -277,7 +276,11 @@ namespace Image_Manager
                     }
                 }
 
-                if (_originFolder.GetAllShownFolders().Count == 0) return;
+                // If nothing matches, keep previous shown state
+                if (_originFolder.GetAllShownFolders().Count == 0)
+                {
+                    _originFolder.GetAllShownFolders().AddRange(tempList);
+                };
             }
             else
             {
@@ -353,7 +356,7 @@ namespace Image_Manager
                 MoveFile();
 
             }
-            
+
         }
 
         // A left click opens the selected directory in the gallery        
@@ -389,7 +392,7 @@ namespace Image_Manager
             _start = e.GetPosition(ImageBorder);
             _origin = new Point(_tt.X, _tt.Y);
         }
-         
+
         // Stops the dragging action
         private void imageViewer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -446,15 +449,15 @@ namespace Image_Manager
                 vis = Visibility.Hidden;
                 MenuStrip.Background = new SolidColorBrush(Colors.Transparent);
             }
-                
+
 
             foreach (MenuItem item in MenuStrip.Items)
                 item.Visibility = vis;
 
             imageViewer.Margin = margin;
             gifViewer.Margin = margin;
-            textViewer.Margin = margin;           
-            
+            textViewer.Margin = margin;
+
         }
     }
 }
