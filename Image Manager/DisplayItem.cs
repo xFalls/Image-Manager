@@ -443,22 +443,20 @@ namespace Image_Manager
             // correct values are found.
             for (int tries = 0; tries < 4; tries++)
             {
-                if (_videoResolutionHeight == 0 ||
-                    _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
-                    _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000)
+                if (_videoResolutionHeight != 0 && _videoResolutionWidth >= -100000 &&
+                    _videoResolutionHeight >= -100000 && _videoResolutionWidth <= 100000 &&
+                    _videoResolutionHeight <= 100000) continue;
+                if ((_videoResolutionHeight == 0 ||
+                     _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
+                     _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000) &&
+                    tries == 3)
                 {
-                    if ((_videoResolutionHeight == 0 ||
-                        _videoResolutionWidth < -100000 || _videoResolutionHeight < -100000 ||
-                        _videoResolutionWidth > 100000 || _videoResolutionHeight > 100000) &&
-                        tries == 3)
-                    {
-                        _videoResolutionHeight = 0;
-                        _videoResolutionWidth = 0;
-                        break;
-                    }
-
-                    GetMetaData();
+                    _videoResolutionHeight = 0;
+                    _videoResolutionWidth = 0;
+                    break;
                 }
+
+                GetMetaData();
             }
 
             _thumbnailSource = LoadThumbnail(FilePath);

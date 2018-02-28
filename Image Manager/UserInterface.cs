@@ -28,11 +28,13 @@ namespace Image_Manager
                     return;
                 }
 
-            bool isWebP = _currentItem.GetFileExtension() == ".webp";
-            bool isOver = ((ImageItem)_displayItems[_displayedItemIndex]).GetSize() >= 1000;
-
+            
             // Colors the text according to preset preferences
             if (_currentItem.GetTypeOfFile() == "image")
+            {
+                bool isWebP = _currentItem.GetFileExtension() == ".webp";
+                bool isOver = ((ImageItem) _displayItems[_displayedItemIndex]).GetSize() >= 1000;
+
                 // Check if both
                 if (_prefer1000Px && _preferWebP)
                     // Neither
@@ -53,6 +55,7 @@ namespace Image_Manager
                 // Default
                 else
                     CurrentFileInfoLabel.Foreground = _defaultTextColor;
+            }
 
 
             // All content is added after its indexed number
