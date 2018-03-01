@@ -56,7 +56,7 @@ namespace Image_Manager
         }
 
         // Displays a short animation to indicate that changes have been saved
-        private void AnimateBackground(Control elem, Color color)
+        public static void AnimateBackground(Control elem, Color color)
         {
             ColorAnimation ca = new ColorAnimation(Colors.White, new Duration(TimeSpan.FromSeconds(0.5)));
             elem.Background = new SolidColorBrush(color);
