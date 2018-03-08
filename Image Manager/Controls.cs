@@ -299,7 +299,7 @@ namespace Image_Manager
         public static bool ContainsWord(string word, string otherword)
         {
             word = word.ToLower();
-            otherword = otherword.ToLower();
+            otherword = otherword?.ToLower();
 
             int lastPos = -1;
             foreach (char c in word)
