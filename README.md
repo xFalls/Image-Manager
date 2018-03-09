@@ -7,14 +7,17 @@ Drag a folder or file into the window to load them into the view. It will automa
 # Controls
 
 All modes:
-  - Right click, Space: Enables zooming and dragging an image with the mouse, opens videos in the default player, or enables scrolling in a text file 
+  - Right click, Space: Enables zooming and dragging image with the mouse, opens video in default player, or enables scrolling in a text file
   - Scroll, Left, Right, A, D: Navigate to next or previous image
-  - F11: Toggle fullscreen
   - TAB, Middle click: Shift mode between View, Explore, and Sort
   - Z: Undo move
+  - F: Toggle file previews
+  - F1: Open help
   - F2: Rename file
   - F3: Quickly adds a preconfigured text in front of the name of the file
   - F4: Removes the preconfigured text
+  - F11: Toggle fullscreen
+  - F12: Open settings
   - Delete: Moves item to "Deleted Files" folder inside the .exe folder
   
 
