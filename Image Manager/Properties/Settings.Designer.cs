@@ -58,5 +58,29 @@ namespace Image_Manager.Properties {
                 this["PreferWebP"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int PreviewSteps {
+            get {
+                return ((int)(this["PreviewSteps"]));
+            }
+            set {
+                this["PreviewSteps"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsPreviewOpen {
+            get {
+                return ((bool)(this["IsPreviewOpen"]));
+            }
+            set {
+                this["IsPreviewOpen"] = value;
+            }
+        }
     }
 }

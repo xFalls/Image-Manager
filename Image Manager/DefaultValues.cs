@@ -45,8 +45,8 @@ namespace Image_Manager
         public bool _allowOtherFiles = true;
 
         // Caching
-        private readonly int _preloadRange = 7;
-        private readonly int previewSteps = 2;
+        private int _preloadRange;
+        private int _previewSteps;
 
         // Blur effect on videos
         private readonly int _defaultBlurRadius = 20;
@@ -58,6 +58,8 @@ namespace Image_Manager
             QuickPrefix = Settings.Default.PrefixName + " ";
             _prefer1000Px = Settings.Default.Prefer1000px;
             _preferWebP = Settings.Default.PreferWebP;
+            _previewSteps = Settings.Default.PreviewSteps;
+            _preloadRange = _previewSteps;
 
             UpdateTitle();
             UpdateInfobar();

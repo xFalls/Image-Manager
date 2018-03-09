@@ -36,13 +36,14 @@
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Name="SettingsMenu" Header="Settings" Foreground="Black" Click="MenuItem_Click_13"></MenuItem>
+                    <MenuItem Name="SettingsMenu" Header="Settings" Foreground="Black" InputGestureText="F12" Click="MenuItem_Click_13"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="Reset" Header="Clear files" Foreground="Black" Click="MenuItem_Click_9"></MenuItem>
                 </MenuItem>
 
                 <MenuItem Name="EditMenu" Header="Edit" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="UndoMenu" Header="Undo" Foreground="Black" InputGestureText="Z" Click="MenuItem_Click"></MenuItem>
+                    <MenuItem Name="RemoveMenu" Header="Delete" Foreground="Black" InputGestureText="DEL" Click="MenuItem_Click_15"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="RenameMenu" Header="Rename" Foreground="Black" InputGestureText="F2" Click="MenuItem_Click_2"></MenuItem>
                     <MenuItem Name="AddPrefixMenu" Header="Add prefix" Foreground="Black" InputGestureText="F3" Click="MenuItem_Click_3"></MenuItem>
@@ -51,6 +52,7 @@
 
                 <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"></MenuItem>
+                    <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="IncludeSubMenu" Header="Exclude subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6" IsCheckable="True" IsChecked="False"></MenuItem>
                     <MenuItem Name="IncludeSpecialMenu" Header="Exclude special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7" IsCheckable="True" IsChecked="False"></MenuItem>
@@ -59,11 +61,14 @@
                 </MenuItem>
 
                 <MenuItem Name="OpenMenu" Header="Open" IsTabStop="False" IsEnabled="False">
-                    <MenuItem Name="OpenInMenu" Header="Open in..." Foreground="Black" Click="MenuItem_Click_11"></MenuItem>
+                    <MenuItem Name="OpenInMenu" Header="Open file with..." Foreground="Black" Click="MenuItem_Click_11"></MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Name="OpenRemoved" Header="Open 'Deleted Files' folder" Foreground="Black" Click="MenuItem_Click_16"></MenuItem>
+                    <MenuItem Name="OpenCurrent" Header="Open current folder" Foreground="Black" Click="MenuItem_Click_17"></MenuItem>
                 </MenuItem>
 
                 <MenuItem Name="AboutMenu" Header="About" IsTabStop="False">
-                    <MenuItem Name="HelpMenu" Header="Help" Foreground="Black" Click="MenuItem_Click_10"></MenuItem>
+                    <MenuItem Name="HelpMenu" Header="Help" InputGestureText="F1" Foreground="Black" Click="MenuItem_Click_10"></MenuItem>
                 </MenuItem>
 
             </Menu>
@@ -75,14 +80,13 @@
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
 
-        <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.7" MouseDown="PreviewField_MouseDown">
+        <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.4" MouseDown="PreviewField_MouseDown">
+
+            <Border Name="PreviewImage" Width="150" Visibility="Hidden">
+                <Image VerticalAlignment="Center" Stretch="UniformToFill" HorizontalAlignment="Center"/>
+            </Border>
 
             <StackPanel Name="PreviewContainer" Orientation="Horizontal" HorizontalAlignment="Center">
-
-                <Border Name="PreviewImage" Width="150">
-                    <Image VerticalAlignment="Center" Stretch="UniformToFill" HorizontalAlignment="Center"/>
-                </Border>
-
             </StackPanel>
 
             <Grid.Triggers>
@@ -102,7 +106,7 @@
                             <DoubleAnimation 
                                 Storyboard.TargetName="PreviewField"
                                 Storyboard.TargetProperty="(Grid.Opacity)" 
-                                To="0.7" Duration="0:0:0.1"/>
+                                To="0.4" Duration="0:0:0.1"/>
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>

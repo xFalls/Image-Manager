@@ -33,10 +33,10 @@ namespace Image_Manager
             
         }
 
-        // The Prefix name setter
+        // Sets textfield settings
         private void Prefix_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter) return;
+            if (e.Key != Key.Enter || !(sender is TextBox)) return;
 
             // Saves the new default text to settings
             var mediaElement = (TextBox)sender;
@@ -49,8 +49,25 @@ namespace Image_Manager
                 return;
             }
 
-            Settings.Default.PrefixName = text;
-            Keyboard.ClearFocus();
+            switch (((Control) sender).Name)
+            {
+                case "Prefix":
+                    Settings.Default.PrefixName = text;
+                    Keyboard.ClearFocus();
+                    break;
+                case "Steps":
+                    if (int.TryParse(text, out int v) && v >= 0 && v < 200)
+                    {
+                        Settings.Default.PreviewSteps = v;
+                    }
+                    else
+                    {
+                        AnimateBackground(mediaElement, Colors.OrangeRed);
+                        return;
+                    }
+
+                    break;
+            }
 
             AnimateBackground(mediaElement, Colors.GreenYellow);
         }
@@ -67,6 +84,8 @@ namespace Image_Manager
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             main.UpdateSettingsChanged();
+            main.UpdatePreviewLength();
+            main.UpdateContent();
         }
     }
 }

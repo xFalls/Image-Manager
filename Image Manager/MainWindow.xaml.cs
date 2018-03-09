@@ -10,6 +10,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Xml;
+using Image_Manager.Properties;
 using Microsoft.VisualBasic;
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
@@ -62,22 +63,6 @@ namespace Image_Manager
             // Loads all elements into view
             InitializeComponent();
 
-            // TODO - Move out of constructor
-            // Sets how many preview images to create in one direction
-            for (int i = 0; i < previewSteps * 2; i++)
-            {
-                string borderXAML = XamlWriter.Save(PreviewImage);
-                StringReader stringReader = new StringReader(borderXAML);
-                XmlReader xmlReader = XmlReader.Create(stringReader);
-                PreviewContainer.Children.Add((Border)XamlReader.Load(xmlReader));
-            }
-
-            // Gets all preview image containers
-            foreach (var item in PreviewContainer.Children)
-            {
-                _previewContainer.Add((Image)((Border)item).Child);
-            }
-
             // Initializes variables used for zooming and panning
             _imageTransformGroup.Children.Add(_st);
             _imageTransformGroup.Children.Add(_tt);
@@ -86,6 +71,11 @@ namespace Image_Manager
             // Sets default values
             _videoBlur.Radius = _defaultBlurRadius;
             DisplayItem.ShortLength = FileNameSize;
+            UpdateSettingsChanged();
+            UpdatePreviewLength();
+
+            // Default view
+            PreviewField.Visibility = Settings.Default.IsPreviewOpen ? Visibility.Visible : Visibility.Hidden;
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
@@ -94,6 +84,31 @@ namespace Image_Manager
 
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
+        }
+
+
+        public void UpdatePreviewLength()
+        {
+            PreviewContainer.Children.RemoveRange(0, PreviewContainer.Children.Count);
+            _previewContainer.Clear();
+
+            // Sets how many preview images to create in one direction
+            for (int i = 0; i < _previewSteps * 2 + 1; i++)
+            {
+                string borderXAML = XamlWriter.Save(PreviewImage);
+                StringReader stringReader = new StringReader(borderXAML);
+                XmlReader xmlReader = XmlReader.Create(stringReader);
+                Border previewImage = (Border)XamlReader.Load(xmlReader);
+
+                previewImage.Visibility = Visibility.Visible;
+                PreviewContainer.Children.Add(previewImage);
+            }
+
+            // Gets all preview image containers
+            foreach (var item in PreviewContainer.Children)
+            {
+                _previewContainer.Add((Image)((Border)item).Child);
+            }
         }
 
 
@@ -203,22 +218,31 @@ namespace Image_Manager
 
             // Preview content in front or back
             int firstPreview = -((_previewContainer.Count - 1) / 2);
+
             for (var index = 0; index < _previewContainer.Count; index++)
             {
                 Image item = _previewContainer[index];
 
-                try
-                {
-                    var offsetItem = _displayItems[_displayedItemIndex + index + firstPreview];
-
-                    item.Source = offsetItem.GetTypeOfFile() == "image"
-                        ? ((ImageItem)offsetItem).GetImage()
-                        : offsetItem.GetThumbnail();
-                }
-                catch (ArgumentOutOfRangeException)
+                // Don't display images out of bounds
+                if (_displayedItemIndex + index + firstPreview > _displayItems.Count - 1)
                 {
                     item.Source = null;
+                    break;
                 }
+                if (_displayedItemIndex + index + firstPreview < 0)
+                {
+                    item.Source = null;
+                    continue;
+                }
+
+                var offsetItem = _displayItems[_displayedItemIndex + index + firstPreview];
+
+
+                item.Source = offsetItem.GetTypeOfFile() == "image"
+                    ? ((ImageItem)offsetItem).GetImage()
+                    : offsetItem.GetThumbnail();
+
+
             }
 
             ResetView();

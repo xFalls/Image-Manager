@@ -21,6 +21,7 @@
                                         <ComboBoxItem Content="Prefix to append"/>
                                         <ComboBoxItem Content="Warn if image is under 1000px"/>
                                         <ComboBoxItem Content="Warn if image is not WebP"/>
+                                        <ComboBoxItem Content="Number of steps to preview"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
@@ -30,9 +31,10 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel>
-                                        <TextBox Text="{Binding Source={x:Static prop:Settings.Default}, Path=PrefixName, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
+                                        <TextBox Name="Prefix"  Text="{Binding Source={x:Static prop:Settings.Default}, Path=PrefixName, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
                                         <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Prefer1000px, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                                         <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=PreferWebP, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center"/>
+                                        <TextBox Name="Steps" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PreviewSteps, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>

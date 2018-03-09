@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Image_Manager.Properties;
 using Microsoft.VisualBasic;
 
 namespace Image_Manager
@@ -138,6 +140,7 @@ namespace Image_Manager
                     // Toggles showing thumbnail preview bar
                     case Key.F:
                         PreviewField.Visibility = (PreviewField.Visibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
+                        Settings.Default.IsPreviewOpen = PreviewField.Visibility == Visibility.Visible;
                         break;
                 }
 
@@ -163,6 +166,13 @@ namespace Image_Manager
                         ToggleShowingMenuStrip();
                         break;
                 }
+            } else if (e.Key == Key.F1)
+            {
+                Process.Start("README.md");
+            }
+            else if (e.Key == Key.F12)
+            {
+                new SettingsWindow(this).Show();
             }
 
             // Toggle subdirectories in view mode
@@ -471,7 +481,7 @@ namespace Image_Manager
         {
             if (!(e.Source is FrameworkElement mouseWasDownOn)) return;
 
-            int index = 0 - previewSteps;
+            int index = 0 - _previewSteps;
             foreach (Image item in _previewContainer)
             {
                 if (item == mouseWasDownOn)

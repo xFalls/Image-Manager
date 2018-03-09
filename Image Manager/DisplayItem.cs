@@ -329,6 +329,7 @@ namespace Image_Manager
         {
             BitmapImage image = new BitmapImage();
 
+            // Convert to Bitmap if image is of WebP format
             if (FileExtension != ".webp")
                 using (FileStream stream = File.OpenRead(myImageFile))
                 {
@@ -339,7 +340,7 @@ namespace Image_Manager
                 }
             else
                 // Allows for loading WebP images through an included library
-                image = VideoItem.BitmapToImageSource(_dec.DecodeBGRA(FilePath));
+                image = BitmapToImageSource(_dec.DecodeBGRA(FilePath));
 
             // If the image has been loaded before, it won't have to
             // get the metadata of the image again.

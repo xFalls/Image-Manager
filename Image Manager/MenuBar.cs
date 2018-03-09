@@ -79,7 +79,6 @@ namespace Image_Manager
             _showSubDir = !_showSubDir;
             UpdateTitle();
         }
-        
 
         // Toggle special folders
         private void MenuItem_Click_7(object sender, RoutedEventArgs e)
@@ -119,6 +118,31 @@ namespace Image_Manager
         {
             if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
             Process.Start(_currentItem.GetFilePath());
+        }
+
+        // Toggles preview bar
+        private void MenuItem_Click_14(object sender, RoutedEventArgs e)
+        {
+            PreviewField.Visibility = (PreviewField.Visibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
+            Settings.Default.IsPreviewOpen = PreviewField.Visibility == Visibility.Visible;
+        }
+
+        // Remove current file
+        private void MenuItem_Click_15(object sender, RoutedEventArgs e)
+        {
+            RemoveFile();
+        }
+
+        // Open Removed Files folder
+        private void MenuItem_Click_16(object sender, RoutedEventArgs e)
+        {
+            Process.Start(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
+        }
+
+        // Open current folder
+        private void MenuItem_Click_17(object sender, RoutedEventArgs e)
+        {
+            Process.Start(_currentItem.GetLocation());
         }
     }
 }
