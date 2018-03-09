@@ -227,7 +227,7 @@ namespace Image_Manager
                 if (_displayedItemIndex + index + firstPreview > _displayItems.Count - 1)
                 {
                     item.Source = null;
-                    break;
+                    continue;
                 }
                 if (_displayedItemIndex + index + firstPreview < 0)
                 {
@@ -237,12 +237,18 @@ namespace Image_Manager
 
                 var offsetItem = _displayItems[_displayedItemIndex + index + firstPreview];
 
+                // Give the center image a border
+                if (index + firstPreview == 0)
+                {
+                    Border parBorder = (Border)item.Parent;
+                    
+                    parBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#b01e76")); ;
+                    parBorder.BorderThickness = new Thickness(2,2,2,2);
+                }
 
                 item.Source = offsetItem.GetTypeOfFile() == "image"
                     ? ((ImageItem)offsetItem).GetImage()
                     : offsetItem.GetThumbnail();
-
-
             }
 
             ResetView();

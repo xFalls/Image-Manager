@@ -11,7 +11,7 @@ namespace Image_Manager
         // Preloads all items within a preset range of the currently viewed one.
         private void AddToCache()
         {
-            for (int scanRange = _displayedItemIndex - _preloadRange; scanRange < _displayedItemIndex + _preloadRange; scanRange++)
+            for (int scanRange = _displayedItemIndex - _preloadRange; scanRange < _displayedItemIndex + _preloadRange + 1; scanRange++)
             {
                 // Don't load items out of bounds or already loaded ones.
                 if (scanRange < 0 || scanRange >= isInCache.Count || isInCache[scanRange]) continue;

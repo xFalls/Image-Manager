@@ -12,7 +12,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PreviewSteps" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="IsPreviewOpen" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

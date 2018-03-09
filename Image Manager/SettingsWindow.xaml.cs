@@ -56,7 +56,7 @@ namespace Image_Manager
                     Keyboard.ClearFocus();
                     break;
                 case "Steps":
-                    if (int.TryParse(text, out int v) && v >= 0 && v < 200)
+                    if (int.TryParse(text, out int v) && v >= 0 && v <= 100)
                     {
                         Settings.Default.PreviewSteps = v;
                     }
