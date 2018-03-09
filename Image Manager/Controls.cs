@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using Microsoft.VisualBasic;
 
 namespace Image_Manager
@@ -132,6 +133,11 @@ namespace Image_Manager
                             _displayedItemIndex = _displayItems.Count - 1;
                             UpdateContent();
                         }
+                        break;
+
+                    // Toggles showing thumbnail preview bar
+                    case Key.F:
+                        PreviewField.Visibility = (PreviewField.Visibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
                         break;
                 }
 
@@ -458,6 +464,24 @@ namespace Image_Manager
             gifViewer.Margin = margin;
             textViewer.Margin = margin;
 
+        }
+
+        // Allows jumping between items by clicking their preview images
+        private void PreviewField_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!(e.Source is FrameworkElement mouseWasDownOn)) return;
+
+            int index = 0 - previewSteps;
+            foreach (Image item in _previewContainer)
+            {
+                if (item == mouseWasDownOn)
+                {
+                    _displayedItemIndex += index;
+                    UpdateContent();
+                    break;
+                }
+                index++;
+            }
         }
     }
 }

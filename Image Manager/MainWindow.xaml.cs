@@ -4,9 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Xml;
 using Microsoft.VisualBasic;
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
@@ -27,6 +30,7 @@ namespace Image_Manager
         private Folder _originFolder;
         private readonly List<DisplayItem> _displayItems = new List<DisplayItem>();
         private readonly List<DisplayItem> _movedItems = new List<DisplayItem>();
+        private List<Image> _previewContainer = new List<Image>();
 
         // Keeps track of changes in the folder structure
         public static List<string> NewFiles = new List<string>();
@@ -57,6 +61,22 @@ namespace Image_Manager
         {
             // Loads all elements into view
             InitializeComponent();
+
+            // TODO - Move out of constructor
+            // Sets how many preview images to create in one direction
+            for (int i = 0; i < previewSteps * 2; i++)
+            {
+                string borderXAML = XamlWriter.Save(PreviewImage);
+                StringReader stringReader = new StringReader(borderXAML);
+                XmlReader xmlReader = XmlReader.Create(stringReader);
+                PreviewContainer.Children.Add((Border)XamlReader.Load(xmlReader));
+            }
+
+            // Gets all preview image containers
+            foreach (var item in PreviewContainer.Children)
+            {
+                _previewContainer.Add((Image)((Border)item).Child);
+            }
 
             // Initializes variables used for zooming and panning
             _imageTransformGroup.Children.Add(_st);
@@ -89,8 +109,8 @@ namespace Image_Manager
 
             // Image file
             if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".tif") ||
-                    temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".bmp") || 
-                    temp.EndsWith(".ico") || temp.EndsWith(".wmf") || temp.EndsWith(".emf") || 
+                    temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".bmp") ||
+                    temp.EndsWith(".ico") || temp.EndsWith(".wmf") || temp.EndsWith(".emf") ||
                     temp.EndsWith(".webp"))
                 return "image";
 
@@ -150,11 +170,12 @@ namespace Image_Manager
                 UpdateSettingsChanged();
                 return;
             }
-            
+
             _currentItem = _displayItems[_displayedItemIndex];
 
             // Makes all irrelevant elements invisible
             MakeTypeVisible(_currentItem.GetTypeOfFile());
+            string currentFileType = _currentItem.GetTypeOfFile();
 
             try
             {
@@ -162,21 +183,42 @@ namespace Image_Manager
                 AddToCache();
 
                 // Gets and show the content
-                if (_currentItem.GetTypeOfFile() == "image")
+                if (currentFileType == "image")
                     imageViewer.Source = ((ImageItem)_currentItem).GetImage();
-                else if (_currentItem.GetTypeOfFile() == "gif")
+                else if (currentFileType == "gif")
                     gifViewer.Source = ((GifItem)_currentItem).GetGif(gifViewer);
-                else if (_currentItem.GetTypeOfFile() == "video")
+                else if (currentFileType == "video")
                     imageViewer.Source = ((VideoItem)_currentItem).GetThumbnail();
-                else if (_currentItem.GetTypeOfFile() == "text")
+                else if (currentFileType == "text")
                     textViewer.Text = ((TextItem)_currentItem).GetText();
-                else if (_currentItem.GetTypeOfFile() == "file")
-                    iconViewer.Source = ((FileItem)_currentItem).GetThumbnail();
+                else if (currentFileType == "file")
+                    iconViewer.Source = (_currentItem).GetThumbnail();
             }
             catch
             {
                 // If content can't get loaded, show a blank black screen
                 MakeTypeVisible("");
+            }
+
+
+            // Preview content in front or back
+            int firstPreview = -((_previewContainer.Count - 1) / 2);
+            for (var index = 0; index < _previewContainer.Count; index++)
+            {
+                Image item = _previewContainer[index];
+
+                try
+                {
+                    var offsetItem = _displayItems[_displayedItemIndex + index + firstPreview];
+
+                    item.Source = offsetItem.GetTypeOfFile() == "image"
+                        ? ((ImageItem)offsetItem).GetImage()
+                        : offsetItem.GetThumbnail();
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    item.Source = null;
+                }
             }
 
             ResetView();
@@ -191,9 +233,9 @@ namespace Image_Manager
         {
             // Only allow zooming in an image
             if (_currentItem.GetTypeOfFile() != "image") return;
-            
+
             // Disallow zooming beyond the specified limits
-            if (zoomAmount > 0 && _currentZoom + zoomAmount >= MaxZoom || 
+            if (zoomAmount > 0 && _currentZoom + zoomAmount >= MaxZoom ||
                 zoomAmount < 0 && _currentZoom + zoomAmount <= MinZoom) return;
 
             // Changes the current zoom level and updates the image
@@ -203,7 +245,7 @@ namespace Image_Manager
             imageViewer.RenderTransform = _imageTransformGroup;
         }
 
-        
+
 
         // Adds all valid new files to a list
         private void ProcessNewFiles()
@@ -230,7 +272,7 @@ namespace Image_Manager
                         isInCache.Add(false);
                         break;
                     case "file":
-                        if (!_allowOtherFiles || 
+                        if (!_allowOtherFiles ||
                             File.GetAttributes(item).HasFlag(FileAttributes.Hidden)) continue;
                         _displayItems.Add(new FileItem(item));
                         isInCache.Add(false);

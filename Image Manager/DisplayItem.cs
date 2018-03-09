@@ -147,6 +147,7 @@ namespace Image_Manager
         /// </summary>
         public virtual void PreloadContent()
         {
+            _thumbnailSource = LoadThumbnail(FilePath);
         }
 
         /// <summary>
@@ -154,6 +155,7 @@ namespace Image_Manager
         /// </summary>
         public virtual void RemovePreloadedContent()
         {
+            _thumbnailSource = null;
         }
 
         /// <summary>
@@ -196,20 +198,9 @@ namespace Image_Manager
 
             return $"{dValue:n1} {sizeSuffixes[i]}".Replace(",", ".");
         }
-    }
 
 
-    /// <summary>
-    /// Generic item file, containing only a thumbnail.
-    /// </summary>
-    public class FileItem : DisplayItem
-    {
-        private BitmapImage _thumbnailSource;
-
-        public FileItem(string name) : base(name)
-        {
-            FileType = "file";
-        }
+        protected BitmapImage _thumbnailSource;
 
         public BitmapImage LoadThumbnail(string myThumbnail)
         {
@@ -260,15 +251,17 @@ namespace Image_Manager
                 return bitmapimage;
             }
         }
+    }
 
-        public override void PreloadContent()
-        {
-            _thumbnailSource = LoadThumbnail(FilePath);
-        }
 
-        public override void RemovePreloadedContent()
+    /// <summary>
+    /// Generic item file, containing only a thumbnail.
+    /// </summary>
+    public class FileItem : DisplayItem
+    {
+        public FileItem(string name) : base(name)
         {
-            _thumbnailSource = null;
+            FileType = "file";
         }
     }
 
@@ -419,7 +412,6 @@ namespace Image_Manager
     /// </summary>
     public class VideoItem : FileItem
     {
-        private BitmapImage _thumbnailSource;
         private int _videoResolutionWidth;
         private int _videoResolutionHeight;
         private string _videoLength;

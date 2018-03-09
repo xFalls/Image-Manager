@@ -46,6 +46,7 @@ namespace Image_Manager
 
         // Caching
         private readonly int _preloadRange = 7;
+        private readonly int previewSteps = 2;
 
         // Blur effect on videos
         private readonly int _defaultBlurRadius = 20;
