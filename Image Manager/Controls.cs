@@ -19,7 +19,7 @@ namespace Image_Manager
         private void ControlWindow_KeyDown(object sender, KeyEventArgs e)
         {
             // Not accessible whlie typing
-            if (!_isTyping && _displayItems.Count != 0)
+            if (!_isTyping && _displayItems.Count != 0 && !_isEndless)
                 switch (e.Key)
                 {
                     // Toggle focus, enter selected directory
@@ -65,11 +65,13 @@ namespace Image_Manager
                     // Zoom in
                     case Key.Add:
                         Zoom(ZoomAmountButton);
+                        InfiScroll.Width += 50; 
                         break;
 
                     // Zoom out
                     case Key.Subtract:
                         Zoom(-ZoomAmountButton);
+                        InfiScroll.Width -= 50;
                         break;
 
                     // Open directory in view mode
@@ -166,13 +168,23 @@ namespace Image_Manager
                         ToggleShowingMenuStrip();
                         break;
                 }
-            } else if (e.Key == Key.F1)
+
+            }
+            // Opens README file
+            else if (e.Key == Key.F1)
             {
                 Process.Start("README.md");
             }
+            // Opens settings window
             else if (e.Key == Key.F12)
             {
                 new SettingsWindow(this).Show();
+            }
+
+            // Opens endless scrolling mode
+            else if (e.Key == Key.M)
+            {
+                OpenEndlessView();
             }
 
             // Toggle subdirectories in view mode

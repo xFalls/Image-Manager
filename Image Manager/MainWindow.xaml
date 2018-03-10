@@ -31,7 +31,7 @@
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
 
         <DockPanel Grid.ColumnSpan="2" Panel.ZIndex="200">
-            <Menu x:Name="MenuStrip" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
+            <Menu x:Name="MenuStrip" Panel.ZIndex="2000000" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
 
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
@@ -72,13 +72,22 @@
                 </MenuItem>
 
             </Menu>
+
             <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200">
                 <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
             </Grid>
+
+
+
         </DockPanel>
         <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown"/>
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
+        <ScrollViewer Visibility="Hidden" Name="InfiScrollViewer" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" PreviewMouseWheel="InfiScrollViewer_PreviewMouseWheel" Panel.ZIndex="1000" VerticalScrollBarVisibility="Hidden" Background="Black">
+            <StackPanel Name="InfiScroll" Width="600">
+                <!--<Image VerticalAlignment="Top" Source="PlayIcon.png"/>-->
+            </StackPanel>
+        </ScrollViewer>
 
         <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.4" MouseDown="PreviewField_MouseDown">
 

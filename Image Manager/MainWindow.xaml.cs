@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
 using System.Xml;
 using Image_Manager.Properties;
 using Microsoft.VisualBasic;
@@ -47,6 +48,7 @@ namespace Image_Manager
         private bool _isDrop;
         private bool _sortMode;
         private bool _isTyping;
+        private bool _isEndless;
 
         // Image manipulation
         private Point _start;
@@ -84,7 +86,101 @@ namespace Image_Manager
 
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
+
         }
+
+        public int preloadedScrollImages = 5;
+        public int lastLoaded;
+
+
+        public void AddNewRow()
+        {
+            var uc = new Image { VerticalAlignment = VerticalAlignment.Top };
+            InfiScroll.Children.Add(uc);
+            lastLoaded++;
+        }
+
+        // TODO
+        private void InfiScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            /*Point point = new Point(300, 300);
+            Image image = InfiScrollViewer.InputHitTest(point) as Image;
+            if (image != null)
+            {
+
+                if (InfiScroll.Children.Contains(image))
+                {
+                    int relativeIndex = InfiScroll.Children.IndexOf(image);
+                    int infiImageIndex = relativeIndex + lastLoaded + preloadedScrollImages;
+
+                    Console.WriteLine(infiImageIndex);
+                    //_displayedItemIndex = infiImageIndex;
+                    //UpdateContent();
+                }
+            }*/
+
+            if (!(InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight > 0.7)) return;
+            if (_displayedItemIndex + lastLoaded > _displayItems.Count - 1) return;
+
+            double lastPos = InfiScrollViewer.VerticalOffset;
+            double originalSize = InfiScrollViewer.ScrollableHeight;
+
+            //InfiScroll.Children.RemoveAt(0);
+            InfiScroll.UpdateLayout();
+
+            double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
+            double scrollTo = lastPos - lostSize;
+
+            //InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
+
+            AddNewRow();
+
+
+            ((Image)InfiScroll.Children[preloadedScrollImages - 1]).Source =
+                _displayItems[_displayedItemIndex + lastLoaded - 1].GetTypeOfFile() == "image" 
+                    ? ((ImageItem)_displayItems[_displayedItemIndex + lastLoaded - 1]).GetImage()
+                    : _displayItems[_displayedItemIndex + lastLoaded - 1].GetThumbnail();
+
+
+        }
+
+        // Adds the initial images
+        private void InitializeInfiniteScroller()
+        {
+            for (int i = 0; i < preloadedScrollImages; i++) 
+            {
+                if (_displayedItemIndex + i >= _displayItems.Count) continue;
+
+                AddNewRow();
+                // Gets the image or thumbnail to show
+                ((Image)InfiScroll.Children[i]).Source =
+                    _displayItems[_displayedItemIndex + i].GetTypeOfFile() == "image"
+                        ? ((ImageItem)_displayItems[_displayedItemIndex + i]).GetImage()
+                        : _displayItems[_displayedItemIndex + i].GetThumbnail();
+            }
+        }
+
+        // Opens the endless viewing mode and initializes all settings
+        private void OpenEndlessView()
+        {
+            if (!_isEndless)
+            {
+                InfiScrollViewer.Visibility = Visibility.Visible;
+                InitializeInfiniteScroller();
+                InfiScrollViewer.ScrollToVerticalOffset(0);
+
+                MakeTypeVisible("");
+            }
+            else
+            {
+                InfiScrollViewer.Visibility = Visibility.Hidden;
+                InfiScroll.Children.RemoveRange(0, InfiScroll.Children.Count);
+
+                UpdateContent();
+            }
+            _isEndless = !_isEndless;
+        }
+
 
 
         public void UpdatePreviewLength()
@@ -110,7 +206,6 @@ namespace Image_Manager
                 _previewContainer.Add((Image)((Border)item).Child);
             }
         }
-
 
 
         /// <summary>
@@ -176,12 +271,17 @@ namespace Image_Manager
             }
         }
 
+
+
+
+
         // Changes the currently displayed content
         public void UpdateContent()
         {
             // Show specific view when content is empty
             if (_displayItems.Count == 0)
             {
+                PreviewField.Visibility = Visibility.Hidden;
                 UpdateSettingsChanged();
                 return;
             }
@@ -215,8 +315,17 @@ namespace Image_Manager
                 MakeTypeVisible("");
             }
 
+            lastLoaded = 0;
 
-            // Preview content in front or back
+            PreviewContent();
+
+            ResetView();
+            UpdateSettingsChanged();
+        }
+
+        // Preview content in front or back
+        private void PreviewContent()
+        {
             int firstPreview = -((_previewContainer.Count - 1) / 2);
 
             for (var index = 0; index < _previewContainer.Count; index++)
@@ -241,18 +350,16 @@ namespace Image_Manager
                 if (index + firstPreview == 0)
                 {
                     Border parBorder = (Border)item.Parent;
-                    
+
                     parBorder.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#b01e76")); ;
-                    parBorder.BorderThickness = new Thickness(2,2,2,2);
+                    parBorder.BorderThickness = new Thickness(2, 2, 2, 2);
                 }
 
+                // Sets the image to view
                 item.Source = offsetItem.GetTypeOfFile() == "image"
                     ? ((ImageItem)offsetItem).GetImage()
                     : offsetItem.GetThumbnail();
             }
-
-            ResetView();
-            UpdateSettingsChanged();
         }
 
         /// <summary>
