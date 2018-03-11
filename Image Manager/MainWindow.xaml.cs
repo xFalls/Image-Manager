@@ -91,8 +91,7 @@ namespace Image_Manager
 
         public int preloadedScrollImages = 5;
         public int preloadedScrollAhead;
-        public int lastLoaded;
-        public int firstLoaded;
+        public int loadedOffset;
 
 
         public void AddNewRow(bool insertLast)
@@ -114,10 +113,9 @@ namespace Image_Manager
         // TODO
         private void InfiScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            Console.WriteLine(lastLoaded);
             if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight > 0.9)
             {
-                if (_displayedItemIndex + lastLoaded + preloadedScrollAhead >= _displayItems.Count - 1) return;
+                if (_displayedItemIndex + loadedOffset + preloadedScrollAhead >= _displayItems.Count - 1) return;
 
                 double lastPos = InfiScrollViewer.VerticalOffset;
                 double originalSize = InfiScrollViewer.ScrollableHeight;
@@ -131,17 +129,17 @@ namespace Image_Manager
                 InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
 
                 AddNewRow(true);
-                lastLoaded++;
+                loadedOffset++;
 
 
                 ((Image) InfiScroll.Children[InfiScroll.Children.Count - 1]).Source =
-                    _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead].GetTypeOfFile() == "image"
-                        ? ((ImageItem) _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead]).GetImage()
-                        : _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead].GetThumbnail();
+                    _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead].GetTypeOfFile() == "image"
+                        ? ((ImageItem) _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead]).GetImage()
+                        : _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead].GetThumbnail();
             }
             else if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight < 0.1)
             {
-                if (_displayedItemIndex + lastLoaded - preloadedScrollAhead <= 0) return;
+                if (_displayedItemIndex + loadedOffset - preloadedScrollAhead <= 0) return;
 
                 double lastPos = InfiScrollViewer.VerticalOffset;
                 double originalSize = InfiScrollViewer.ScrollableHeight;
@@ -155,13 +153,15 @@ namespace Image_Manager
                 InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
 
                 AddNewRow(false);
-                lastLoaded--;
+                loadedOffset--;
 
 
                 ((Image)InfiScroll.Children[0]).Source =
-                    _displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead].GetTypeOfFile() == "image"
-                        ? ((ImageItem)_displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead]).GetImage()
-                        : _displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead].GetThumbnail();
+                    _displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetTypeOfFile() == "image"
+                        ? ((ImageItem)_displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead]).GetImage()
+                        : _displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetThumbnail();
+
+                Console.WriteLine(_displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetFileName());
             }
         }
 
@@ -342,7 +342,7 @@ namespace Image_Manager
                 MakeTypeVisible("");
             }
 
-            lastLoaded = 0;
+            loadedOffset = 0;
             firstLoaded = 0;
 
             PreviewContent();
