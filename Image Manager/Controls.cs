@@ -150,25 +150,7 @@ namespace Image_Manager
             // Toggle fullscreen
             if (e.Key == Key.F11)
             {
-                switch (WindowState)
-                {
-                    // Make fullscreen
-                    case (WindowState.Normal):
-                        ResizeMode = ResizeMode.NoResize;
-                        WindowStyle = WindowStyle.None;
-                        WindowState = WindowState.Maximized;
-
-                        ToggleShowingMenuStrip();
-                        break;
-                    // Make normal
-                    case (WindowState.Maximized):
-                        ResizeMode = ResizeMode.CanResize;
-                        WindowStyle = WindowStyle.SingleBorderWindow;
-                        WindowState = WindowState.Normal;
-
-                        ToggleShowingMenuStrip();
-                        break;
-                }
+                MakeFullscreen();
 
             }
             // Opens README file
@@ -251,6 +233,32 @@ namespace Image_Manager
                 }
             }
 
+        }
+
+        // Makes window go fullscreen
+        private void MakeFullscreen()
+        {
+            switch (WindowStyle)
+            {
+                // Make fullscreen
+                case (WindowStyle.SingleBorderWindow):
+                    //ResizeMode = ResizeMode.NoResize;
+                    WindowStyle = WindowStyle.None;
+                    WindowState = WindowState.Maximized;
+
+                    FullscreenMenu.IsChecked = true;
+                    ToggleShowingMenuStrip();
+                    break;
+                // Make normal
+                case (WindowStyle.None):
+                    //ResizeMode = ResizeMode.CanResize;
+                    WindowStyle = WindowStyle.SingleBorderWindow;
+                    WindowState = WindowState.Normal;
+
+                    FullscreenMenu.IsChecked = false;
+                    ToggleShowingMenuStrip();
+                    break;
+            }
         }
 
         // Occurs while typing
@@ -478,7 +486,7 @@ namespace Image_Manager
             var margin = Margin;
             var vis = Visibility;
 
-            if (WindowState == WindowState.Normal || mouseOver)
+            if (WindowStyle == WindowStyle.SingleBorderWindow || mouseOver)
             {
                 margin.Top = 18;
                 ImageBorder.Margin = margin;

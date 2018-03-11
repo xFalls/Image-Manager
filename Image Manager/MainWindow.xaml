@@ -53,6 +53,7 @@
                 <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="ZoomInMenu" Header="Zoom in" Foreground="Black" InputGestureText="+" Click="MenuItem_Click_19"></MenuItem>
                     <MenuItem Name="ZoomOutMenu" Header="Zoom out" Foreground="Black" InputGestureText="-" Click="MenuItem_Click_20"></MenuItem>
+                    <MenuItem Name="FullscreenMenu" Header="Fullscreen" Foreground="Black" InputGestureText="F11" Click="MenuItem_Click_21"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"></MenuItem>
                     <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14"></MenuItem>
@@ -78,11 +79,11 @@
             </Menu>
         </DockPanel>
 
-        <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200">
+        <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False">
             <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
         </Grid>
 
-        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown"/>
+        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand"/>
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
         <ScrollViewer Visibility="Hidden" Name="InfiScrollViewer" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" PreviewMouseWheel="InfiScrollViewer_PreviewMouseWheel" Panel.ZIndex="1000" VerticalScrollBarVisibility="Hidden" Background="Black">
@@ -91,7 +92,9 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.4" MouseDown="PreviewField_MouseDown">
+        <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" 
+              Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.3"
+              MouseDown="PreviewField_MouseDown" Cursor="Hand">
 
             <Border Name="PreviewImage" Width="150" Visibility="Hidden">
                 <Image VerticalAlignment="Center" Stretch="UniformToFill" HorizontalAlignment="Center"/>
@@ -100,6 +103,9 @@
             <StackPanel Name="PreviewContainer" Orientation="Horizontal" HorizontalAlignment="Center">
             </StackPanel>
 
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="MoveBlock" Y="110" />
+            </Grid.RenderTransform>
             <Grid.Triggers>
                 <EventTrigger RoutedEvent="Grid.MouseEnter">
                     <BeginStoryboard>
@@ -108,6 +114,12 @@
                                 Storyboard.TargetName="PreviewField"
                                 Storyboard.TargetProperty="(Grid.Opacity)" 
                                 To="1" Duration="0:0:0.1"/>
+
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MoveBlock" 
+                                                           Storyboard.TargetProperty="Y">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
@@ -117,7 +129,12 @@
                             <DoubleAnimation 
                                 Storyboard.TargetName="PreviewField"
                                 Storyboard.TargetProperty="(Grid.Opacity)" 
-                                To="0.4" Duration="0:0:0.1"/>
+                                To="0.3" Duration="0:0:0.1"/>
+
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MoveBlock" 
+                                                           Storyboard.TargetProperty="Y">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="110" />
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>

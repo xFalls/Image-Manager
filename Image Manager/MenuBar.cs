@@ -152,6 +152,12 @@ namespace Image_Manager
             Process.Start(_currentItem.GetLocation());
         }
 
+        // Toggle fullscreen
+        private void MenuItem_Click_21(object sender, RoutedEventArgs e)
+        {
+            MakeFullscreen();
+        }
+
         // Zoom in
         private void MenuItem_Click_19(object sender, RoutedEventArgs e)
         {
