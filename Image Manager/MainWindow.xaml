@@ -42,7 +42,7 @@
                 </MenuItem>
 
                 <MenuItem Name="EditMenu" Header="Edit" IsTabStop="False" IsEnabled="False">
-                    <MenuItem Name="UndoMenu" Header="Undo" Foreground="Black" InputGestureText="Z" Click="MenuItem_Click"></MenuItem>
+                    <MenuItem Name="UndoMenu" Header="Undo" Foreground="Black" InputGestureText="Z" Click="MenuItem_Click" IsEnabled="False"></MenuItem>
                     <MenuItem Name="RemoveMenu" Header="Delete" Foreground="Black" InputGestureText="DEL" Click="MenuItem_Click_15"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="RenameMenu" Header="Rename" Foreground="Black" InputGestureText="F2" Click="MenuItem_Click_2"></MenuItem>
@@ -50,14 +50,14 @@
                     <MenuItem Name="RemovePrefixMenu" Header="Remove prefix" Foreground="Black" InputGestureText="F4" Click="MenuItem_Click_4"></MenuItem>
                 </MenuItem>
 
-                <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="False">
-                    <MenuItem Name="ZoomInMenu" Header="Zoom in" Foreground="Black" InputGestureText="+" Click="MenuItem_Click_19"></MenuItem>
-                    <MenuItem Name="ZoomOutMenu" Header="Zoom out" Foreground="Black" InputGestureText="-" Click="MenuItem_Click_20"></MenuItem>
+                <MenuItem Name="ViewMenu" Header="View" IsTabStop="False">
+                    <MenuItem Name="ZoomInMenu" Header="Zoom in" Foreground="Black" InputGestureText="+" Click="MenuItem_Click_19" IsEnabled="False"></MenuItem>
+                    <MenuItem Name="ZoomOutMenu" Header="Zoom out" Foreground="Black" InputGestureText="-" Click="MenuItem_Click_20" IsEnabled="False"></MenuItem>
                     <MenuItem Name="FullscreenMenu" Header="Fullscreen" Foreground="Black" InputGestureText="F11" Click="MenuItem_Click_21"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"></MenuItem>
-                    <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14"></MenuItem>
-                    <MenuItem Name="ShowSortEndless" Header="Endless mode" Foreground="Black" InputGestureText="M" Click="MenuItem_Click_18"></MenuItem>
+                    <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1" IsEnabled="False"></MenuItem>
+                    <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14" IsEnabled="False"></MenuItem>
+                    <MenuItem Name="ShowSortEndless" Header="Endless mode" Foreground="Black" InputGestureText="M" Click="MenuItem_Click_18" IsEnabled="False"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="IncludeSubMenu" Header="Exclude subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6" IsCheckable="True" IsChecked="False"></MenuItem>
                     <MenuItem Name="IncludeSpecialMenu" Header="Exclude special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7" IsCheckable="True" IsChecked="False"></MenuItem>

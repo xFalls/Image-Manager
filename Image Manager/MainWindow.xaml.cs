@@ -13,8 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using Image_Manager.Properties;
 using Microsoft.VisualBasic;
+using Control = System.Windows.Controls.Control;
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
+using MenuItem = System.Windows.Controls.MenuItem;
 
 namespace Image_Manager
 {
@@ -452,7 +454,12 @@ namespace Image_Manager
 
             UpdateContent();
 
-            ViewMenu.IsEnabled = true;
+            foreach (Control item in ViewMenu.Items)
+            {
+                if (!(item is MenuItem)) continue;
+                item.IsEnabled = true;
+            }
+
             EditMenu.IsEnabled = true;
             OpenMenu.IsEnabled = true;
 
@@ -488,7 +495,14 @@ namespace Image_Manager
             UpdateTitle();
             UpdateInfobar();
 
-            ViewMenu.IsEnabled = false;
+            foreach (Control item in ViewMenu.Items)
+            {
+                if (!(item is MenuItem) || item.Name == "FullscreenMenu" || item.Name == "IncludeSpecialMenu" ||
+                    item.Name == "IncludeOtherFilesMenu" || item.Name == "IncludeSubMenu" ||
+                    item.Name == "IncludePrefixMenu") continue;
+                item.IsEnabled = false;
+            }
+
             EditMenu.IsEnabled = false;
             OpenMenu.IsEnabled = false;
 

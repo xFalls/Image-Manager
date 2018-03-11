@@ -127,7 +127,9 @@ namespace Image_Manager
                 foreach (Control item in ViewMenu.Items)
                 {
                     if (item is MenuItem && item.Name != "ShowSortEndless" && item.Name != "ZoomInMenu" &&
-                        item.Name != "ZoomOutMenu" && item.Name != "FullscreenMenu")
+                        item.Name != "ZoomOutMenu" && item.Name != "FullscreenMenu" &&
+                        item.Name != "IncludeSpecialMenu" && item.Name != "IncludeOtherFilesMenu" &&
+                        item.Name != "IncludeSubMenu" && item.Name != "IncludePrefixMenu")
                     {
                         item.IsEnabled = false;
                     }

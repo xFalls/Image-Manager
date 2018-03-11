@@ -37,6 +37,7 @@ namespace Image_Manager
 
                 // Update internal representation to reflect changes
                 _movedItems.Insert(0, _currentItem);
+                UndoMenu.IsEnabled = true;
                 _displayItems.RemoveAt(_displayedItemIndex);
                 isInCache.RemoveAt(_displayedItemIndex);
                 _currentItem.SetFilePath(newPath);
@@ -70,6 +71,11 @@ namespace Image_Manager
                 _displayItems.Insert(_displayedItemIndex, fileToUndo);
                 isInCache.Insert(_displayedItemIndex, false);
                 _movedItems.RemoveAt(0);
+
+                if (_movedItems.Count == 0)
+                {
+                    UndoMenu.IsEnabled = false;
+                }
             }
                 catch
             {
