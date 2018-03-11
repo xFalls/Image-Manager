@@ -90,70 +90,96 @@ namespace Image_Manager
         }
 
         public int preloadedScrollImages = 5;
+        public int preloadedScrollAhead;
         public int lastLoaded;
+        public int firstLoaded;
 
 
-        public void AddNewRow()
+        public void AddNewRow(bool insertLast)
         {
             var uc = new Image { VerticalAlignment = VerticalAlignment.Top };
-            InfiScroll.Children.Add(uc);
-            lastLoaded++;
+
+            if (insertLast)
+            {
+                InfiScroll.Children.Add(uc);
+            }
+            else
+            {
+                InfiScroll.Children.Insert(0, uc);
+            }
+
+            
         }
 
         // TODO
         private void InfiScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            /*Point point = new Point(300, 300);
-            Image image = InfiScrollViewer.InputHitTest(point) as Image;
-            if (image != null)
+            Console.WriteLine(lastLoaded);
+            if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight > 0.9)
             {
+                if (_displayedItemIndex + lastLoaded + preloadedScrollAhead >= _displayItems.Count - 1) return;
 
-                if (InfiScroll.Children.Contains(image))
-                {
-                    int relativeIndex = InfiScroll.Children.IndexOf(image);
-                    int infiImageIndex = relativeIndex + lastLoaded + preloadedScrollImages;
+                double lastPos = InfiScrollViewer.VerticalOffset;
+                double originalSize = InfiScrollViewer.ScrollableHeight;
 
-                    Console.WriteLine(infiImageIndex);
-                    //_displayedItemIndex = infiImageIndex;
-                    //UpdateContent();
-                }
-            }*/
+                InfiScroll.Children.RemoveAt(0);
+                InfiScroll.UpdateLayout();
 
-            if (!(InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight > 0.7)) return;
-            if (_displayedItemIndex + lastLoaded > _displayItems.Count - 1) return;
+                double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
+                double scrollTo = lastPos - lostSize;
 
-            double lastPos = InfiScrollViewer.VerticalOffset;
-            double originalSize = InfiScrollViewer.ScrollableHeight;
+                InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
 
-            //InfiScroll.Children.RemoveAt(0);
-            InfiScroll.UpdateLayout();
-
-            double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
-            double scrollTo = lastPos - lostSize;
-
-            //InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
-
-            AddNewRow();
+                AddNewRow(true);
+                lastLoaded++;
 
 
-            ((Image)InfiScroll.Children[preloadedScrollImages - 1]).Source =
-                _displayItems[_displayedItemIndex + lastLoaded - 1].GetTypeOfFile() == "image" 
-                    ? ((ImageItem)_displayItems[_displayedItemIndex + lastLoaded - 1]).GetImage()
-                    : _displayItems[_displayedItemIndex + lastLoaded - 1].GetThumbnail();
+                ((Image) InfiScroll.Children[InfiScroll.Children.Count - 1]).Source =
+                    _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead].GetTypeOfFile() == "image"
+                        ? ((ImageItem) _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead]).GetImage()
+                        : _displayItems[_displayedItemIndex + lastLoaded + preloadedScrollAhead].GetThumbnail();
+            }
+            else if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight < 0.1)
+            {
+                if (_displayedItemIndex + lastLoaded - preloadedScrollAhead <= 0) return;
+
+                double lastPos = InfiScrollViewer.VerticalOffset;
+                double originalSize = InfiScrollViewer.ScrollableHeight;
+
+                InfiScroll.Children.RemoveAt(InfiScroll.Children.Count - 1);
+                InfiScroll.UpdateLayout();
+
+                double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
+                double scrollTo = lastPos + lostSize;
+
+                InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
+
+                AddNewRow(false);
+                lastLoaded--;
 
 
+                ((Image)InfiScroll.Children[0]).Source =
+                    _displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead].GetTypeOfFile() == "image"
+                        ? ((ImageItem)_displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead]).GetImage()
+                        : _displayItems[_displayedItemIndex + lastLoaded - preloadedScrollAhead].GetThumbnail();
+            }
         }
 
         // Adds the initial images
         private void InitializeInfiniteScroller()
         {
-            for (int i = 0; i < preloadedScrollImages; i++) 
-            {
-                if (_displayedItemIndex + i >= _displayItems.Count) continue;
+            preloadedScrollAhead = (preloadedScrollImages - 1) / 2;
 
-                AddNewRow();
-                // Gets the image or thumbnail to show
-                ((Image)InfiScroll.Children[i]).Source =
+            for (int i = -preloadedScrollAhead, iteration = 0; i <= preloadedScrollAhead; i++, iteration++)
+            {
+                if (_displayedItemIndex + i < 0 || _displayedItemIndex + i >= _displayItems.Count)
+                {
+                    iteration--;
+                    continue;
+                }
+
+                AddNewRow(true);
+                ((Image)InfiScroll.Children[iteration]).Source =
                     _displayItems[_displayedItemIndex + i].GetTypeOfFile() == "image"
                         ? ((ImageItem)_displayItems[_displayedItemIndex + i]).GetImage()
                         : _displayItems[_displayedItemIndex + i].GetThumbnail();
@@ -175,6 +201,7 @@ namespace Image_Manager
             {
                 InfiScrollViewer.Visibility = Visibility.Hidden;
                 InfiScroll.Children.RemoveRange(0, InfiScroll.Children.Count);
+                InfiScrollViewer.ScrollToVerticalOffset(400);
 
                 UpdateContent();
             }
@@ -316,6 +343,7 @@ namespace Image_Manager
             }
 
             lastLoaded = 0;
+            firstLoaded = 0;
 
             PreviewContent();
 
