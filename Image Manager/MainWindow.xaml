@@ -30,7 +30,7 @@
         <Image x:Name="iconViewer" Margin="0,18,0,0" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Panel.ZIndex="-1" Width="150" Height="150" Grid.ColumnSpan="2"/>
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
 
-        <DockPanel Grid.ColumnSpan="2" Panel.ZIndex="200">
+        <DockPanel Grid.ColumnSpan="2" Panel.ZIndex="20000">
             <Menu x:Name="MenuStrip" Panel.ZIndex="2000000" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
 
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
@@ -51,8 +51,12 @@
                 </MenuItem>
 
                 <MenuItem Name="ViewMenu" Header="View" IsTabStop="False" IsEnabled="False">
+                    <MenuItem Name="ZoomInMenu" Header="Zoom in" Foreground="Black" InputGestureText="+" Click="MenuItem_Click_19"></MenuItem>
+                    <MenuItem Name="ZoomOutMenu" Header="Zoom out" Foreground="Black" InputGestureText="-" Click="MenuItem_Click_20"></MenuItem>
+                    <Separator></Separator>
                     <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"></MenuItem>
                     <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14"></MenuItem>
+                    <MenuItem Name="ShowSortEndless" Header="Endless mode" Foreground="Black" InputGestureText="M" Click="MenuItem_Click_18"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="IncludeSubMenu" Header="Exclude subfolders" Foreground="Black" InputGestureText="Shift" Click="MenuItem_Click_6" IsCheckable="True" IsChecked="False"></MenuItem>
                     <MenuItem Name="IncludeSpecialMenu" Header="Exclude special folders" Foreground="Black" InputGestureText="X" Click="MenuItem_Click_7" IsCheckable="True" IsChecked="False"></MenuItem>
@@ -72,14 +76,12 @@
                 </MenuItem>
 
             </Menu>
-
-            <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200">
-                <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
-            </Grid>
-
-
-
         </DockPanel>
+
+        <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200">
+            <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
+        </Grid>
+
         <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown"/>
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 

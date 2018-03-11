@@ -143,6 +143,7 @@ namespace Image_Manager
                     case Key.F:
                         PreviewField.Visibility = (PreviewField.Visibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
                         Settings.Default.IsPreviewOpen = PreviewField.Visibility == Visibility.Visible;
+                        ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
                         break;
                 }
 
@@ -185,6 +186,20 @@ namespace Image_Manager
             else if (e.Key == Key.M)
             {
                 OpenEndlessView();
+            }
+
+            else if (_isEndless && e.Key == Key.Add)
+            {
+                if (InfiScroll.Width < InfiMaxZoom) {
+                    InfiScroll.Width += InfiZoomAmount;
+                }
+            }
+            else if (_isEndless && e.Key == Key.Subtract)
+            {
+                if (InfiScroll.Width > InfiMinZoom)
+                {
+                    InfiScroll.Width -= InfiZoomAmount;
+                }
             }
 
             // Toggle subdirectories in view mode

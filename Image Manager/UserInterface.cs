@@ -164,6 +164,7 @@ namespace Image_Manager
         {
             _sortMode = !_sortMode;
             DirectoryTreeList.Visibility = _sortMode ? Visibility.Visible : Visibility.Hidden;
+            ShowSortMenuMenu.IsChecked = _sortMode;
         }
     }
 }

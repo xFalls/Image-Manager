@@ -114,6 +114,7 @@
     <Compile Include="Controls.cs" />
     <Compile Include="DefaultValues.cs" />
     <Compile Include="DisplayItem.cs" />
+    <Compile Include="EndlessScroller.cs" />
     <Compile Include="FileEditHandler.cs" />
     <Compile Include="Folder.cs" />
     <Compile Include="ImageCache.cs" />

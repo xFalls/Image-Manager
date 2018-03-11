@@ -101,6 +101,12 @@ namespace Image_Manager
             UpdateTitle();
         }
 
+        // Toggle endless mode
+        private void MenuItem_Click_18(object sender, RoutedEventArgs e)
+        {
+            OpenEndlessView();
+        }
+
         // Settings Window
         private void MenuItem_Click_13(object sender, RoutedEventArgs e)
         {
@@ -125,6 +131,7 @@ namespace Image_Manager
         {
             PreviewField.Visibility = (PreviewField.Visibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
             Settings.Default.IsPreviewOpen = PreviewField.Visibility == Visibility.Visible;
+            ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
         }
 
         // Remove current file
@@ -143,6 +150,38 @@ namespace Image_Manager
         private void MenuItem_Click_17(object sender, RoutedEventArgs e)
         {
             Process.Start(_currentItem.GetLocation());
+        }
+
+        // Zoom in
+        private void MenuItem_Click_19(object sender, RoutedEventArgs e)
+        {
+            if (_isEndless)
+            {
+                if (InfiScroll.Width < InfiMaxZoom)
+                {
+                    InfiScroll.Width += InfiZoomAmount;
+                }
+            }
+            else
+            {
+                Zoom(ZoomAmountButton);
+            }
+        }
+
+        // Zoom out
+        private void MenuItem_Click_20(object sender, RoutedEventArgs e)
+        {
+            if (_isEndless)
+            {
+                if (InfiScroll.Width > InfiMinZoom)
+                {
+                    InfiScroll.Width -= InfiZoomAmount;
+                }
+            }
+            else
+            {
+                Zoom(-ZoomAmountButton);
+            }
         }
     }
 }

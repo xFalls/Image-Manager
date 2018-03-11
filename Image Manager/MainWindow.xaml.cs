@@ -78,6 +78,7 @@ namespace Image_Manager
 
             // Default view
             PreviewField.Visibility = Settings.Default.IsPreviewOpen ? Visibility.Visible : Visibility.Hidden;
+            ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
 
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
@@ -88,126 +89,6 @@ namespace Image_Manager
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
 
         }
-
-        public int preloadedScrollImages = 5;
-        public int preloadedScrollAhead;
-        public int loadedOffset;
-
-
-        public void AddNewRow(bool insertLast)
-        {
-            var uc = new Image { VerticalAlignment = VerticalAlignment.Top };
-
-            if (insertLast)
-            {
-                InfiScroll.Children.Add(uc);
-            }
-            else
-            {
-                InfiScroll.Children.Insert(0, uc);
-            }
-
-            
-        }
-
-        // TODO
-        private void InfiScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-        {
-            if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight > 0.9)
-            {
-                if (_displayedItemIndex + loadedOffset + preloadedScrollAhead >= _displayItems.Count - 1) return;
-
-                double lastPos = InfiScrollViewer.VerticalOffset;
-                double originalSize = InfiScrollViewer.ScrollableHeight;
-
-                InfiScroll.Children.RemoveAt(0);
-                InfiScroll.UpdateLayout();
-
-                double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
-                double scrollTo = lastPos - lostSize;
-
-                InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
-
-                AddNewRow(true);
-                loadedOffset++;
-
-
-                ((Image) InfiScroll.Children[InfiScroll.Children.Count - 1]).Source =
-                    _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead].GetTypeOfFile() == "image"
-                        ? ((ImageItem) _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead]).GetImage()
-                        : _displayItems[_displayedItemIndex + loadedOffset + preloadedScrollAhead].GetThumbnail();
-            }
-            else if (InfiScrollViewer.VerticalOffset / InfiScrollViewer.ScrollableHeight < 0.1)
-            {
-                if (_displayedItemIndex + loadedOffset - preloadedScrollAhead <= 0) return;
-
-                double lastPos = InfiScrollViewer.VerticalOffset;
-                double originalSize = InfiScrollViewer.ScrollableHeight;
-
-                InfiScroll.Children.RemoveAt(InfiScroll.Children.Count - 1);
-                InfiScroll.UpdateLayout();
-
-                double lostSize = originalSize - InfiScrollViewer.ScrollableHeight;
-                double scrollTo = lastPos + lostSize;
-
-                InfiScrollViewer.ScrollToVerticalOffset(scrollTo);
-
-                AddNewRow(false);
-                loadedOffset--;
-
-
-                ((Image)InfiScroll.Children[0]).Source =
-                    _displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetTypeOfFile() == "image"
-                        ? ((ImageItem)_displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead]).GetImage()
-                        : _displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetThumbnail();
-
-                Console.WriteLine(_displayItems[_displayedItemIndex + loadedOffset - preloadedScrollAhead].GetFileName());
-            }
-        }
-
-        // Adds the initial images
-        private void InitializeInfiniteScroller()
-        {
-            preloadedScrollAhead = (preloadedScrollImages - 1) / 2;
-
-            for (int i = -preloadedScrollAhead, iteration = 0; i <= preloadedScrollAhead; i++, iteration++)
-            {
-                if (_displayedItemIndex + i < 0 || _displayedItemIndex + i >= _displayItems.Count)
-                {
-                    iteration--;
-                    continue;
-                }
-
-                AddNewRow(true);
-                ((Image)InfiScroll.Children[iteration]).Source =
-                    _displayItems[_displayedItemIndex + i].GetTypeOfFile() == "image"
-                        ? ((ImageItem)_displayItems[_displayedItemIndex + i]).GetImage()
-                        : _displayItems[_displayedItemIndex + i].GetThumbnail();
-            }
-        }
-
-        // Opens the endless viewing mode and initializes all settings
-        private void OpenEndlessView()
-        {
-            if (!_isEndless)
-            {
-                InfiScrollViewer.Visibility = Visibility.Visible;
-                InitializeInfiniteScroller();
-                InfiScrollViewer.ScrollToVerticalOffset(0);
-
-                MakeTypeVisible("");
-            }
-            else
-            {
-                InfiScrollViewer.Visibility = Visibility.Hidden;
-                InfiScroll.Children.RemoveRange(0, InfiScroll.Children.Count);
-                InfiScrollViewer.ScrollToVerticalOffset(400);
-
-                UpdateContent();
-            }
-            _isEndless = !_isEndless;
-        }
-
 
 
         public void UpdatePreviewLength()
@@ -342,8 +223,7 @@ namespace Image_Manager
                 MakeTypeVisible("");
             }
 
-            loadedOffset = 0;
-            firstLoaded = 0;
+            _loadedOffset = 0;
 
             PreviewContent();
 
@@ -575,6 +455,11 @@ namespace Image_Manager
             ViewMenu.IsEnabled = true;
             EditMenu.IsEnabled = true;
             OpenMenu.IsEnabled = true;
+
+            if (Settings.Default.IsPreviewOpen)
+            {
+                PreviewField.Visibility = Visibility.Visible;
+            }
         }
 
         // Removes an old folder
@@ -592,6 +477,13 @@ namespace Image_Manager
             _displayItems.Clear();
             _movedItems.Clear();
             isInCache.Clear();
+
+            PreviewField.Visibility = Visibility.Hidden;
+
+            if (_isEndless)
+            {
+                OpenEndlessView();
+            }
 
             UpdateTitle();
             UpdateInfobar();
