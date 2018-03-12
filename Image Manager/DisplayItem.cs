@@ -35,6 +35,7 @@ namespace Image_Manager
         protected string LocalLocation;
         protected string FileSize;
         protected string InfoBarDefaultContent;
+        protected string InfoBarDefaultContentExtra;
 
         public static string RootFolder;
 
@@ -58,8 +59,10 @@ namespace Image_Manager
 
             // Sets the relative location to the initial rootfolder.
             LocalLocation = FileLocation.Replace(RootFolder, "").TrimStart('\\');
-            InfoBarDefaultContent = FileName + "    -    " + LocalLocation +
-                                    "    -    " + FileSize;
+            //InfoBarDefaultContent = FileName + "    -    " + LocalLocation + "    -    " + FileSize;
+            InfoBarDefaultContent = $"{MainWindow.Truncate(FileName, 35),-35}" +
+                                    $"{LocalLocation}";
+            InfoBarDefaultContentExtra = FileSize;
         }
 
         /// <summary>
@@ -121,7 +124,11 @@ namespace Image_Manager
             FileNameExludingExtension = Path.GetFileNameWithoutExtension(newPath);
             FileExtension = Path.GetExtension(newPath).ToLower();
             FileLocation = Path.GetDirectoryName(newPath);
-            InfoBarDefaultContent = FileName + "    -    " + LocalLocation + "    -    " + FileSize;
+
+
+            InfoBarDefaultContent = $"{MainWindow.Truncate(FileName, 35),-35}" +
+                                    $"{LocalLocation}";
+            InfoBarDefaultContentExtra = FileSize;
         }
 
         /// <summary>
@@ -166,6 +173,11 @@ namespace Image_Manager
         public virtual string GetInfobarContent()
         {
             return InfoBarDefaultContent;
+        }
+
+        public virtual string GetInfobarContentExtra()
+        {
+            return InfoBarDefaultContentExtra;
         }
 
         /// <summary>
@@ -284,10 +296,9 @@ namespace Image_Manager
             _dec = new LibwebpSharp.WebPDecoder();
         }
 
-
-        public override string GetInfobarContent()
+        public override string GetInfobarContentExtra()
         {
-            return InfoBarDefaultContent + "    -    ( " + _imageWidth + " x " + _imageHeight + " )";
+            return $"{InfoBarDefaultContentExtra,-10}{"( " + _imageWidth + " x " + _imageHeight + " )",-20}";
         }
 
         public override void PreloadContent()
@@ -423,11 +434,11 @@ namespace Image_Manager
             FileType = "video";
         }
 
-
-        public override string GetInfobarContent()
+        public override string GetInfobarContentExtra()
         {
-            return InfoBarDefaultContent + "    -    ( " + _videoResolutionWidth + " x " + _videoResolutionHeight + " )" +
-                   "    -    ( " + _videoLength + " )";
+            return $"{InfoBarDefaultContentExtra,-10}" +
+                   $"{"( " + _videoResolutionWidth + " x " + _videoResolutionHeight + " )",-17}" +
+                   $"{"(" + _videoLength + ")",-20}";
         }
 
         public override void PreloadContent()
@@ -529,10 +540,10 @@ namespace Image_Manager
             CountWords();
         }
 
-
-        public override string GetInfobarContent()
+        public override string GetInfobarContentExtra()
         {
-            return InfoBarDefaultContent + "    -    ( " + _wordAmount + " words )";
+            return $"{InfoBarDefaultContentExtra,-10}" +
+                   $"{"( " + _wordAmount + " words )",-20}";
         }
 
         /// <summary>

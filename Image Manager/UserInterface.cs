@@ -13,18 +13,20 @@ namespace Image_Manager
         // displayed item's preferred representation
         private void UpdateInfobar()
         {
-            CurrentFileInfoLabel.Foreground = _defaultTextColor;
+            CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
 
             if (_displayItems.Count == 0)
             {
-                CurrentFileInfoLabel.Content = "End of directory";
+                CurrentFileInfoLabelLeft.Content = "End of directory";
+                CurrentFileInfoLabelRight.Content = "";
                 return;
             }
 
             if (_currentItem.GetTypeOfFile() != "text")
                 if (!File.Exists(_currentItem.GetFilePath()) && imageViewer.Source == null)
                 {
-                    CurrentFileInfoLabel.Content = "Could not find content" + "   ";
+                    CurrentFileInfoLabelLeft.Content = "Could not find content" + "   ";
+                    CurrentFileInfoLabelRight.Content = "";
                     return;
                 }
 
@@ -39,29 +41,31 @@ namespace Image_Manager
                 if (_prefer1000Px && _preferWebP)
                     // Neither
                     if (!isWebP && !isOver)
-                        CurrentFileInfoLabel.Foreground = redWarning;
+                        CurrentFileInfoLabelLeft.Foreground = redWarning;
                     // Either
                     else if (!isWebP || !isOver)
-                        CurrentFileInfoLabel.Foreground = orangeWarning;
+                        CurrentFileInfoLabelLeft.Foreground = orangeWarning;
                     // Both
                     else
-                        CurrentFileInfoLabel.Foreground = _defaultTextColor;
+                        CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
                 // Check for webP
                 else if (!_prefer1000Px && _preferWebP)
-                    CurrentFileInfoLabel.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelLeft.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
                 // Check for 1000px
                 else if (!_preferWebP && _prefer1000Px)
-                    CurrentFileInfoLabel.Foreground = !isOver ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelLeft.Foreground = !isOver ? orangeWarning : _defaultTextColor;
                 // Default
                 else
-                    CurrentFileInfoLabel.Foreground = _defaultTextColor;
+                    CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
             }
 
 
             // All content is added after its indexed number
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
-            CurrentFileInfoLabel.Content = preInfo + _currentItem.GetInfobarContent() + "   ";
+            CurrentFileInfoLabelLeft.Content = preInfo + _currentItem.GetInfobarContent() + "   ";
+            CurrentFileInfoLabelRight.Content = _currentItem.GetInfobarContentExtra();
         }
+
 
         // Updates the title of the window
         public void UpdateTitle()
@@ -137,7 +141,6 @@ namespace Image_Manager
                     Content = new TextBlock
                     { Text = "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
                         ") - " + Truncate(foundFolder.GetFolderName(), 40) },
-                    //{ Text = $"{foundFolder.GetFolderName(),-50}{foundFolder.GetNumberOfFiles()[0],20}" },
                     Foreground = color,
                     Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0)
                 };
@@ -156,7 +159,7 @@ namespace Image_Manager
             Folder folder =
                 _originFolder.GetAllShownFolders()[DirectoryTreeList.Items.IndexOf(sender)];
 
-            CurrentFileInfoLabel.Foreground = ((ListViewItem)sender).Foreground;
+            CurrentFileInfoLabelLeft.Foreground = ((ListViewItem)sender).Foreground;
 
             string name = Truncate(folder.GetFolderName(), 40);
             string length = folder.GetNumberOfFiles()[0] + " (" + folder.GetNumberOfFiles()[7] + ") files";
@@ -169,14 +172,16 @@ namespace Image_Manager
 
             string size = folder.GetDirectorySize() + "";
 
-            CurrentFileInfoLabel.Content = 
-                $"{name, -40}{size, 19}{length, 15}  |  {images, -11}{webp,-9}{gifs,-9}{videos, -11}{text, -9}{other, -10}";
+            CurrentFileInfoLabelLeft.Content = 
+                $"{name, -40}{size, -19}{length, -15}";
+            CurrentFileInfoLabelRight.Content =
+                $"{images,-11}{webp,-9}{gifs,-9}{videos,-11}{text,-9}{other,-10}";
         }
 
 
         public static string Truncate(string value, int maxChars)
         {
-            return value.Length <= maxChars ? value : value.Substring(0, maxChars - 3) + "..";
+            return value.Length <= maxChars ? value : value.Substring(0, maxChars - 2) + ".. ";
         }
 
         // Revert infobar to previous text
