@@ -342,7 +342,7 @@ namespace Image_Manager
                         _showSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
                     // Files to add
-                    foreach (string foundFile in Directory.GetFiles(s, "*.*", scanFolderStructure))
+                    foreach (string foundFile in Directory.EnumerateFiles(s, "*.*", scanFolderStructure))
                     {
                         // Exlude folders started with an underscore
                         if (Path.GetDirectoryName(foundFile).Contains("_")) continue;

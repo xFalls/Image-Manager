@@ -183,7 +183,7 @@ namespace Image_Manager
             return SizeSuffix(new FileInfo(path).Length);
         }
 
-        static string SizeSuffix(long value)
+        public static string SizeSuffix(long value)
         {
             string[] sizeSuffixes =
             { "bytes", "KB", "MB", "GB" };

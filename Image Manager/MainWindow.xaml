@@ -79,11 +79,11 @@
             </Menu>
         </DockPanel>
 
-        <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False">
-            <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1"/>
+        <Grid x:Name="InfoContainer" Height="30" Background="#4C000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False" Grid.ColumnSpan="2">
+            <Label x:Name="CurrentFileInfoLabel" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas"/>
         </Grid>
 
-        <ListBox x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand"/>
+        <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand"/>
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
         <ScrollViewer Visibility="Hidden" Name="InfiScrollViewer" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" PreviewMouseWheel="InfiScrollViewer_PreviewMouseWheel" Panel.ZIndex="1000" VerticalScrollBarVisibility="Hidden" Background="Black">

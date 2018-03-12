@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Image_Manager
 {
@@ -21,6 +23,8 @@ namespace Image_Manager
         private static int _currentFolderDepth;
         private readonly int _thisFolderDepth;
         private string _localPath;
+
+        private int _numOfFiles;
 
         /// <summary>
         /// Initializes all default values.
@@ -61,6 +65,58 @@ namespace Image_Manager
                 child.SetParentFolder(this);
                 AddChildFolder(child);
             }
+        }
+
+
+        public string GetDirectorySize()
+        {
+            DirectoryInfo di = new DirectoryInfo(_folderPath);
+            string top =
+                DisplayItem.SizeSuffix(di.EnumerateFiles("*", SearchOption.TopDirectoryOnly).Sum(fi => fi.Length));
+            string all =
+                DisplayItem.SizeSuffix(di.EnumerateFiles("*", SearchOption.AllDirectories).Sum(fi => fi.Length));
+            return top + " (" + all + ")";
+        }
+
+        public List<int> GetNumberOfFiles()
+        {
+            List<string> images = new List<string> {".png", ".jpg", ".jpeg"};
+            List<string> videos = new List<string> {".mp4", ".mkv", ".webm", ".wmw", ".flv", ".avi" };
+
+
+            var allFiles = Directory
+                .EnumerateFiles(_folderPath, "*", SearchOption.AllDirectories).Count(f =>
+                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System));
+
+            var topFiles = Directory
+                .EnumerateFiles(_folderPath, "*", SearchOption.TopDirectoryOnly).Where(f =>
+                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System));
+
+            List<int> data = new List<int>
+            {
+                // All files
+                topFiles.Count(),
+
+                // Image files
+                topFiles.Count(file => images.Any(x => file.EndsWith(x, StringComparison.OrdinalIgnoreCase))),
+                
+                // Video files
+                topFiles.Count(file => videos.Any(x => file.EndsWith(x, StringComparison.OrdinalIgnoreCase))),
+
+                // Gif files
+                topFiles.Count(file => file.EndsWith(".gif")),
+
+                // WebP files
+                topFiles.Count(file => file.EndsWith(".webp")),
+
+                // Text files
+                topFiles.Count(file => file.EndsWith(".txt")),
+            };
+
+            data.Add(data[0] - (data.Sum() - data[0]));
+            data.Add(allFiles);
+
+            return data;
         }
 
         /// <summary>

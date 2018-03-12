@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using Image_Manager.Properties;
 
 namespace Image_Manager
@@ -68,6 +73,41 @@ namespace Image_Manager
 
             UpdateTitle();
             UpdateInfobar();
+        }
+    }
+}
+
+// Allows for writing and loading a dictionary
+// TODO
+public class SerializableStringDictionary : StringDictionary, IXmlSerializable
+{
+    public XmlSchema GetSchema()
+    {
+        return null;
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+        while (reader.Read() &&
+               !(reader.NodeType == XmlNodeType.EndElement && reader.LocalName == this.GetType().Name))
+        {
+            var name = reader["Name"];
+            if (name == null)
+                throw new FormatException();
+
+            var value = reader["Value"];
+            this[name] = value;
+        }
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        foreach (DictionaryEntry entry in this)
+        {
+            writer.WriteStartElement("Pair");
+            writer.WriteAttributeString("Name", (string)entry.Key);
+            writer.WriteAttributeString("Value", (string)entry.Value);
+            writer.WriteEndElement();
         }
     }
 }

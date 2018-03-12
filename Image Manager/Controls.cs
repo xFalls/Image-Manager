@@ -413,7 +413,7 @@ namespace Image_Manager
         // A left click opens the selected directory in the gallery        
         private void DirectoryTreeList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
+            if (ItemsControl.ContainerFromElement(sender as ListView, e.OriginalSource as DependencyObject) is ListViewItem item)
             {
                 DirectoryTreeList.SelectedItem = item;
                 string[] folder =
