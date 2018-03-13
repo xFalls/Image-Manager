@@ -18,7 +18,7 @@ All modes:
   - F11: Toggles fullscreen
   - F12: Open settings
   - M: Toggles endless scrolling mode
-  - TAB, Middle click: Toggles the sorting menu
+  - TAB, Middle click: Toggles always showing the sorting menu
   - U: Upscales the current image through waifu2x (Experimental mode only)
   - P: Converts the current image to the WebP format (Experimental mode only)
   - Z: Undo move or delete
