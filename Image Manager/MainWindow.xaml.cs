@@ -82,10 +82,12 @@ namespace Image_Manager
             PreviewField.Visibility = Settings.Default.IsPreviewOpen ? Visibility.Visible : Visibility.Hidden;
             ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
 
+            /*
             // Adds the folder "Deleted Files" used for moving files to when deleted
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
                 Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
             _deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
+            */
 
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
@@ -191,9 +193,15 @@ namespace Image_Manager
             // Show specific view when content is empty
             if (_displayItems.Count == 0)
             {
-                PreviewField.Visibility = Visibility.Hidden;
+                //PreviewField.Visibility = Visibility.Hidden;
+                PreviewContent();
                 UpdateSettingsChanged();
                 return;
+            }
+
+            if (_movedItems.Count == 0)
+            {
+                UndoMenu.IsEnabled = false;
             }
 
             _currentItem = _displayItems[_displayedItemIndex];

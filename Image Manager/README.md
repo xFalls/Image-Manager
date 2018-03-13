@@ -13,18 +13,20 @@ Drag a folder or file into the window to load them into the view. It will automa
 # Controls
 
 All modes:
-  - Right click, Space: Enables zooming and dragging image with the mouse, opens video in default player, or enables scrolling in a text file
   - Scroll, Left, Right, A, D: Navigate to next or previous image
-  - TAB, Middle click: Shift mode between View, Explore, and Sort
-  - Z: Undo move
+  - Right click, Space: Enables zooming and dragging an image with the mouse, opens a video in default player, or enables scrolling in a text file
+  - Delete: Moves item to recycle bin
   - F: Toggle file previews
   - F1: Open help
   - F2: Rename file
   - F3: Quickly adds a preconfigured text in front of the name of the file
   - F4: Removes the preconfigured text
-  - F11: Toggle fullscreen
+  - F11: Toggles fullscreen
   - F12: Open settings
-  - Delete: Moves item to "Deleted Files" folder inside the .exe folder
+  - M: Toggles endless scrolling mode
+  - TAB, Middle click: Toggles the sorting menu
+  - U: Upscales the current image through waifu2x
+  - Z: Undo move or delete
   
 
 In view mode:

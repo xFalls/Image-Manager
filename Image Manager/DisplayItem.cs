@@ -37,6 +37,8 @@ namespace Image_Manager
         protected string InfoBarDefaultContent;
         protected string InfoBarDefaultContentExtra;
 
+        public bool hasBeenDeleted = false;
+
         public static string RootFolder;
 
         /// <summary>

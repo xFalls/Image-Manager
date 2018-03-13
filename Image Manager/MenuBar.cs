@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Forms;
 using Image_Manager.Properties;
 using Microsoft.VisualBasic;
+using Shell32;
+using Folder = Image_Manager.Folder;
 
 namespace Image_Manager
 {
@@ -156,6 +158,12 @@ namespace Image_Manager
         private void MenuItem_Click_21(object sender, RoutedEventArgs e)
         {
             MakeFullscreen();
+        }
+        
+        // Upscale
+        private void MenuItem_Click_22(object sender, RoutedEventArgs e)
+        {
+            UpscaleFile();
         }
 
         // Zoom in

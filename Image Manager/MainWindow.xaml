@@ -67,8 +67,9 @@
 
                 <MenuItem Name="OpenMenu" Header="Open" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="OpenInMenu" Header="Open file with..." Foreground="Black" Click="MenuItem_Click_11"></MenuItem>
+                    <MenuItem Name="OpenInWaifu" Header="Upscale with Waifu2x" InputGestureText="U" Foreground="Black" Click="MenuItem_Click_22"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Name="OpenRemoved" Header="Open 'Deleted Files' folder" Foreground="Black" Click="MenuItem_Click_16"></MenuItem>
+                    <!--<MenuItem Name="OpenRemoved" Header="Open 'Deleted Files' folder" Foreground="Black" Click="MenuItem_Click_16"></MenuItem>-->
                     <MenuItem Name="OpenCurrent" Header="Open current folder" Foreground="Black" Click="MenuItem_Click_17"></MenuItem>
                 </MenuItem>
 

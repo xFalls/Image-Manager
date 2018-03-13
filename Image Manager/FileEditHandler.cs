@@ -1,13 +1,19 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.VisualBasic;
+using Shell32;
 
 namespace Image_Manager
 {
     partial class MainWindow
     {
+        public static Shell shell = new Shell();
+        public static Shell32.Folder RecyclingBin = shell.NameSpace(10);
+
         /// <summary>
         /// Moves the currently displayed file
         /// </summary>
@@ -20,27 +26,32 @@ namespace Image_Manager
             
             try
             {
-                string newPath;
                 if (mode == "remove")
                 {
-                    newPath = _deleteFolder + "\\" + _currentItem.GetFileName();
+                    _currentItem.hasBeenDeleted = true;
+                    RecyclingBin.MoveHere(_currentItem.GetFilePath());
+                    
+                    //newPath = _deleteFolder + "\\" + _currentItem.GetFileName();
                 }
                 else
                 {
-                    newPath = _originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath() + 
-                        "\\" + _currentItem.GetFileName();
+                    var newPath = _originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath() + 
+                                     "\\" + _currentItem.GetFileName();
+
+                    newPath = NewNameIfTaken(_currentItem.GetFilePath(), newPath);
+
+                    File.Move(_currentItem.GetFilePath(), newPath);
+                    _currentItem.SetFilePath(newPath);
                 }
 
-                newPath = NewNameIfTaken(_currentItem.GetFilePath(), newPath);
-
-                File.Move(_currentItem.GetFilePath(), newPath);
+                
 
                 // Update internal representation to reflect changes
                 _movedItems.Insert(0, _currentItem);
                 UndoMenu.IsEnabled = true;
                 _displayItems.RemoveAt(_displayedItemIndex);
                 isInCache.RemoveAt(_displayedItemIndex);
-                _currentItem.SetFilePath(newPath);
+                
             }
             catch
             {
@@ -65,17 +76,39 @@ namespace Image_Manager
             try { 
                 DisplayItem fileToUndo = _movedItems.ElementAt(0);
 
-                File.Move(fileToUndo.GetFilePath(), fileToUndo.GetOldFilePath());
-                fileToUndo.SetFilePath(fileToUndo.GetOldFilePath());
+                if (fileToUndo.hasBeenDeleted)
+                {
+                    // Based on
+                    // https://stackoverflow.com/questions/6025311/how-to-restore-files-from-recycle-bin?lq=1
+
+                    string Item = fileToUndo.GetFilePath().Replace(@"\\", @"\");   // restore is sensitive to double backslashes
+                    Shell Shl = new Shell();
+                    Shell32.Folder Recycler = Shl.NameSpace(10);
+                    foreach (FolderItem FI in Recycler.Items())
+                    {
+                        string FileName = Recycler.GetDetailsOf(FI, 0);
+                        if (Path.GetExtension(FileName) == "") FileName += Path.GetExtension(FI.Path);
+                        //Necessary for systems with hidden file extensions.
+                        string FilePath = Recycler.GetDetailsOf(FI, 1);
+                        if (Item == Path.Combine(FilePath, FileName))
+                        {
+                            File.Move(FI.Path, fileToUndo.GetFilePath());
+                            fileToUndo.hasBeenDeleted = false;
+                            break;
+                        }
+                    }
+
+                }
+                else
+                {
+
+                    File.Move(fileToUndo.GetFilePath(), fileToUndo.GetOldFilePath());
+                    fileToUndo.SetFilePath(fileToUndo.GetOldFilePath());
+                }
 
                 _displayItems.Insert(_displayedItemIndex, fileToUndo);
                 isInCache.Insert(_displayedItemIndex, false);
                 _movedItems.RemoveAt(0);
-
-                if (_movedItems.Count == 0)
-                {
-                    UndoMenu.IsEnabled = false;
-                }
             }
                 catch
             {
@@ -148,6 +181,40 @@ namespace Image_Manager
                 }
             }
 
+        }
+
+        private void UpscaleFile()
+        {
+            string waifu2x = AppDomain.CurrentDomain.BaseDirectory + "\\waifu2x-caffe\\";
+
+            if (!File.Exists(waifu2x + "waifu2x-caffe-cui.exe")) return;
+
+            Process upscaler = new Process();
+            upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";
+            upscaler.StartInfo.Arguments = "-i " + "\"" + _currentItem.GetFilePath() + "\"" +
+                                           " -s 2.0 -n 2 -o " + 
+                                           "\"" + _currentItem.GetLocation() + "\\" +
+                                           _currentItem.GetFileNameExcludingExtension() + "[U]" +
+                                           _currentItem.GetFileExtension() + "\"";
+            upscaler.Start();
+            upscaler.WaitForExit();
+
+
+            string upscaledFile = _currentItem.GetLocation() + "\\" +
+                                  _currentItem.GetFileNameExcludingExtension() + "[U]" +
+                                  _currentItem.GetFileExtension();
+
+            if (!File.Exists(upscaledFile))
+            {
+                Interaction.MsgBox("Unsupported filetype");
+                return;
+            }
+
+            _displayItems.Insert(_displayedItemIndex + 1, new ImageItem(upscaledFile));
+            isInCache.Insert(_displayedItemIndex + 1, false);
+
+            _displayedItemIndex++;
+            UpdateContent();
         }
     }
 }

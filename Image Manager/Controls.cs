@@ -68,6 +68,11 @@ namespace Image_Manager
                         InfiScroll.Width += 50; 
                         break;
 
+                    // Upscales the currently shown file
+                    case Key.U:
+                        UpscaleFile();
+                        break;
+
                     // Zoom out
                     case Key.Subtract:
                         Zoom(-ZoomAmountButton);
