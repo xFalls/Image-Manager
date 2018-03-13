@@ -14,6 +14,7 @@
             <ColumnDefinition Width="81*"/>
             <ColumnDefinition Width="85*"/>
         </Grid.ColumnDefinitions>
+
         <TextBox x:Name="SortTypeBox" HorizontalAlignment="Center" Height="40" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2" Foreground="White" Background="#66000000" VerticalContentAlignment="Center" BorderBrush="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" IsTabStop="False" IsHitTestVisible="False" KeyUp="SortTypeBox_KeyUp" FontSize="16" FontFamily="Segoe UI Light" Panel.ZIndex="150" Canvas.Left="256" Canvas.Top="73" Margin="0,50,0,0" Padding="0" Visibility="Hidden"/>
         <Canvas HorizontalAlignment="Center" Height="200" Margin="256,82,231,71" VerticalAlignment="Center" Width="200" IsHitTestVisible="True" Grid.ColumnSpan="2" Panel.ZIndex="100">
             <Image x:Name="VideoPlayIcon" Height="200" Width="200" Source="PlayIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden">
@@ -55,7 +56,8 @@
                     <MenuItem Name="ZoomOutMenu" Header="Zoom out" Foreground="Black" InputGestureText="-" Click="MenuItem_Click_20" IsEnabled="False"></MenuItem>
                     <MenuItem Name="FullscreenMenu" Header="Fullscreen" Foreground="Black" InputGestureText="F11" Click="MenuItem_Click_21"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Name="ShowSortMenuMenu" Header="Show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1" IsEnabled="False"></MenuItem>
+                    <MenuItem Name="ShowSortMenuMenu" Header="Always show sorting menu" Foreground="Black" InputGestureText="TAB" Click="MenuItem_Click_1"/>
+                    <MenuItem Name="ShowSortField" Header="Filter folders..." Foreground="Black" InputGestureText="CTRL" Click="MenuItem_Click_24" IsEnabled="False"></MenuItem>
                     <MenuItem Name="ShowSortPreview" Header="Show previews" Foreground="Black" InputGestureText="F" Click="MenuItem_Click_14" IsEnabled="False"></MenuItem>
                     <MenuItem Name="ShowSortEndless" Header="Endless mode" Foreground="Black" InputGestureText="M" Click="MenuItem_Click_18" IsEnabled="False"></MenuItem>
                     <Separator></Separator>
@@ -86,7 +88,26 @@
             <Label x:Name="CurrentFileInfoLabelRight" Content="" Margin="10,0,0,16" VerticalAlignment="Bottom" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas" HorizontalAlignment="Left"/>
         </Grid>
 
-        <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Background="Black" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" Visibility="Hidden" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand"/>
+
+        <Grid Name="FolderGrid" HorizontalAlignment="Left" Width="400" MouseMove="FolderGrid_MouseMove" MouseLeave="FolderGrid_MouseLeave" Opacity="0">
+            <Grid.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <LinearGradientBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform Angle="-90" CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </LinearGradientBrush.RelativeTransform>
+                    <GradientStop Color="#E5000000"/>
+                    <GradientStop Offset="1" Color="#00000000"/>
+                    <GradientStop Color="#99000000" Offset="0.696"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+        </Grid>
+
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
         <ScrollViewer Visibility="Hidden" Name="InfiScrollViewer" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" PreviewMouseWheel="InfiScrollViewer_PreviewMouseWheel" Panel.ZIndex="1000" VerticalScrollBarVisibility="Hidden" Background="Black">
@@ -96,11 +117,17 @@
         </ScrollViewer>
 
         <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" 
-              Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.3"
-              MouseDown="PreviewField_MouseDown" Cursor="Hand">
+              Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="1"
+              MouseDown="PreviewField_MouseDown">
+            <Grid.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.75">
+                    <GradientStop Color="#7F000000" Offset="1"/>
+                    <GradientStop Color="#00000000"/>
+                </LinearGradientBrush>
+            </Grid.Background>
 
             <Border Name="PreviewImage" Width="150" Visibility="Hidden">
-                <Image VerticalAlignment="Center" Stretch="UniformToFill" HorizontalAlignment="Center"/>
+                <Image VerticalAlignment="Center" Stretch="UniformToFill" HorizontalAlignment="Center" Cursor="Hand"/>
             </Border>
 
             <StackPanel Name="PreviewContainer" Orientation="Horizontal" HorizontalAlignment="Center">
@@ -109,6 +136,7 @@
             <Grid.RenderTransform>
                 <TranslateTransform x:Name="MoveBlock" Y="110" />
             </Grid.RenderTransform>
+
             <Grid.Triggers>
                 <EventTrigger RoutedEvent="Grid.MouseEnter">
                     <BeginStoryboard>
@@ -117,12 +145,10 @@
                                 Storyboard.TargetName="PreviewField"
                                 Storyboard.TargetProperty="(Grid.Opacity)" 
                                 To="1" Duration="0:0:0.1"/>
-
                             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MoveBlock" 
                                                            Storyboard.TargetProperty="Y">
                                 <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="0" />
                             </DoubleAnimationUsingKeyFrames>
-
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
@@ -133,7 +159,6 @@
                                 Storyboard.TargetName="PreviewField"
                                 Storyboard.TargetProperty="(Grid.Opacity)" 
                                 To="0.3" Duration="0:0:0.1"/>
-
                             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MoveBlock" 
                                                            Storyboard.TargetProperty="Y">
                                 <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="110" />

@@ -53,7 +53,7 @@ namespace Image_Manager
                     // Move file to selected directory
                     case Key.Enter:
                     case Key.R:
-                        if (_sortMode)
+                        if (Settings.Default.SortMode)
                             MoveFile();
                         break;
 
@@ -70,12 +70,14 @@ namespace Image_Manager
 
                     // Upscales the currently shown file
                     case Key.U:
-                        UpscaleFile();
+                        if (Settings.Default.Experimental)
+                            UpscaleFile();
                         break;
 
                     // Converts image to WebP
                     case Key.P:
-                        WebPConvert();
+                        if (Settings.Default.Experimental)
+                            WebPConverter();
                         break;
 
                     // Zoom out
@@ -86,7 +88,7 @@ namespace Image_Manager
 
                     // Open directory in view mode
                     case Key.E:
-                        if (!_isDrop && _sortMode)
+                        if (!_isDrop && Settings.Default.SortMode)
                         {
                             string[] folder =
                                 {_originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath()};
@@ -174,12 +176,6 @@ namespace Image_Manager
                 new SettingsWindow(this).Show();
             }
 
-            // Opens endless scrolling mode
-            else if (e.Key == Key.M)
-            {
-                OpenEndlessView();
-            }
-
             else if (_isEndless && e.Key == Key.Add)
             {
                 if (InfiScroll.Width < InfiMaxZoom) {
@@ -200,6 +196,7 @@ namespace Image_Manager
                 switch (e.Key)
                 {
                     case Key.LeftShift:
+                    case Key.RightShift:
                         IncludeSubMenu.IsChecked = _showSubDir;
                         _showSubDir = !_showSubDir;
                         UpdateTitle();
@@ -222,25 +219,16 @@ namespace Image_Manager
                     case Key.Z:
                         UndoMove();
                         break;
+                    case Key.M:
+                        OpenEndlessView();
+                        break;
                 }
             }
 
             // Start typing mode
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
             {
-                if (!_sortMode || _isDrop || _displayItems.Count == 0) return;
-                if (_isTyping)
-                {
-                    SortTypeBox.Visibility = Visibility.Hidden;
-                    _isTyping = false;
-                }
-                else
-                {
-                    SortTypeBox.Text = "";
-                    SortTypeBox.Visibility = Visibility.Visible;
-                    SortTypeBox.Focus();
-                    _isTyping = true;
-                }
+                ToggleSortField();
             }
 
         }
@@ -295,7 +283,7 @@ namespace Image_Manager
 
                 // Adds current item to the selected folder
                 case Key.Enter:
-                    if (_sortMode)
+                    if (FolderGrid.Opacity == 0)
                         MoveFile();
                     break;
 

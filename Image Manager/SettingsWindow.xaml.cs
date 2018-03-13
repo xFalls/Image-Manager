@@ -20,11 +20,29 @@ namespace Image_Manager
             InitializeComponent();
 
             this.main = main;
+
+            UpdateExperimental();
         }
 
+        // Toggles showing experimental features
         private void UpdateExperimental()
         {
-            
+            bool afterExperimental = false;
+            bool setEnabled = Settings.Default.Experimental;
+
+            foreach (Control item in SettingValues.Children)
+            {
+                if (item.Name == "ExperimentalCheckbox")
+                {
+                    afterExperimental = true;
+                    continue;
+                }
+
+                if (!afterExperimental) continue;
+
+                item.IsEnabled = setEnabled;
+                ((CheckBox) item).IsChecked = false;
+            }
         }
 
         // Sets textfield settings
@@ -80,6 +98,12 @@ namespace Image_Manager
             main.UpdateSettingsChanged();
             main.UpdatePreviewLength();
             main.UpdateContent();
+        }
+
+        
+        private void ExperimentalCheckbox_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateExperimental();
         }
     }
 }

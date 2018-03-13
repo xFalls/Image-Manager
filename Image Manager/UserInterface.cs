@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Image_Manager.Properties;
 
 namespace Image_Manager
 {
@@ -193,7 +194,7 @@ namespace Image_Manager
         // Moves the folder selection up
         private void MoveUp()
         {
-            if (_sortMode)
+            if (FolderGrid.Opacity != 0)
                 DirectoryTreeList.SelectedIndex = DirectoryTreeList.SelectedIndex - 1 < 0
                     ? _originFolder.GetAllFolders().Count - 1
                     : DirectoryTreeList.SelectedIndex - 1;
@@ -202,7 +203,7 @@ namespace Image_Manager
         // Moves the folder selection down
         private void MoveDown()
         {
-            if (_sortMode)
+            if (FolderGrid.Opacity != 0)
                 DirectoryTreeList.SelectedIndex = DirectoryTreeList.SelectedIndex + 1 ==
                     _originFolder.GetAllFolders().Count ?
                     0 : DirectoryTreeList.SelectedIndex + 1;
@@ -211,9 +212,31 @@ namespace Image_Manager
         // Toggles the sort GUI
         private void ToggleViewMode()
         {
-            _sortMode = !_sortMode;
-            DirectoryTreeList.Visibility = _sortMode ? Visibility.Visible : Visibility.Hidden;
-            ShowSortMenuMenu.IsChecked = _sortMode;
+            Settings.Default.SortMode = !Settings.Default.SortMode;
+            ShowSortMenuMenu.IsChecked = Settings.Default.SortMode;
+
+            FolderGrid.Opacity = Settings.Default.SortMode ? 1 : 0;
+        }
+
+        private void ToggleSortField()
+        {
+            if (FolderGrid.Opacity == 0)
+            {
+                ToggleViewMode();
+            }
+            if (_isDrop || _displayItems.Count == 0) return;
+            if (_isTyping)
+            {
+                SortTypeBox.Visibility = Visibility.Hidden;
+                _isTyping = false;
+            }
+            else
+            {
+                SortTypeBox.Text = "";
+                SortTypeBox.Visibility = Visibility.Visible;
+                SortTypeBox.Focus();
+                _isTyping = true;
+            }
         }
     }
 }

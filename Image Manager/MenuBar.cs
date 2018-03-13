@@ -145,7 +145,7 @@ namespace Image_Manager
         // Convert to WebP file format
         private void MenuItem_Click_23(object sender, RoutedEventArgs e)
         {
-            WebPConvert();
+            WebPConverter();
         }
 
         // Open current folder
@@ -164,6 +164,12 @@ namespace Image_Manager
         private void MenuItem_Click_22(object sender, RoutedEventArgs e)
         {
             UpscaleFile();
+        }
+
+        // Filter
+        private void MenuItem_Click_24(object sender, RoutedEventArgs e)
+        {
+            ToggleSortField();
         }
 
         // Zoom in

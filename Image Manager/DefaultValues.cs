@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -70,6 +71,9 @@ namespace Image_Manager
             _preferWebP = Settings.Default.PreferWebP;
             _previewSteps = Settings.Default.PreviewSteps;
             _preloadRange = _previewSteps;
+
+            OpenInWaifu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
+            WebPConvertMenu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
 
             UpdateTitle();
             UpdateInfobar();

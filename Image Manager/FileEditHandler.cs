@@ -185,7 +185,7 @@ namespace Image_Manager
 
         }
 
-        private void WebPConvert()
+        private void WebPConverter()
         {
             if (_currentItem.GetTypeOfFile() != "image" ||
                 _currentItem.GetFileExtension() == ".webp")
@@ -196,6 +196,12 @@ namespace Image_Manager
 
             string convertedFile = _currentItem.GetLocation() + "\\" +
                                   _currentItem.GetFileNameExcludingExtension() + "[P].webp";
+
+            if (File.Exists(convertedFile))
+            {
+                Interaction.MsgBox("File already exists");
+                return;
+            }
 
             Bitmap image = new Bitmap(_currentItem.GetFilePath());
             FileStream to = File.Create(convertedFile);
@@ -222,6 +228,12 @@ namespace Image_Manager
             string upscaledFile = _currentItem.GetLocation() + "\\" +
                                   _currentItem.GetFileNameExcludingExtension() + "[U]" +
                                   _currentItem.GetFileExtension();
+
+            if (File.Exists(upscaledFile))
+            {
+                Interaction.MsgBox("File already exists");
+                return;
+            }
 
             Process upscaler = new Process();
             upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";

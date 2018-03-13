@@ -39,7 +39,6 @@ namespace Image_Manager
         // Keeps track of changes in the folder structure
         public static List<string> NewFiles = new List<string>();
         public static List<string> MovedFiles = new List<string>();
-        private readonly string _deleteFolder;
 
         // The index of the displayed item in _displayItems
         private static int _displayedItemIndex;
@@ -48,7 +47,6 @@ namespace Image_Manager
         // Other toggles
         private bool _isActive;
         private bool _isDrop;
-        private bool _sortMode;
         private bool _isTyping;
         private bool _isEndless;
 
@@ -80,7 +78,8 @@ namespace Image_Manager
 
             // Default view
             PreviewField.Visibility = Settings.Default.IsPreviewOpen ? Visibility.Visible : Visibility.Hidden;
-            ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
+            ShowSortMenuMenu.IsChecked = Settings.Default.SortMode;
+            FolderGrid.Opacity = Settings.Default.SortMode ? 1 : 0;
 
             /*
             // Adds the folder "Deleted Files" used for moving files to when deleted
@@ -521,7 +520,7 @@ namespace Image_Manager
             foreach (Control item in ViewMenu.Items)
             {
                 if (!(item is MenuItem) || item.Name == "FullscreenMenu" || item.Name == "IncludeSpecialMenu" ||
-                    item.Name == "IncludeOtherFilesMenu" || item.Name == "IncludeSubMenu" ||
+                    item.Name == "IncludeOtherFilesMenu" || item.Name == "IncludeSubMenu" || item.Name == "ShowSortMenuMenu" ||
                     item.Name == "IncludePrefixMenu") continue;
                 item.IsEnabled = false;
             }
@@ -530,6 +529,26 @@ namespace Image_Manager
             OpenMenu.IsEnabled = false;
 
             GC.Collect();
+        }
+
+
+
+
+
+        private void FolderGrid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!Settings.Default.SortMode)
+            {
+                FolderGrid.Opacity = 1;
+            }
+        }
+
+        private void FolderGrid_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!Settings.Default.SortMode)
+            {
+                FolderGrid.Opacity = 0;
+            }
         }
     }
 }

@@ -10,43 +10,29 @@
         Title="Settings" Height="250" Width="450" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual">
     <Grid>
 
-        <Grid>
-            <ListView Margin="10" Name="lvUsers" Width="400" SelectionMode="Multiple" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Setting" Width="200">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Name="SettingNames">
-                                        <ComboBoxItem Content="Prefix to append"/>
-                                        <ComboBoxItem Content="Number of steps to preview"/>
-                                        <Separator></Separator>
-                                        <ComboBoxItem Content="Enable experimental features"/>
-                                        <ComboBoxItem Content="Warn if image is under 1000px"/>
-                                        <ComboBoxItem Content="Warn if image is not WebP"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+        <Grid Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                        <GridViewColumn x:Name="DataColumn" Header="Value" Width="200">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Name="SettingValues">
-                                        <TextBox Name="Prefix"  Text="{Binding Source={x:Static prop:Settings.Default}, Path=PrefixName, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
-                                        <TextBox Name="Steps" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PreviewSteps, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
-                                        <Separator></Separator>
-                                        <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Experimental, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center"/>
-                                        <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Prefer1000px, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                                        <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=PreferWebP, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-                <Label/>
-            </ListView>
+            <StackPanel x:Name="SettingNames" Grid.Column="0">
+                <ComboBoxItem Content="Prefix to append"/>
+                <ComboBoxItem Content="Number of steps to preview"/>
+                <Separator></Separator>
+                <ComboBoxItem Content="Enable experimental features"/>
+                <ComboBoxItem Content="Image under 1000px notice"/>
+                <ComboBoxItem Content="Image not WebP notice"/>
+            </StackPanel>
+
+            <StackPanel x:Name="SettingValues" Grid.Column="1">
+                <TextBox Name="Prefix" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PrefixName, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
+                <TextBox Name="Steps" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PreviewSteps, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
+                <Separator></Separator>
+                <CheckBox Name="ExperimentalCheckbox" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Experimental, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center" Click="ExperimentalCheckbox_Click"/>
+                <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Prefer1000px, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=PreferWebP, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

@@ -94,5 +94,17 @@ namespace Image_Manager.Properties {
                 this["Experimental"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SortMode {
+            get {
+                return ((bool)(this["SortMode"]));
+            }
+            set {
+                this["SortMode"] = value;
+            }
+        }
     }
 }
