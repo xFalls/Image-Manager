@@ -192,7 +192,7 @@ namespace Image_Manager
             Process upscaler = new Process();
             upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";
             upscaler.StartInfo.Arguments = "-i " + "\"" + _currentItem.GetFilePath() + "\"" +
-                                           " -s 2.0 -n 2 -o " + 
+                                           " -s 2.0 -p gpu -n 2 -o " + 
                                            "\"" + _currentItem.GetLocation() + "\\" +
                                            _currentItem.GetFileNameExcludingExtension() + "[U]" +
                                            _currentItem.GetFileExtension() + "\"";
@@ -203,6 +203,19 @@ namespace Image_Manager
             string upscaledFile = _currentItem.GetLocation() + "\\" +
                                   _currentItem.GetFileNameExcludingExtension() + "[U]" +
                                   _currentItem.GetFileExtension();
+
+            if (!File.Exists(upscaledFile))
+            {
+                upscaler = new Process();
+                upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";
+                upscaler.StartInfo.Arguments = "-i " + "\"" + _currentItem.GetFilePath() + "\"" +
+                                               " -s 2.0 -p cpu -n 2 -o " +
+                                               "\"" + _currentItem.GetLocation() + "\\" +
+                                               _currentItem.GetFileNameExcludingExtension() + "[U]" +
+                                               _currentItem.GetFileExtension() + "\"";
+                upscaler.Start();
+                upscaler.WaitForExit();
+            }
 
             if (!File.Exists(upscaledFile))
             {

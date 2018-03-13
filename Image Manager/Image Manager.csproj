@@ -159,9 +159,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Resource Include="waifu2x-caffe\crop_size_list.txt">
+    <Content Include="waifu2x-caffe\crop_size_list.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
     <Content Include="waifu2x-caffe\cublas64_70.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
