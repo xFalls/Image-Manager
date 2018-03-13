@@ -228,6 +228,7 @@ namespace Image_Manager
             {
                 // If content can't get loaded, show a blank black screen               
                 MakeTypeVisible("");
+                // TODO Eventual default view for images that have failed to load
             }
 
             _loadedOffset = 0;
@@ -235,9 +236,16 @@ namespace Image_Manager
             // File may load before WebP conversion finishes, so refresh after every conversion
             if (currentFileType == "image" && ((ImageItem) _currentItem).wasConverted)
             {
-                System.Threading.Thread.Sleep(250);
-                Refresh();
-                ((ImageItem)_currentItem).wasConverted = false;
+                try
+                {
+                    System.Threading.Thread.Sleep(200);
+                    Refresh();
+                    ((ImageItem)_currentItem).wasConverted = false;
+                }
+                catch
+                {
+                    // TODO Eventual default view for images that have failed to load
+                }
             }
 
             PreviewContent();
