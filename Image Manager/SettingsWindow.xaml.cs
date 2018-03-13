@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Image_Manager.Properties;
-using Brush = System.Drawing.Brush;
 
 namespace Image_Manager
 {
@@ -30,6 +20,10 @@ namespace Image_Manager
             InitializeComponent();
 
             this.main = main;
+        }
+
+        private void UpdateExperimental()
+        {
             
         }
 

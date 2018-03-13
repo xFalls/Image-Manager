@@ -288,6 +288,7 @@ namespace Image_Manager
         private BitmapImage _imageSource;
         private int _imageHeight;
         private int _imageWidth;
+        public bool wasConverted;
 
         private readonly LibwebpSharp.WebPDecoder _dec;
 
@@ -352,8 +353,10 @@ namespace Image_Manager
                     image.EndInit();
                 }
             else
+            {
                 // Allows for loading WebP images through an included library
                 image = BitmapToImageSource(_dec.DecodeBGRA(FilePath));
+            }
 
             // If the image has been loaded before, it won't have to
             // get the metadata of the image again.

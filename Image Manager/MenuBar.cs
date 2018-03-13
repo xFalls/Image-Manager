@@ -142,10 +142,10 @@ namespace Image_Manager
             RemoveFile();
         }
 
-        // Open Removed Files folder
-        private void MenuItem_Click_16(object sender, RoutedEventArgs e)
+        // Convert to WebP file format
+        private void MenuItem_Click_23(object sender, RoutedEventArgs e)
         {
-            Process.Start(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
+            WebPConvert();
         }
 
         // Open current folder

@@ -17,7 +17,9 @@ namespace Image_Manager
                 if (scanRange < 0 || scanRange >= isInCache.Count || isInCache[scanRange]) continue;
 
                 isInCache[scanRange] = true;
+                
                 _displayItems[scanRange].PreloadContent();
+                
             }
 
             DropFromCache();

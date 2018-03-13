@@ -146,7 +146,8 @@ namespace Image_Manager
 
             // Video file
             if (temp.EndsWith(".mp4") || temp.EndsWith(".mkv") || temp.EndsWith(".webm")
-                 || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi"))
+                 || temp.EndsWith(".wmv") || temp.EndsWith(".flv") || temp.EndsWith(".avi")
+                 || temp.EndsWith(".mov"))
                 return "video";
 
             return "file";
@@ -185,15 +186,12 @@ namespace Image_Manager
 
 
 
-
-
         // Changes the currently displayed content
         public void UpdateContent()
         {
             // Show specific view when content is empty
             if (_displayItems.Count == 0)
             {
-                //PreviewField.Visibility = Visibility.Hidden;
                 PreviewContent();
                 UpdateSettingsChanged();
                 return;
@@ -229,16 +227,33 @@ namespace Image_Manager
             }
             catch
             {
-                // If content can't get loaded, show a blank black screen
+                // If content can't get loaded, show a blank black screen               
                 MakeTypeVisible("");
             }
 
             _loadedOffset = 0;
 
+            // File may load before WebP conversion finishes, so refresh after every conversion
+            if (currentFileType == "image" && ((ImageItem) _currentItem).wasConverted)
+            {
+                System.Threading.Thread.Sleep(250);
+                Refresh();
+                ((ImageItem)_currentItem).wasConverted = false;
+            }
+
             PreviewContent();
 
             ResetView();
             UpdateSettingsChanged();
+
+            
+        }
+
+        private void Refresh()
+        {
+            _currentItem.RemovePreloadedContent();
+            _currentItem.PreloadContent();
+            imageViewer.Source = ((ImageItem)_currentItem).GetImage();
         }
 
         // Preview content in front or back

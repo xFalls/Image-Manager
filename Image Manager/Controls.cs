@@ -73,6 +73,11 @@ namespace Image_Manager
                         UpscaleFile();
                         break;
 
+                    // Converts image to WebP
+                    case Key.P:
+                        WebPConvert();
+                        break;
+
                     // Zoom out
                     case Key.Subtract:
                         Zoom(-ZoomAmountButton);
