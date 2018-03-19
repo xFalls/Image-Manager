@@ -13,8 +13,9 @@ All modes:
   - F: Toggle file previews
   - F1: Open help
   - F2: Rename file
-  - F3: Quickly adds a preconfigured text in front of the name of the file
+  - F3: Quickly adds a preconfigured text in front of the name of the file (configurable in settings)
   - F4: Removes the preconfigured text
+  - F5: Reloads and refreshes all content
   - F11: Toggles fullscreen
   - F12: Open settings
   - M: Toggles endless scrolling mode
@@ -49,6 +50,6 @@ In typing mode:
   
 When loading a new set of images:
 - Shift: Only load the folder without the content of any subfolders
-- X: Prevents loading of folders with specific preconfigured names
+- X: Prevents loading of folders contained certain text (changeable in settings)
 - C: Toggles showing files with the preset prefix
-- V: Toggles showing non-media files
+- V: Toggles showing non-media files (media files: images, videos, and text files)
