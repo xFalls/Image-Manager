@@ -82,18 +82,9 @@ namespace Image_Manager
             ShowSortMenuMenu.IsChecked = Settings.Default.SortMode;
             FolderGrid.Opacity = Settings.Default.SortMode ? 1 : 0;
 
-            /*
-            // Adds the folder "Deleted Files" used for moving files to when deleted
-            if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files"))
-                Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "Deleted Files");
-            _deleteFolder = AppDomain.CurrentDomain.BaseDirectory + "Deleted Files";
-            */
-
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
-
         }
-
 
         public void UpdatePreviewLength()
         {

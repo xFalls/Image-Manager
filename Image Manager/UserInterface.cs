@@ -46,22 +46,40 @@ namespace Image_Manager
                 if (_prefer1000Px && _preferWebP)
                     // Neither
                     if (!isWebP && !isOver)
+                    {
                         CurrentFileInfoLabelLeft.Foreground = redWarning;
+                        CurrentFileInfoLabelRight.Foreground = redWarning;
+                    }
                     // Either
                     else if (!isWebP || !isOver)
+                    {
                         CurrentFileInfoLabelLeft.Foreground = orangeWarning;
+                        CurrentFileInfoLabelRight.Foreground = orangeWarning;
+                    }
                     // Both
                     else
+                    {
                         CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
+                        CurrentFileInfoLabelRight.Foreground = _defaultTextColor;
+                    }
                 // Check for webP
                 else if (!_prefer1000Px && _preferWebP)
+                {
                     CurrentFileInfoLabelLeft.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelRight.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
+                }
                 // Check for 1000px
                 else if (!_preferWebP && _prefer1000Px)
+                {
                     CurrentFileInfoLabelLeft.Foreground = !isOver ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelRight.Foreground = !isOver ? orangeWarning : _defaultTextColor;
+                }
                 // Default
                 else
+                {
                     CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
+                    CurrentFileInfoLabelRight.Foreground = _defaultTextColor;
+                }
             }
 
 
@@ -107,7 +125,7 @@ namespace Image_Manager
             else
             {
                 // What to show if nothing is loaded
-                Title = "Image Manager";
+                Title = "Filer";
                 if (!_showSubDir)
                 {
                     Title = Title + " -subdir";
@@ -131,6 +149,8 @@ namespace Image_Manager
         private void CreateSortMenu()
         {
             DirectoryTreeList.Items.Clear();
+
+            if (_originFolder == null) return;
 
             foreach (Folder foundFolder in _originFolder.GetAllShownFolders())
             {

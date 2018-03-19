@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Image_Manager"
         
         mc:Ignorable="d"
-        Title="Image Manager" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500" PreviewMouseLeftButtonUp="ControlWindow_PreviewMouseLeftButtonUp">
+        Title="Filer" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500" PreviewMouseLeftButtonUp="ControlWindow_PreviewMouseLeftButtonUp">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="81*"/>
@@ -40,6 +40,7 @@
                     <Separator></Separator>
                     <MenuItem Name="SettingsMenu" Header="Settings" Foreground="Black" InputGestureText="F12" Click="MenuItem_Click_13"></MenuItem>
                     <Separator></Separator>
+                    <MenuItem Name="RefreshMenu" Header="Refresh" Foreground="Black" Click="MenuItem_Click_25" InputGestureText="F5"></MenuItem>
                     <MenuItem Name="Reset" Header="Clear files" Foreground="Black" Click="MenuItem_Click_9"></MenuItem>
                 </MenuItem>
 

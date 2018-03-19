@@ -179,6 +179,12 @@ namespace Image_Manager
             ToggleSortField();
         }
 
+        // Refresh
+        private void MenuItem_Click_25(object sender, RoutedEventArgs e)
+        {
+            RefreshAll();
+        }
+
         // Zoom in
         private void MenuItem_Click_19(object sender, RoutedEventArgs e)
         {

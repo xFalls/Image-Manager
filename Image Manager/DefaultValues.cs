@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,11 +32,11 @@ namespace Image_Manager
         private const double InfiMinZoom = 200;
 
         // Special folders
-        private readonly Dictionary<string, SolidColorBrush> _specialFolders = new Dictionary<string, SolidColorBrush>()
+        private Dictionary<string, SolidColorBrush> _specialFolders = new Dictionary<string, SolidColorBrush>()
         {
             { "[Artist]", new SolidColorBrush(Colors.Yellow)},
             { "[Collection]", new SolidColorBrush(Colors.CornflowerBlue)},
-            { "[Manga]", new SolidColorBrush(Colors.MediumPurple)},
+            { "[Comic]", new SolidColorBrush(Colors.MediumPurple)},
             { "[Set]", new SolidColorBrush(Colors.Orange)}
         };
 
@@ -64,13 +66,26 @@ namespace Image_Manager
 
 
         // Apply settings
-        public void UpdateSettingsChanged()
+        public void UpdateSettingsChanged(bool refreshMenu = false)
         {
             QuickPrefix = Settings.Default.PrefixName + " ";
             _prefer1000Px = Settings.Default.Prefer1000px;
             _preferWebP = Settings.Default.PreferWebP;
             _previewSteps = Settings.Default.PreviewSteps;
             _preloadRange = _previewSteps;
+
+            
+
+            _specialFolders.Clear();
+            ConvertDictionary d = new ConvertDictionary();
+            Dictionary<string, SolidColorBrush> newD = d.Read(Settings.Default.FolderColors);
+            _specialFolders = newD;
+            if (refreshMenu)
+            {
+                CreateSortMenu();
+            }
+
+            
 
             OpenInWaifu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
             WebPConvertMenu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
@@ -81,37 +96,54 @@ namespace Image_Manager
     }
 }
 
-// Allows for writing and loading a dictionary
-// TODO
-public class SerializableStringDictionary : StringDictionary, IXmlSerializable
+/// <summary>
+/// Code found and modified from
+/// https://www.dotnetperls.com/convert-dictionary-string
+/// </summary>
+class ConvertDictionary
 {
-    public XmlSchema GetSchema()
+    /// <summary>
+    /// Creates a dictionary from its inputted string
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
+    public Dictionary<string, SolidColorBrush> Read(string s)
     {
-        return null;
+        return GetDict(s);
     }
 
-    public void ReadXml(XmlReader reader)
-    {
-        while (reader.Read() &&
-               !(reader.NodeType == XmlNodeType.EndElement && reader.LocalName == this.GetType().Name))
-        {
-            var name = reader["Name"];
-            if (name == null)
-                throw new FormatException();
 
-            var value = reader["Value"];
-            this[name] = value;
+    string GetLine(Dictionary<string, SolidColorBrush> d)
+    {
+        // Build up each line one-by-one and then trim the end
+        StringBuilder builder = new StringBuilder();
+        foreach (KeyValuePair<string, SolidColorBrush> pair in d)
+        {
+            builder.Append(pair.Key).Append(":").Append(pair.Value).Append(',');
         }
+        string result = builder.ToString();
+        // Remove the final delimiter
+        result = result.TrimEnd(',');
+        return result;
     }
 
-    public void WriteXml(XmlWriter writer)
+    Dictionary<string, SolidColorBrush> GetDict(string s)
     {
-        foreach (DictionaryEntry entry in this)
+        Dictionary<string, SolidColorBrush> d = new Dictionary<string, SolidColorBrush>();
+
+        // Divide all pairs (remove empty strings)
+        string[] tokens = s.Split(new char[] { ':', ',' },
+            StringSplitOptions.RemoveEmptyEntries);
+
+        // Walk through each item
+        for (int i = 0; i < tokens.Length; i += 2)
         {
-            writer.WriteStartElement("Pair");
-            writer.WriteAttributeString("Name", (string)entry.Key);
-            writer.WriteAttributeString("Value", (string)entry.Value);
-            writer.WriteEndElement();
+            string name = tokens[i];
+            string freq = tokens[i + 1];
+            SolidColorBrush brush = (SolidColorBrush)new BrushConverter().ConvertFromString(freq);
+
+            d.Add(name, brush);
         }
+        return d;
     }
 }

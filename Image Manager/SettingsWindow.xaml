@@ -19,6 +19,7 @@
             <StackPanel x:Name="SettingNames" Grid.Column="0">
                 <ComboBoxItem Content="Prefix to append"/>
                 <ComboBoxItem Content="Number of steps to preview"/>
+                <ComboBoxItem Content="Folder colors" Margin="0,0,0,60"/>
                 <Separator></Separator>
                 <ComboBoxItem Content="Enable experimental features"/>
                 <ComboBoxItem Content="Image under 1000px notice"/>
@@ -28,6 +29,7 @@
             <StackPanel x:Name="SettingValues" Grid.Column="1">
                 <TextBox Name="Prefix" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PrefixName, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
                 <TextBox Name="Steps" Text="{Binding Source={x:Static prop:Settings.Default}, Path=PreviewSteps, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center"/>
+                <TextBox Name="FolderColor" Text="{Binding Source={x:Static prop:Settings.Default}, Path=FolderColors, Mode=OneWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="180" BorderBrush="#FFADB3AB" Height="80" HorizontalScrollBarVisibility="Disabled" TextWrapping="WrapWithOverflow" VerticalScrollBarVisibility="Auto"/>
                 <Separator></Separator>
                 <CheckBox Name="ExperimentalCheckbox" IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Experimental, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" Margin="0" VerticalContentAlignment="Center" Click="ExperimentalCheckbox_Click"/>
                 <CheckBox IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=Prefer1000px, Mode=TwoWay}" KeyDown="Prefix_KeyDown" IsManipulationEnabled="True" Width="170" BorderBrush="#FFADB3AB" Height="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>

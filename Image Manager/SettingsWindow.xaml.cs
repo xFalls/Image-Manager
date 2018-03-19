@@ -14,6 +14,7 @@ namespace Image_Manager
     public partial class SettingsWindow : Window
     {
         private MainWindow main;
+        private bool refresh;
 
         public SettingsWindow(MainWindow main)
         {
@@ -22,6 +23,8 @@ namespace Image_Manager
             this.main = main;
 
             UpdateExperimental();
+
+            refresh = false;
         }
 
         // Toggles showing experimental features
@@ -81,7 +84,19 @@ namespace Image_Manager
                         AnimateBackground(mediaElement, Colors.OrangeRed);
                         return;
                     }
-
+                    break;
+                case "FolderColor":
+                    try
+                    {
+                        new ConvertDictionary().Read(text);
+                        Settings.Default.FolderColors = text;
+                        refresh = true;
+                    }
+                    catch
+                    {
+                        AnimateBackground(mediaElement, Colors.OrangeRed);
+                        return;
+                    }
                     break;
             }
 
@@ -99,7 +114,7 @@ namespace Image_Manager
         // Updates all changed values in the main window
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            main.UpdateSettingsChanged();
+            main.UpdateSettingsChanged(refresh);
             main.UpdatePreviewLength();
             main.UpdateContent();
         }
