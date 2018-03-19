@@ -49,6 +49,7 @@ namespace Image_Manager
         private bool _isDrop;
         private bool _isTyping;
         private bool _isEndless;
+        private bool _changed;
 
         // Image manipulation
         private Point _start;
@@ -193,9 +194,11 @@ namespace Image_Manager
             {
                 PreviewContent();
                 UpdateSettingsChanged();
+                CreateSortMenu();
                 return;
             }
 
+            // Disable undo menu when there's nothing to undo
             if (_movedItems.Count == 0)
             {
                 UndoMenu.IsEnabled = false;
@@ -253,7 +256,11 @@ namespace Image_Manager
             ResetView();
             UpdateSettingsChanged();
 
-            
+            if (_changed)
+            {
+                CreateSortMenu();
+                _changed = false;
+            }
         }
 
         private void Refresh()
@@ -261,6 +268,28 @@ namespace Image_Manager
             _currentItem.RemovePreloadedContent();
             _currentItem.PreloadContent();
             imageViewer.Source = ((ImageItem)_currentItem).GetImage();
+        }
+
+        private void RefreshAll()
+        {
+            int currentIndex = _displayedItemIndex;
+            string[] openFolder = { lastFolder };
+            string[] originalFolder = { _originFolder.GetFolderPath() };
+
+            AddNewFolder(originalFolder);
+
+            try
+            {
+                CreateNewContext(openFolder);
+                _displayedItemIndex = currentIndex;
+                UpdateContent();
+            }
+            catch
+            {
+                CreateNewContext(originalFolder);
+                _displayedItemIndex = 0;
+                UpdateContent();
+            }
         }
 
         // Preview content in front or back
@@ -456,7 +485,14 @@ namespace Image_Manager
             // Start video in default player
             else if (_currentItem.GetTypeOfFile() == "video" || _currentItem.GetTypeOfFile() == "file")
             {
-                Process.Start(_displayItems[_displayedItemIndex].GetFilePath());
+                try
+                {
+                    Process.Start(_displayItems[_displayedItemIndex].GetFilePath());
+                }
+                catch
+                {
+                    Interaction.MsgBox("Failed to open file");
+                }
             }
         }
 
@@ -473,10 +509,13 @@ namespace Image_Manager
             imageViewer.RenderTransform = _imageTransformGroup;
         }
 
+        string lastFolder;
 
         // Loads a new folder
         private void CreateNewContext(string[] folder)
         {
+            lastFolder = folder[0];
+
             _displayedItemIndex = 0;
             RemoveOldContext();
             FindFilesInSubfolders(folder);
@@ -484,6 +523,7 @@ namespace Image_Manager
 
             UpdateContent();
 
+            // Update menubar
             foreach (Control item in ViewMenu.Items)
             {
                 if (!(item is MenuItem)) continue;
@@ -542,7 +582,7 @@ namespace Image_Manager
 
 
 
-
+        // Shows the folder sidebar on mouseover (if enabled)
         private void FolderGrid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!Settings.Default.SortMode)

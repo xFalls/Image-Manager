@@ -41,7 +41,11 @@ namespace Image_Manager
                 if (!afterExperimental) continue;
 
                 item.IsEnabled = setEnabled;
-                ((CheckBox) item).IsChecked = false;
+
+                if (!setEnabled)
+                {
+                    ((CheckBox) item).IsChecked = false;
+                }
             }
         }
 

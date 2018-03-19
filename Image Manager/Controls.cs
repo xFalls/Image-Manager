@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Image_Manager.Properties;
 using Microsoft.VisualBasic;
+using Console = System.Console;
 
 namespace Image_Manager
 { 
@@ -174,6 +175,11 @@ namespace Image_Manager
             else if (e.Key == Key.F12)
             {
                 new SettingsWindow(this).Show();
+            }
+            // Refresh
+            else if (e.Key == Key.F5)
+            {
+                RefreshAll();
             }
 
             else if (_isEndless && e.Key == Key.Add)
@@ -397,7 +403,7 @@ namespace Image_Manager
         }
 
         // Right clicking a folder moves the item to that folder
-        private void DirectoryTreeList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void DirectoryTreeList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (ItemsControl.ContainerFromElement(sender as ListBox, e.OriginalSource as DependencyObject) is ListBoxItem item)
             {
@@ -408,16 +414,16 @@ namespace Image_Manager
 
         }
 
-        // A left click opens the selected directory in the gallery        
-        private void DirectoryTreeList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        // A left click opens the selected directory in the gallery    
+        private void DirectoryTreeList_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (ItemsControl.ContainerFromElement(sender as ListView, e.OriginalSource as DependencyObject) is ListViewItem item)
+            if (ItemsControl.ContainerFromElement(sender as ListView, e.OriginalSource as DependencyObject) is
+                ListViewItem item)
             {
                 DirectoryTreeList.SelectedItem = item;
                 string[] folder =
                     {_originFolder.GetAllShownFolders()[DirectoryTreeList.SelectedIndex].GetFolderPath()};
                 CreateNewContext(folder);
-
             }
         }
 
@@ -482,7 +488,9 @@ namespace Image_Manager
         private void ToggleShowingMenuStrip(bool mouseOver = false)
         {
             var margin = Margin;
-            var vis = Visibility;
+            margin.Left = 0;
+            margin.Right = 0;
+            Visibility vis;
 
             if (WindowStyle == WindowStyle.SingleBorderWindow || mouseOver)
             {
@@ -498,7 +506,6 @@ namespace Image_Manager
                 vis = Visibility.Hidden;
                 MenuStrip.Background = new SolidColorBrush(Colors.Transparent);
             }
-
 
             foreach (MenuItem item in MenuStrip.Items)
                 item.Visibility = vis;

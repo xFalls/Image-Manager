@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Image_Manager.Properties;
+using Microsoft.VisualBasic;
 
 namespace Image_Manager
 {
@@ -136,47 +140,211 @@ namespace Image_Manager
                 _specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
                     .ForEach(cc => color = cc.Value);
 
+
+                MenuItem newFolderButton = new MenuItem
+                {
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    Header = "New subfolder"
+                };
+
+                MenuItem renameFolderButton = new MenuItem
+                {
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    Header = "Rename folder"
+                };
+
+                MenuItem deleteFolderButton = new MenuItem
+                {
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    Header = "Delete folder",
+                };
+
+
+                MenuItem folderButton = new MenuItem
+                {
+                    Header = "",
+                    Background = new SolidColorBrush(Colors.Transparent),
+                    Height = 20,
+                    Width = 20,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Visibility = Visibility.Hidden,
+                    //Margin = new Thickness(0,0,80,0),
+                    Icon = new Image
+                    {
+                        Source = new BitmapImage(new Uri("pack://application:,,,/MenuIcon.png"))
+                    },
+                };
+
+                folderButton.Items.Add(newFolderButton);
+                folderButton.Items.Add(renameFolderButton);
+                folderButton.Items.Add(deleteFolderButton);
+
                 // How to display each item
                 ListViewItem folderItem = new ListViewItem
                 {
-                    Content = new TextBlock
-                    { Text = "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
-                        ") - " + Truncate(foundFolder.GetFolderName(), 40) },
-                    Foreground = color,
-                    Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0)
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    Cursor = Cursors.Hand,
+                    Content = new Grid
+                    { 
+                        Margin = Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0),
+                        Children = {
+                            new TextBlock
+                            {
+                                Text = "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
+                                       ") - " + Truncate(foundFolder.GetFolderName(), 40),
+                                Foreground = color
+                            },
+                            folderButton
+                        }
+                    }
                 };
-
                 folderItem.MouseEnter += FolderEntry_MouseEnter;
                 folderItem.MouseLeave += FolderEntry_MouseLeave;
+
+                folderButton.PreviewMouseLeftButtonUp += ToggleMenu;
+                newFolderButton.PreviewMouseLeftButtonUp += ClickOnFolderButton;
+                renameFolderButton.PreviewMouseLeftButtonUp += ClickOnRenameButton;
+                deleteFolderButton.PreviewMouseLeftButtonUp += ClickOnDeleteButton;
 
                 DirectoryTreeList.Items.Add(folderItem);
             }
         }
 
+        // Close folder menus when clicking anywhere
+        // Stupid workaround? Absolutely
+        private void ControlWindow_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            HideMenu();
+        }
+
+        public void HideMenu()
+        {
+            foreach (ListViewItem item in DirectoryTreeList.Items)
+            {
+                ((MenuItem) ((Grid) item.Content).Children[1]).IsSubmenuOpen = false;
+            }
+        }
+
+        // Opens context menu for folders
+        private void ToggleMenu(object sender, MouseButtonEventArgs e)
+        {
+            MenuItem item = (MenuItem)sender;
+
+            // Moves the button to better align the appearing submenu
+            // Please never do this
+            item.Margin = new Thickness(0, 0, 80, 0);
+            item.Visibility = Visibility.Hidden;
+            item.IsSubmenuOpen = true;
+            item.Margin = new Thickness(0, 0, 0, 0);
+        }
+
+        private void ClickOnFolderButton(object sender, MouseButtonEventArgs e)
+        {
+            HideMenu();
+
+            DependencyObject parent = LogicalTreeHelper.GetParent((DependencyObject)sender);
+            DependencyObject gParent = LogicalTreeHelper.GetParent(parent);
+            DependencyObject ggParent = LogicalTreeHelper.GetParent(gParent);
+            int index = DirectoryTreeList.Items.IndexOf(ggParent);
+            Folder folder = _originFolder.GetAllShownFolders()[index];
+
+            string newName = Interaction.InputBox("Enter name of the new folder", "Choose name", "Folder");
+
+            Directory.CreateDirectory(folder.GetFolderPath() + "\\" + newName);
+            RefreshAll();
+        }
+
+        private void ClickOnRenameButton(object sender, MouseButtonEventArgs e)
+        {
+            HideMenu();
+
+            DependencyObject parent = LogicalTreeHelper.GetParent((DependencyObject)sender);
+            DependencyObject gParent = LogicalTreeHelper.GetParent(parent);
+            DependencyObject ggParent = LogicalTreeHelper.GetParent(gParent);
+            int index = DirectoryTreeList.Items.IndexOf(ggParent);
+            Folder folder = _originFolder.GetAllShownFolders()[index];
+
+            if (folder.GetFolderPath() == _originFolder.GetFolderPath())
+            {
+                Interaction.MsgBox("Cannot rename root folder");
+                return;
+            }
+
+            string newName = Interaction.InputBox("Enter new name of the folder", "Choose new name", folder.GetFolderName());
+
+            string currentLocation = Directory.GetParent(folder.GetFolderPath()).ToString();
+
+            try
+            {
+                Directory.Move(folder.GetFolderPath(), currentLocation + "\\" + newName);
+            }
+            catch
+            {
+                // Same name
+            }
+
+            RefreshAll();
+        }
+
+        private void ClickOnDeleteButton(object sender, MouseButtonEventArgs e)
+        {
+            HideMenu();
+
+            DependencyObject parent = LogicalTreeHelper.GetParent((DependencyObject)sender);
+            DependencyObject gParent = LogicalTreeHelper.GetParent(parent);
+            DependencyObject ggParent = LogicalTreeHelper.GetParent(gParent);
+            int index = DirectoryTreeList.Items.IndexOf(ggParent);
+            Folder folder = _originFolder.GetAllShownFolders()[index];
+            
+            try
+            {
+                Directory.Delete(folder.GetFolderPath(), false);
+            }
+            catch
+            {
+                Interaction.MsgBox("Please empty folder first");
+                    
+            }
+
+            RefreshAll();
+        }
+
+
 
         private void FolderEntry_MouseEnter(object sender, MouseEventArgs e)
         {
-            // Gets the folder
-            Folder folder =
-                _originFolder.GetAllShownFolders()[DirectoryTreeList.Items.IndexOf(sender)];
+            try
+            {
+                ListViewItem lvi = (ListViewItem) sender;
+                ((Grid) lvi.Content).Children[1].Visibility = Visibility.Visible;
 
-            CurrentFileInfoLabelLeft.Foreground = ((ListViewItem)sender).Foreground;
+                // Gets the folder
+                Folder folder =
+                    _originFolder.GetAllShownFolders()[DirectoryTreeList.Items.IndexOf(sender)];
+                List<int> data = folder.GetNumberOfFiles();
 
-            string name = Truncate(folder.GetFolderName(), 40);
-            string length = folder.GetNumberOfFiles()[0] + " (" + folder.GetNumberOfFiles()[7] + ") files";
-            string images = folder.GetNumberOfFiles()[1] + " images";
-            string videos = folder.GetNumberOfFiles()[2] + " videos";
-            string gifs = folder.GetNumberOfFiles()[3] +   " gifs";
-            string webp = folder.GetNumberOfFiles()[4] +   " webp";
-            string text = folder.GetNumberOfFiles()[5] +   " text";
-            string other = folder.GetNumberOfFiles()[6] +  " other";
+                CurrentFileInfoLabelLeft.Foreground = ((ListViewItem)(sender)).Foreground;
 
-            string size = folder.GetDirectorySize() + "";
+                string name = Truncate(folder.GetFolderName(), 40);
+                string length = data[0] + " (" + data[7] + ") files";
+                string images = data[1] + " images";
+                string videos = data[2] + " videos";
+                string gifs = data[3] + " gifs";
+                string webp = data[4] + " webp";
+                string text = data[5] + " text";
+                string other = data[6] + " other";
 
-            CurrentFileInfoLabelLeft.Content = 
-                $"{name, -40}{size, -19}{length, -15}";
-            CurrentFileInfoLabelRight.Content =
-                $"{images,-11}{webp,-9}{gifs,-9}{videos,-11}{text,-9}{other,-10}";
+                string size = folder.GetDirectorySize() + "";
+
+                CurrentFileInfoLabelLeft.Content =
+                    $"{name,-40}{size,-19}{length,-15}";
+                CurrentFileInfoLabelRight.Content =
+                    $"{images,-11}{webp,-9}{gifs,-9}{videos,-11}{text,-9}{other,-10}";
+            }
+            catch
+            {
+                RefreshAll();
+            }
         }
 
 
@@ -188,6 +356,9 @@ namespace Image_Manager
         // Revert infobar to previous text
         private void FolderEntry_MouseLeave(object sender, MouseEventArgs e)
         {
+            ListViewItem lvi = (ListViewItem)sender;
+            ((Grid) lvi.Content).Children[1].Visibility = Visibility.Hidden;
+
             UpdateInfobar();
         }
 

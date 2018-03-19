@@ -125,7 +125,14 @@ namespace Image_Manager
         private void MenuItem_Click_11(object sender, RoutedEventArgs e)
         {
             if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
-            Process.Start(_currentItem.GetFilePath());
+            try
+            {
+                Process.Start(_currentItem.GetFilePath());
+            }
+            catch
+            {
+                Interaction.MsgBox("Failed to open file");
+            }
         }
 
         // Toggles preview bar

@@ -25,6 +25,8 @@ namespace Image_Manager
             if (_displayItems.Count == 0) return;
             if (mode != "remove")
                 if (DirectoryTreeList.SelectedIndex == -1) return;
+
+            _changed = true;
             
             try
             {
@@ -74,6 +76,7 @@ namespace Image_Manager
         private void UndoMove()
         {
             if (_movedItems.Count == 0) return;
+            _changed = true;
 
             try { 
                 DisplayItem fileToUndo = _movedItems.ElementAt(0);

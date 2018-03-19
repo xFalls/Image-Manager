@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Image_Manager"
         
         mc:Ignorable="d"
-        Title="Image Manager" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500">
+        Title="Image Manager" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500" PreviewMouseLeftButtonUp="ControlWindow_PreviewMouseLeftButtonUp">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="81*"/>
@@ -31,6 +31,7 @@
         <Image x:Name="iconViewer" Margin="0,18,0,0" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Panel.ZIndex="-1" Width="150" Height="150" Grid.ColumnSpan="2"/>
         <TextBox x:Name="textViewer" Foreground="White" Background="Black" BorderThickness="0" Padding="0" MinWidth="10" AllowDrop="False" Drop="ControlWindow_Drop" FontSize="14" MouseWheel="ControlWindow_MouseWheel" KeyDown="ControlWindow_KeyDown" IsReadOnly="True" Focusable="False" Text="The lazy." Margin="32,18,32,0" Width="600" TextWrapping="Wrap" IsEnabled="False" Visibility="Hidden" Grid.ColumnSpan="2"/>
 
+        <!--Menubar-->
         <DockPanel Grid.ColumnSpan="2" Panel.ZIndex="20000">
             <Menu x:Name="MenuStrip" Panel.ZIndex="2000000" DockPanel.Dock="Top" Foreground="White" Background="#FF171717" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
 
@@ -83,13 +84,15 @@
             </Menu>
         </DockPanel>
 
+        <!--Infobar-->
         <Grid x:Name="InfoContainer" Height="44" Background="#66000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False" Grid.ColumnSpan="2">
             <Label x:Name="CurrentFileInfoLabelLeft" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas"/>
             <Label x:Name="CurrentFileInfoLabelRight" Content="" Margin="10,0,0,16" VerticalAlignment="Bottom" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas" HorizontalAlignment="Left"/>
         </Grid>
 
-
+        <!--Folderlist-->
         <Grid Name="FolderGrid" HorizontalAlignment="Left" Width="400" MouseMove="FolderGrid_MouseMove" MouseLeave="FolderGrid_MouseLeave" Opacity="0">
+            <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
             <Grid.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <LinearGradientBrush.RelativeTransform>
@@ -101,23 +104,21 @@
                         </TransformGroup>
                     </LinearGradientBrush.RelativeTransform>
                     <GradientStop Color="#E5000000"/>
-                    <GradientStop Offset="1" Color="#00000000"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
                     <GradientStop Color="#99000000" Offset="0.696"/>
                 </LinearGradientBrush>
             </Grid.Background>
-            <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" Opacity="0.5" PreviewMouseRightButtonDown="DirectoryTreeList_PreviewMouseRightButtonDown" IsTextSearchEnabled="False" Panel.ZIndex="1" PreviewMouseLeftButtonDown="DirectoryTreeList_PreviewMouseLeftButtonDown" Cursor="Hand" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
         </Grid>
 
         <Border x:Name="ImageBorder" BorderBrush="Black" BorderThickness="0" Grid.ColumnSpan="2" Margin="0,18,0,0"/>
 
         <ScrollViewer Visibility="Hidden" Name="InfiScrollViewer" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" PreviewMouseWheel="InfiScrollViewer_PreviewMouseWheel" Panel.ZIndex="1000" VerticalScrollBarVisibility="Hidden" Background="Black">
             <StackPanel Name="InfiScroll" Width="600">
-                <!--<Image VerticalAlignment="Top" Source="PlayIcon.png"/>-->
             </StackPanel>
         </ScrollViewer>
 
         <Grid Name="PreviewField" Height="150" VerticalAlignment="Bottom" 
-              Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="1"
+              Grid.ColumnSpan="2" Panel.ZIndex="150" Opacity="0.3"
               MouseDown="PreviewField_MouseDown">
             <Grid.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.75">
