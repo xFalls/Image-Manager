@@ -222,14 +222,16 @@ namespace Image_Manager
             UpdateContent();
         }
 
-        private void UpscaleFile()
+        private void UpscaleFile(bool upscale)
         {
             string waifu2x = AppDomain.CurrentDomain.BaseDirectory + "\\waifu2x-caffe\\";
 
             if (!File.Exists(waifu2x + "waifu2x-caffe-cui.exe")) return;
 
+            string suffix = upscale ? "[U]" : "[N]";
+
             string upscaledFile = _currentItem.GetLocation() + "\\" +
-                                  _currentItem.GetFileNameExcludingExtension() + "[U]" +
+                                  _currentItem.GetFileNameExcludingExtension() + suffix +
                                   _currentItem.GetFileExtension();
 
             if (File.Exists(upscaledFile))
@@ -238,23 +240,25 @@ namespace Image_Manager
                 return;
             }
 
+            string argument = upscale ? " -s 2.0 -p gpu -n 2 -o " : " -s 1.0 -p gpu -n 2 -o ";
+
             Process upscaler = new Process();
             upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";
             upscaler.StartInfo.Arguments = "-i " + "\"" + _currentItem.GetFilePath() + "\"" +
-                                           " -s 2.0 -p gpu -n 2 -o " + 
+                                           argument + 
                                            "\"" + upscaledFile + "\"";
             upscaler.Start();
             upscaler.WaitForExit();
 
 
             
-
+            // Retry if failed?
             if (!File.Exists(upscaledFile))
             {
                 upscaler = new Process();
                 upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";
                 upscaler.StartInfo.Arguments = "-i " + "\"" + _currentItem.GetFilePath() + "\"" +
-                                               " -s 2.0 -p cpu -n 2 -o " +
+                                               argument +
                                                "\"" + upscaledFile + "\"";
                 upscaler.Start();
                 upscaler.WaitForExit();

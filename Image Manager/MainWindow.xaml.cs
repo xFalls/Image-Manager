@@ -63,6 +63,9 @@ namespace Image_Manager
 
         public MainWindow()
         {
+            // Resets user settings to default values
+            ////Settings.Default.Reset();
+
             // Loads all elements into view
             InitializeComponent();
 
@@ -84,7 +87,57 @@ namespace Image_Manager
 
             // Remove harmless error messages from output
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
+
+            FillRecent();
         }
+
+        public void FillRecent()
+        {
+            string folderString = Settings.Default.RecentFolders;
+            string[] folders = folderString.Split(',');
+
+            RecentMenu.Items.Clear();
+
+            foreach (string folder in folders)
+            {
+                if (folder == "") continue;
+
+                AddFolderToRecent(folder);
+            }
+
+            if (RecentMenu.Items.Count > 0)
+            {
+                RecentMenu.IsEnabled = true;
+            }
+        }
+
+        public void AddFolderToRecent(string folder)
+        {
+            MenuItem menu = new MenuItem();
+            menu.Header = folder;
+            menu.Click += MenuItem_Click_27;
+
+            RecentMenu.Items.Add(menu);
+        }
+
+        public void AddFolderToSettings(string folder)
+        {
+            string folderString = Settings.Default.RecentFolders;
+            string[] folders = folderString.Split(',');
+
+            string newString = folder + ",";
+
+            for (int i = 0; i < 15 && i < folders.Length; i++)
+            {
+                if (!newString.Contains(folders[i] + ","))
+                    newString += folders[i] + ",";
+            }
+
+            Settings.Default.RecentFolders = newString;
+
+            FillRecent();
+        }
+
 
         public void UpdatePreviewLength()
         {
@@ -450,6 +503,8 @@ namespace Image_Manager
                 _isDrop = true;
                 CreateNewContext(folder);
                 CreateSortMenu();
+                
+                AddFolderToSettings(folder[0]);
             }
             catch
             {
@@ -498,6 +553,7 @@ namespace Image_Manager
             _st.ScaleY = 1;
             _currentZoom = 1;
             imageViewer.RenderTransform = _imageTransformGroup;
+            _isActive = false;
         }
 
         string lastFolder;

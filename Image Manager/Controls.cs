@@ -72,7 +72,13 @@ namespace Image_Manager
                     // Upscales the currently shown file
                     case Key.U:
                         if (Settings.Default.Experimental)
-                            UpscaleFile();
+                            UpscaleFile(true);
+                        break;
+
+                    // Upscales the currently shown file
+                    case Key.N:
+                        if (Settings.Default.Experimental)
+                            UpscaleFile(false);
                         break;
 
                     // Converts image to WebP

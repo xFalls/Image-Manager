@@ -26,5 +26,8 @@
     <Setting Name="FolderColors" Type="System.String" Scope="User">
       <Value Profile="(Default)">[Artist]:#FFFFFF00,[Collection]:#FF6495ED,[Comic]:#FF9370DB,[Set]:#FFFFA500</Value>
     </Setting>
+    <Setting Name="RecentFolders" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

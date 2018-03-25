@@ -170,7 +170,13 @@ namespace Image_Manager
         // Upscale
         private void MenuItem_Click_22(object sender, RoutedEventArgs e)
         {
-            UpscaleFile();
+            UpscaleFile(true);
+        }
+        
+        // Denoise
+        private void MenuItem_Click_26(object sender, RoutedEventArgs e)
+        {
+            UpscaleFile(false);
         }
 
         // Filter
@@ -215,6 +221,15 @@ namespace Image_Manager
             {
                 Zoom(-ZoomAmountButton);
             }
+        }
+
+        // Recent folders
+        private void MenuItem_Click_27(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.MenuItem menu = (System.Windows.Controls.MenuItem)sender;
+
+            string[] fol = { (string) menu.Header };
+            AddNewFolder(fol);
         }
     }
 }

@@ -89,12 +89,15 @@ namespace Image_Manager
 
             OpenInWaifu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
             WebPConvertMenu.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
+            OpenInWaifu2.Visibility = Settings.Default.Experimental ? Visibility.Visible : Visibility.Collapsed;
 
             UpdateTitle();
             UpdateInfobar();
         }
     }
 }
+
+
 
 /// <summary>
 /// Code found and modified from

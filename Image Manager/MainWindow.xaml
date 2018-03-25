@@ -37,6 +37,9 @@
 
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
+                    <MenuItem Name="RecentMenu" Header="Recent folders" Foreground="Black" IsEnabled="False">
+                        <!--<MenuItem IsEnabled="False" Header="None"></MenuItem>-->
+                    </MenuItem>
                     <Separator></Separator>
                     <MenuItem Name="SettingsMenu" Header="Settings" Foreground="Black" InputGestureText="F12" Click="MenuItem_Click_13"></MenuItem>
                     <Separator></Separator>
@@ -72,6 +75,7 @@
                 <MenuItem Name="OpenMenu" Header="Open" IsTabStop="False" IsEnabled="False">
                     <MenuItem Name="OpenInMenu" Header="Open file with..." Foreground="Black" Click="MenuItem_Click_11"></MenuItem>
                     <MenuItem Name="OpenInWaifu" Header="Upscale with Waifu2x" InputGestureText="U" Foreground="Black" Click="MenuItem_Click_22"></MenuItem>
+                    <MenuItem Name="OpenInWaifu2" Header="Denoise with Waifu2x" InputGestureText="N" Foreground="Black" Click="MenuItem_Click_26"></MenuItem>
                     <MenuItem Name="WebPConvertMenu" Header="Convert to WebP" InputGestureText="P" Foreground="Black" Click="MenuItem_Click_23"></MenuItem>
                     <Separator></Separator>
                     <!--<MenuItem Name="OpenRemoved" Header="Open 'Deleted Files' folder" Foreground="Black" Click="MenuItem_Click_16"></MenuItem>-->
