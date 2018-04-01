@@ -109,7 +109,7 @@ namespace Image_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[Artist]:#FFFFFF00,[Collection]:#FF6495ED,[Comic]:#FF9370DB,[Set]:#FFFFA500")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[Artist]:#FFFB96,[Collection]:#01CDFE,[Manga]:#B967FF,[Set]:#FF71CE")]
         public string FolderColors {
             get {
                 return ((string)(this["FolderColors"]));

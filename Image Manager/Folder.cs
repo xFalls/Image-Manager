@@ -72,9 +72,9 @@ namespace Image_Manager
         {
             DirectoryInfo di = new DirectoryInfo(_folderPath);
             string top =
-                DisplayItem.SizeSuffix(di.EnumerateFiles("*", SearchOption.TopDirectoryOnly).Sum(fi => fi.Length));
+                FlyWeightPointer.SizeSuffix(di.EnumerateFiles("*", SearchOption.TopDirectoryOnly).Sum(fi => fi.Length));
             string all =
-                DisplayItem.SizeSuffix(di.EnumerateFiles("*", SearchOption.AllDirectories).Sum(fi => fi.Length));
+                FlyWeightPointer.SizeSuffix(di.EnumerateFiles("*", SearchOption.AllDirectories).Sum(fi => fi.Length));
             return top + " (" + all + ")";
         }
 

@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:Image_Manager"
         
         mc:Ignorable="d"
-        Title="Filer" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500" PreviewMouseLeftButtonUp="ControlWindow_PreviewMouseLeftButtonUp">
+        Title="MediFiler" Height="536" Width="906" Foreground="Black" Background="Black" Visibility="Visible" ForceCursor="True" AllowDrop="True" Drop="ControlWindow_Drop" KeyDown="ControlWindow_KeyDown" MouseWheel="ControlWindow_MouseWheel" MouseDown="ControlWindow_MouseDown" MouseRightButtonDown="ControlWindow_MouseRightButtonDown" MinHeight="300" MinWidth="500" PreviewMouseLeftButtonUp="ControlWindow_PreviewMouseLeftButtonUp">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="81*"/>
@@ -96,8 +96,8 @@
         </Grid>
 
         <!--Folderlist-->
-        <Grid Name="FolderGrid" HorizontalAlignment="Left" Width="400" MouseMove="FolderGrid_MouseMove" MouseLeave="FolderGrid_MouseLeave" Opacity="0">
-            <ListView x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
+        <Grid Name="FolderGrid" HorizontalAlignment="Left" Width="400" MouseMove="FolderGrid_MouseMove" MouseLeave="FolderGrid_MouseLeave" Opacity="0" FocusVisualStyle="{x:Null}">
+            <ListView FocusVisualStyle="{x:Null}" x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
             <Grid.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <LinearGradientBrush.RelativeTransform>

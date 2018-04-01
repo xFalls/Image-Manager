@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DirectShowLib;
 using DirectShowLib.DES;
@@ -14,6 +15,145 @@ using Image = System.Windows.Controls.Image;
 
 namespace Image_Manager
 {
+
+    public static class FlyWeightPointer
+    {
+        public static LibwebpSharp.WebPDecoder _dec;
+
+        static FlyWeightPointer()
+        {
+            _dec = new LibwebpSharp.WebPDecoder();
+        }
+
+        public static string SizeSuffix(long value)
+        {
+            string[] sizeSuffixes =
+                { "bytes", "KB", "MB", "GB" };
+
+            int i = 0;
+            decimal dValue = value;
+            while (Math.Round(dValue / 1024) >= 1)
+            {
+                dValue /= 1024;
+                i++;
+            }
+
+            return $"{dValue:n1} {sizeSuffixes[i]}".Replace(",", ".");
+        }
+
+
+        public static BitmapImage LoadImage(string FileExtension, string myImageFile)
+        {
+            BitmapImage image = new BitmapImage();
+
+            // Convert to Bitmap if image is of WebP format
+            if (FileExtension != ".webp")
+                using (FileStream stream = File.OpenRead(myImageFile))
+                {
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.DecodePixelHeight = 150;
+                    image.EndInit();
+                }
+            else
+            {
+                // Allows for loading WebP images through an included library
+                image = BitmapToImageSource(_dec.DecodeBGRA(myImageFile));
+            }
+
+            return image;
+        }
+
+
+        /// <summary>
+        /// Credits to Gerret over at StackOverflow for the following method
+        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
+        /// 
+        /// Converts a Bitmap to an easily viewable BitmapImage.
+        /// </summary>
+        /// <param name="bitmap">The supplied Bitmap to convert.</param>
+        /// <returns></returns>
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+
+                bitmapimage.BeginInit();
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.StreamSource = memory;
+                bitmapimage.DecodePixelHeight = 150;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
+        }
+
+        public static BitmapImage LoadImageFullRes(string FileExtension, string myImageFile)
+        {
+            BitmapImage image = new BitmapImage();
+
+            // Convert to Bitmap if image is of WebP format
+            if (FileExtension != ".webp")
+                using (FileStream stream = File.OpenRead(myImageFile))
+                {
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                }
+            else
+            {
+                // Allows for loading WebP images through an included library
+                image = BitmapToImageSourceFullRes(_dec.DecodeBGRA(myImageFile));
+            }
+
+            return image;
+        }
+
+
+        /// <summary>
+        /// Credits to Gerret over at StackOverflow for the following method
+        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
+        /// 
+        /// Converts a Bitmap to an easily viewable BitmapImage.
+        /// </summary>
+        /// <param name="bitmap">The supplied Bitmap to convert.</param>
+        /// <returns></returns>
+        public static BitmapImage BitmapToImageSourceFullRes(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+
+                bitmapimage.BeginInit();
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.StreamSource = memory;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
+        }
+
+        public static BitmapImage LoadThumbnail(string myThumbnail)
+        {
+            // The desired resolution
+            const int THUMB_SIZE = 150;
+
+            Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
+                myThumbnail, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
+
+            BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
+            thumbnail.Dispose();
+
+            return thumbnailImage;
+        }
+    }
 
     /// <summary>
     /// Base class inherited by all viewable types of files.
@@ -37,7 +177,7 @@ namespace Image_Manager
         protected string InfoBarDefaultContent;
         protected string InfoBarDefaultContentExtra;
 
-        public bool hasBeenDeleted = false;
+        public bool HasBeenDeleted = false;
 
         public static string RootFolder;
 
@@ -156,7 +296,7 @@ namespace Image_Manager
         /// </summary>
         public virtual void PreloadContent()
         {
-            _thumbnailSource = LoadThumbnail(FilePath);
+            _thumbnailSource = FlyWeightPointer.LoadThumbnail(FilePath);
         }
 
         /// <summary>
@@ -194,41 +334,13 @@ namespace Image_Manager
 
         public string GetFileSize(string path)
         {
-            return SizeSuffix(new FileInfo(path).Length);
+            return FlyWeightPointer.SizeSuffix(new FileInfo(path).Length);
         }
 
-        public static string SizeSuffix(long value)
-        {
-            string[] sizeSuffixes =
-            { "bytes", "KB", "MB", "GB" };
-
-            int i = 0;
-            decimal dValue = value;
-            while (Math.Round(dValue / 1024) >= 1)
-            {
-                dValue /= 1024;
-                i++;
-            }
-
-            return $"{dValue:n1} {sizeSuffixes[i]}".Replace(",", ".");
-        }
-
-
+        
         protected BitmapImage _thumbnailSource;
 
-        public BitmapImage LoadThumbnail(string myThumbnail)
-        {
-            // The desired resolution
-            const int THUMB_SIZE = 1024;
-
-            Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(
-                myThumbnail, THUMB_SIZE, THUMB_SIZE, ThumbnailOptions.BiggerSizeOk);
-
-            BitmapImage thumbnailImage = BitmapToImageSource(thumbnail);
-            thumbnail.Dispose();
-
-            return thumbnailImage;
-        }
+        
 
         /// <summary>
         /// Loads the thumbnail via an external library and saves it as
@@ -239,31 +351,6 @@ namespace Image_Manager
         public BitmapImage GetThumbnail()
         {
             return _thumbnailSource;
-        }
-
-        /// <summary>
-        /// Credits to Gerret over at StackOverflow for the following method
-        /// https://stackoverflow.com/questions/22499407/how-to-display-a-bitmap-in-a-wpf-image
-        /// 
-        /// Converts a Bitmap to an easily viewable BitmapImage.
-        /// </summary>
-        /// <param name="bitmap">The supplied Bitmap to convert.</param>
-        /// <returns></returns>
-        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Bmp);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-
-                bitmapimage.BeginInit();
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.StreamSource = memory;
-                bitmapimage.EndInit();
-
-                return bitmapimage;
-            }
         }
     }
 
@@ -279,7 +366,7 @@ namespace Image_Manager
         }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     /// <summary>
     /// Contains an image and its metadata.
     /// </summary>
@@ -290,13 +377,12 @@ namespace Image_Manager
         private int _imageWidth;
         public bool wasConverted;
 
-        private readonly LibwebpSharp.WebPDecoder _dec;
-
+        
 
         public ImageItem(string name) : base(name)
         {
             FileType = "image";
-            _dec = new LibwebpSharp.WebPDecoder();
+            
         }
 
         public override string GetInfobarContentExtra()
@@ -306,12 +392,12 @@ namespace Image_Manager
 
         public override void PreloadContent()
         {
-            _imageSource = LoadImage(FilePath);
+            _thumbnailSource = FlyWeightPointer.LoadImage(FileExtension, FilePath);
         }
 
         public override void RemovePreloadedContent()
         {
-            _imageSource = null;
+            _thumbnailSource = null;
         }
 
         /// <summary>
@@ -329,7 +415,7 @@ namespace Image_Manager
         /// <returns>A BitmapImage.</returns>
         public BitmapImage GetImage()
         {
-            return _imageSource;
+            return LoadImage(FilePath);
         }
 
 
@@ -341,22 +427,7 @@ namespace Image_Manager
         /// <returns>The completed image.</returns>
         private BitmapImage LoadImage(string myImageFile)
         {
-            BitmapImage image = new BitmapImage();
-
-            // Convert to Bitmap if image is of WebP format
-            if (FileExtension != ".webp")
-                using (FileStream stream = File.OpenRead(myImageFile))
-                {
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.StreamSource = stream;
-                    image.EndInit();
-                }
-            else
-            {
-                // Allows for loading WebP images through an included library
-                image = BitmapToImageSource(_dec.DecodeBGRA(FilePath));
-            }
+            BitmapImage image = FlyWeightPointer.LoadImageFullRes(FileExtension, myImageFile);
 
             // If the image has been loaded before, it won't have to
             // get the metadata of the image again.
@@ -443,7 +514,7 @@ namespace Image_Manager
         {
             return $"{InfoBarDefaultContentExtra,-10}" +
                    $"{"( " + _videoResolutionWidth + " x " + _videoResolutionHeight + " )",-17}" +
-                   $"{"(" + _videoLength + ")",-20}";
+                   $"{"( " + _videoLength + " )",-20}";
         }
 
         public override void PreloadContent()
@@ -468,7 +539,7 @@ namespace Image_Manager
                 GetMetaData();
             }
 
-            _thumbnailSource = LoadThumbnail(FilePath);
+            _thumbnailSource = FlyWeightPointer.LoadThumbnail(FilePath);
         }
 
         public override void RemovePreloadedContent()

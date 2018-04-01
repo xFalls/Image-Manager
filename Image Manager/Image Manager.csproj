@@ -7,7 +7,7 @@
     <ProjectGuid>{A15F050C-63AD-466C-BEA8-FD5E7EBDDB40}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Image_Manager</RootNamespace>
-    <AssemblyName>Filer</AssemblyName>
+    <AssemblyName>MediFiler</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -165,59 +165,350 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Resource Include="MenuIcon.png" />
-    <Resource Include="Icon.ico" />
     <Content Include="waifu2x-caffe\crop_size_list.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\cublas64_70.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\cublas64_80.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\cudart64_70.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\cudart64_80.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\curand64_70.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\cudnn.h">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\cudnn64_7.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\curand64_80.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\LangList.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\libgcc_s_seh-1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="waifu2x-caffe\libgcc_s_sjlj-1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\libgfortran-3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="waifu2x-caffe\libglog.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\libopenblas.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\libquadmath-0.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\LICENSE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\opencv_core249.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\opencv_core310.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\opencv_highgui249.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\opencv_imgcodecs310.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="waifu2x-caffe\opencv_imgproc249.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="waifu2x-caffe\opencv_imgproc310.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\README.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\waifu2x-caffe-cui.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="waifu2x-caffe\waifu2x-caffe.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="waifu2x-caffe\cudnn.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\cudnn_data\GeForce GTX 970 deconv 3x3 0x0 1x1 1.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\cudnn_data\GeForce GTX 980 Ti conv 4x4 3x3 2x2 1.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\cudnn_data\GeForce GTX 980 Ti deconv 3x3 0x0 1x1 1.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\Chinese_Simplified.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\Chinese_Traditional.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\english.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\french.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\japanese.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\korean.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\russian.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\spanish.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\lang\turkish.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise1_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise1_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise1_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise2_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise2_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise2_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise3_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise3_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\noise3_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise0_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise0_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise0_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise2_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise2_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise2_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise3_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise3_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\noise3_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\anime_style_art_rgb\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise0_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise0_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise0_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise1_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise1_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise1_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise2_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise2_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise2_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise3_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise3_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\noise3_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\photo\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\ukbench\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\ukbench\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\ukbench\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\ukbench\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise0_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise0_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise0_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise1_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise1_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise1_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise2_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise2_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise2_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise3_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise3_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\noise3_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_anime_style_art_rgb\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise0_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise0_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise0_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise1_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise1_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise1_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise2_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise2_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise2_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise3_scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise3_scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\noise3_scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\scale2.0x_model.json.caffemodel">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\scale2.0x_model.prototxt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\models\upconv_7_photo\scale2.0x_model.prototxt.protobin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\setting.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="waifu2x-caffe\Thumbs.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="MenuIcon.png" />
+    <Resource Include="Icon.ico" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -230,69 +521,6 @@
     <Content Include="README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="waifu2x-caffe\models\anime_style_art\noise1_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\noise1_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\noise2_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\noise2_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\scale2.0x_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\scale2.0x_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\srcnn.prototxt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art\srcnn.prototxt.protobin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\noise1_model.json.old">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\noise2_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\noise2_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\scale2.0x_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\scale2.0x_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\srcnn.prototxt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\anime_style_art_rgb\srcnn.prototxt.protobin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\ukbench\scale2.0x_model.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\ukbench\scale2.0x_model.json.caffemodel">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\ukbench\srcnn.prototxt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="waifu2x-caffe\models\ukbench\srcnn.prototxt.protobin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -319,4 +547,11 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" (
+   call "$(DevEnvDir)..\tools\vsvars32.bat"
+   editbin /largeaddressaware "$(TargetPath)"
+)
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

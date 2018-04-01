@@ -23,7 +23,7 @@ namespace Image_Manager
         // Zoom
         private const double ZoomAmountButton = 0.2;
         private const double ZoomAmountWheel = 0.1;
-        private const double MaxZoom = 3.0;
+        private const double MaxZoom = 30.0;
         private const double MinZoom = 0.5;
 
         // Infinite scroller zoom

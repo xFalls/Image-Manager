@@ -125,7 +125,7 @@ namespace Image_Manager
             else
             {
                 // What to show if nothing is loaded
-                Title = "Filer";
+                Title = "MediFiler";
                 if (!_showSubDir)
                 {
                     Title = Title + " -subdir";

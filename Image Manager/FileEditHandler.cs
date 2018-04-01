@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Imazen.WebP;
 using Microsoft.VisualBasic;
 using Shell32;
 
@@ -32,7 +34,7 @@ namespace Image_Manager
             {
                 if (mode == "remove")
                 {
-                    _currentItem.hasBeenDeleted = true;
+                    _currentItem.HasBeenDeleted = true;
                     RecyclingBin.MoveHere(_currentItem.GetFilePath());
                     
                     //newPath = _deleteFolder + "\\" + _currentItem.GetFileName();
@@ -81,7 +83,7 @@ namespace Image_Manager
             try { 
                 DisplayItem fileToUndo = _movedItems.ElementAt(0);
 
-                if (fileToUndo.hasBeenDeleted)
+                if (fileToUndo.HasBeenDeleted)
                 {
                     // Based on
                     // https://stackoverflow.com/questions/6025311/how-to-restore-files-from-recycle-bin?lq=1
@@ -98,7 +100,7 @@ namespace Image_Manager
                         if (Item == Path.Combine(FilePath, FileName))
                         {
                             File.Move(FI.Path, fileToUndo.GetFilePath());
-                            fileToUndo.hasBeenDeleted = false;
+                            fileToUndo.HasBeenDeleted = false;
                             break;
                         }
                     }
@@ -222,6 +224,67 @@ namespace Image_Manager
             UpdateContent();
         }
 
+        private void ConvertAllToWebP()
+        {
+            int limiter = 0;
+
+            foreach (DisplayItem item in _displayItems)
+            {
+                string convertedFile = item.GetLocation() + "\\" +
+                                       item.GetFileNameExcludingExtension() + "[P].webp";
+
+                try
+                {
+                    if (item.GetTypeOfFile() != "image" || item.GetFileExtension() == ".webp") continue;
+
+
+                    if (File.Exists(convertedFile))
+                    {
+                        continue;
+                    }
+
+                    if (limiter > 150) break;
+
+                    Bitmap image = new Bitmap(item.GetFilePath());
+                    FileStream to = File.Create(convertedFile);
+
+                    new SimpleEncoder().Encode(image, to, 85);
+
+                    limiter++;
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            
+            RefreshAll();
+
+            foreach (DisplayItem item in _displayItems)
+            {
+                if (item.GetTypeOfFile() != "image" || item.GetFileExtension() == ".webp") continue;
+
+                string convertedFile = item.GetLocation() + "\\" +
+                                       item.GetFileNameExcludingExtension() + "[P].webp";
+
+                if (!File.Exists(convertedFile))
+                {
+                    continue;
+                }
+
+                if (new FileInfo(convertedFile).Length == 0)
+                {
+                    File.Delete(convertedFile);
+                    continue;
+                }
+
+                RecyclingBin.MoveHere(item.GetFilePath());
+            }
+
+            RefreshAll();
+
+        }
+
         private void UpscaleFile(bool upscale)
         {
             string waifu2x = AppDomain.CurrentDomain.BaseDirectory + "\\waifu2x-caffe\\";
@@ -240,7 +303,9 @@ namespace Image_Manager
                 return;
             }
 
-            string argument = upscale ? " -s 2.0 -p gpu -n 2 -o " : " -s 1.0 -p gpu -n 2 -o ";
+            string argument = upscale
+                ? $" -s 2.0 -p cudnn -m auto_scale -n 2 -o "
+                : " -p cudnn -m noise -n 2 -o ";
 
             Process upscaler = new Process();
             upscaler.StartInfo.FileName = waifu2x + "waifu2x-caffe-cui.exe";

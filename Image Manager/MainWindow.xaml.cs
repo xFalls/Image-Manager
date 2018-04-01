@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -177,7 +178,7 @@ namespace Image_Manager
             if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".tif") ||
                     temp.EndsWith(".tiff") || temp.EndsWith(".png") || temp.EndsWith(".bmp") ||
                     temp.EndsWith(".ico") || temp.EndsWith(".wmf") || temp.EndsWith(".emf") ||
-                    temp.EndsWith(".webp"))
+                    temp.EndsWith(".webp") || temp.EndsWith(".jpg_large"))
                 return "image";
 
             // Gif file
@@ -261,17 +262,36 @@ namespace Image_Manager
 
                 // Gets and show the content
                 if (currentFileType == "image")
-                    imageViewer.Source = ((ImageItem)_currentItem).GetImage();
+                {
+                    imageViewer.Source = ((ImageItem) _currentItem).GetImage();
+                }
                 else if (currentFileType == "gif")
-                    gifViewer.Source = ((GifItem)_currentItem).GetGif(gifViewer);
+                {
+                    gifViewer.Source = ((GifItem) _currentItem).GetGif(gifViewer);
+                }
                 else if (currentFileType == "video")
-                    imageViewer.Source = ((VideoItem)_currentItem).GetThumbnail();
+                {
+                    imageViewer.Source = ((VideoItem) _currentItem).GetThumbnail();
+                }
                 else if (currentFileType == "text")
-                    textViewer.Text = ((TextItem)_currentItem).GetText();
+                {
+                    textViewer.Text = ((TextItem) _currentItem).GetText();
+                }
                 else if (currentFileType == "file")
+                {
                     iconViewer.Source = (_currentItem).GetThumbnail();
+                }
             }
-            catch
+            catch (System.OutOfMemoryException)
+            {
+                Console.WriteLine("Out of memory!");
+                _displayItems.Clear();
+                _movedItems.Clear();
+                isInCache.Clear();
+                GC.Collect();
+                RemoveOldContext();
+            }
+            catch 
             {
                 // If content can't get loaded, show a blank black screen               
                 MakeTypeVisible("");
@@ -369,9 +389,10 @@ namespace Image_Manager
                 }
 
                 // Sets the image to view
-                item.Source = offsetItem.GetTypeOfFile() == "image"
-                    ? ((ImageItem)offsetItem).GetImage()
-                    : offsetItem.GetThumbnail();
+                item.Source = offsetItem.GetThumbnail();
+//                item.Source = offsetItem.GetTypeOfFile() == "image"
+//                    ? ((ImageItem)offsetItem).GetImage()
+//                    : offsetItem.GetThumbnail();
             }
         }
 
@@ -407,6 +428,7 @@ namespace Image_Manager
                 {
                     case "image":
                         _displayItems.Add(new ImageItem(item));
+                        //Console.WriteLine(Marshal.SizeOf(_displayItems));
                         isInCache.Add(false);
                         break;
                     case "gif":

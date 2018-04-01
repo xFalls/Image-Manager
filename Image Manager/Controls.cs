@@ -164,6 +164,12 @@ namespace Image_Manager
                         Settings.Default.IsPreviewOpen = PreviewField.Visibility == Visibility.Visible;
                         ShowSortPreview.IsChecked = PreviewField.Visibility == Visibility.Visible;
                         break;
+
+                    // Converts all image files to WebP and removes the original (ESC + F9)
+                    case Key.F9:
+                        if (Keyboard.IsKeyDown(Key.Escape))
+                            ConvertAllToWebP();
+                        break;
                 }
 
             // Toggle fullscreen

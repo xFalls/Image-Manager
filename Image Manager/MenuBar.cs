@@ -127,7 +127,8 @@ namespace Image_Manager
             if (_currentItem == null || !File.Exists(_currentItem?.GetFilePath())) return;
             try
             {
-                Process.Start(_currentItem.GetFilePath());
+                Process.Start("rundll32.exe", "shell32.dll, OpenAs_RunDLL " + _currentItem.GetFilePath());
+                //Process.Start(_currentItem.GetFilePath());
             }
             catch
             {
