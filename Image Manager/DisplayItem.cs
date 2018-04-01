@@ -94,24 +94,20 @@ namespace Image_Manager
 
         public static BitmapImage LoadImageFullRes(string FileExtension, string myImageFile)
         {
-            BitmapImage image = new BitmapImage();
-
             // Convert to Bitmap if image is of WebP format
             if (FileExtension != ".webp")
                 using (FileStream stream = File.OpenRead(myImageFile))
                 {
+                    BitmapImage image = new BitmapImage();
                     image.BeginInit();
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.StreamSource = stream;
                     image.EndInit();
+                    return image;
                 }
-            else
-            {
-                // Allows for loading WebP images through an included library
-                image = BitmapToImageSourceFullRes(_dec.DecodeBGRA(myImageFile));
-            }
 
-            return image;
+            // Allows for loading WebP images through an included library
+            return BitmapToImageSourceFullRes(_dec.DecodeBGRA(myImageFile));
         }
 
 
