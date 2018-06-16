@@ -30,6 +30,7 @@ namespace Image_Manager
         private bool _showSubDir = true;
         private bool _showSets = true;
         private bool _showPrefix = true;
+        public static bool _rescale = false;
 
         // List of all stored objects
         private Folder _originFolder;
@@ -60,6 +61,8 @@ namespace Image_Manager
         private readonly TranslateTransform _tt = new TranslateTransform();
         private readonly ScaleTransform _st = new ScaleTransform();
         private readonly BlurEffect _videoBlur = new BlurEffect();
+
+        public static int imageViewerSize;
 
 
         public MainWindow()
@@ -319,6 +322,8 @@ namespace Image_Manager
 
             ResetView();
             UpdateSettingsChanged();
+
+            imageViewerSize = (int) imageViewer.ActualHeight;
 
             if (_changed)
             {

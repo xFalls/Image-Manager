@@ -68,7 +68,7 @@ namespace Image_Manager
         // Apply settings
         public void UpdateSettingsChanged(bool refreshMenu = false)
         {
-            QuickPrefix = Settings.Default.PrefixName + " ";
+            QuickPrefix = Settings.Default.PrefixName;
             _prefer1000Px = Settings.Default.Prefer1000px;
             _preferWebP = Settings.Default.PreferWebP;
             _previewSteps = Settings.Default.PreviewSteps;

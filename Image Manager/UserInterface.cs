@@ -69,7 +69,7 @@ namespace Image_Manager
                     CurrentFileInfoLabelRight.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
                 }
                 // Check for 1000px
-                else if (!_preferWebP && _prefer1000Px)
+                else if (!_preferWebP && _prefer1000Px && !_rescale)
                 {
                     CurrentFileInfoLabelLeft.Foreground = !isOver ? orangeWarning : _defaultTextColor;
                     CurrentFileInfoLabelRight.Foreground = !isOver ? orangeWarning : _defaultTextColor;
@@ -115,7 +115,11 @@ namespace Image_Manager
                 {
                     Title = Title + " -other ";
                 }
-                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles)
+                if (_rescale)
+                {
+                    Title = Title + " -rescale ";
+                }
+                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles || _rescale)
                 {
                     Title = Title + "| ";
                 }
@@ -141,6 +145,10 @@ namespace Image_Manager
                 if (!_allowOtherFiles)
                 {
                     Title = Title + " -other";
+                }
+                if (_rescale)
+                {
+                    Title = Title + " -rescale";
                 }
             }
         }

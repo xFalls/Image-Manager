@@ -234,6 +234,12 @@ namespace Image_Manager
                         _allowOtherFiles = !_allowOtherFiles;
                         UpdateTitle();
                         break;
+                    case Key.T:
+                        //IncludeOtherFilesMenu.IsChecked = _allowOtherFiles;
+                        _rescale = !_rescale;
+                        //UpdateTitle();
+                        UpdateContent();
+                        break;
                     case Key.Z:
                         UndoMove();
                         break;

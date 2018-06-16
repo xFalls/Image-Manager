@@ -85,7 +85,7 @@ namespace Image_Manager
                 bitmapimage.BeginInit();
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.StreamSource = memory;
-                bitmapimage.DecodePixelHeight = 150;
+                //bitmapimage.DecodePixelHeight = 150;
                 bitmapimage.EndInit();
 
                 return bitmapimage;
@@ -102,6 +102,8 @@ namespace Image_Manager
                     image.BeginInit();
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.StreamSource = stream;
+                    // Rescales the image resolution if set
+                    if (MainWindow._rescale) image.DecodePixelHeight = MainWindow.imageViewerSize;
                     image.EndInit();
                     return image;
                 }
@@ -130,6 +132,7 @@ namespace Image_Manager
                 bitmapimage.BeginInit();
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.StreamSource = memory;
+                bitmapimage.DecodePixelHeight = MainWindow.imageViewerSize;
                 bitmapimage.EndInit();
 
                 return bitmapimage;
@@ -383,7 +386,14 @@ namespace Image_Manager
 
         public override string GetInfobarContentExtra()
         {
-            return $"{InfoBarDefaultContentExtra,-10}{"( " + _imageWidth + " x " + _imageHeight + " )",-20}";
+            if (MainWindow._rescale)
+            {
+                return $"{InfoBarDefaultContentExtra,-10}";
+            }
+            else
+            {
+                return $"{InfoBarDefaultContentExtra,-10}{"( " + _imageWidth + " x " + _imageHeight + " )",-20}";
+            }
         }
 
         public override void PreloadContent()
