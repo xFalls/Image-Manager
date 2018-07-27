@@ -132,7 +132,7 @@ namespace Image_Manager
                 bitmapimage.BeginInit();
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.StreamSource = memory;
-                bitmapimage.DecodePixelHeight = MainWindow.imageViewerSize;
+                if (MainWindow._rescale) bitmapimage.DecodePixelHeight = MainWindow.imageViewerSize;
                 bitmapimage.EndInit();
 
                 return bitmapimage;

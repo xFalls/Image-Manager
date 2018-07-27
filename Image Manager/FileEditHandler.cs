@@ -192,7 +192,7 @@ namespace Image_Manager
 
         private void WebPConverter()
         {
-            if (_currentItem.GetTypeOfFile() != "image" ||
+            /*if (_currentItem.GetTypeOfFile() != "image" ||
                 _currentItem.GetFileExtension() == ".webp")
             {
                 Interaction.MsgBox("Unsupported filetype");
@@ -221,6 +221,54 @@ namespace Image_Manager
 
             _displayedItemIndex++;
 
+            UpdateContent();*/
+
+            if (_currentItem.GetTypeOfFile() != "image" ||
+                _currentItem.GetFileExtension() == ".webp")
+            {
+                Interaction.MsgBox("Unsupported filetype");
+                return;
+            }
+
+            string convertedFile = _currentItem.GetLocation() + "\\" +
+                                   _currentItem.GetFileNameExcludingExtension() + "[P].webp";
+
+            if (File.Exists(convertedFile))
+            {
+                Interaction.MsgBox("File already exists");
+                return;
+            }
+
+
+
+
+            //Bitmap image = new Bitmap(_currentItem.GetFilePath());
+            //FileStream to = File.Create(convertedFile);
+          
+
+
+            Process upscaler = new Process();
+            string cwebp = AppDomain.CurrentDomain.BaseDirectory + "\\";
+            upscaler.StartInfo.FileName = cwebp + "cwebp.exe";
+
+            string arg = "cwebp -preset drawing -q 85 \"" + _currentItem.GetFilePath() + "\"" +
+                         " -o \"" + convertedFile + "\"";
+
+
+            upscaler.StartInfo.Arguments = arg;
+            upscaler.Start();
+            upscaler.WaitForExit();
+
+            ImageItem newWebP = new ImageItem(convertedFile);
+            newWebP.wasConverted = true;
+
+
+
+            _displayItems.Insert(_displayedItemIndex + 1, newWebP);
+            isInCache.Insert(_displayedItemIndex + 1, true);
+
+            _displayedItemIndex++;
+
             UpdateContent();
         }
 
@@ -235,6 +283,7 @@ namespace Image_Manager
 
                 try
                 {
+                    Console.WriteLine("Start converting");
                     if (item.GetTypeOfFile() != "image" || item.GetFileExtension() == ".webp") continue;
 
 
@@ -243,14 +292,28 @@ namespace Image_Manager
                         continue;
                     }
 
-                    if (limiter > 150) break;
-
-                    Bitmap image = new Bitmap(item.GetFilePath());
-                    FileStream to = File.Create(convertedFile);
-
-                    new SimpleEncoder().Encode(image, to, 85);
+                    if (limiter > 250) break;
 
                     limiter++;
+
+
+                    Process upscaler = new Process();
+                    string cwebp = AppDomain.CurrentDomain.BaseDirectory + "\\";
+                    upscaler.StartInfo.FileName = cwebp + "cwebp.exe";
+
+                    string arg = "cwebp -preset drawing -q 85 \"" + item.GetFilePath() + "\"" +
+                                 " -o \"" + convertedFile + "\"";
+
+
+                    upscaler.StartInfo.Arguments = arg;
+                    upscaler.Start();
+                    upscaler.WaitForExit();
+
+                    //Bitmap image = new Bitmap(item.GetFilePath());
+                    //FileStream to = File.Create(convertedFile);
+
+                    //new SimpleEncoder().Encode(image, to, 85);
+
                 }
                 catch
                 {
