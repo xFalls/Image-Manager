@@ -30,6 +30,7 @@ namespace Image_Manager
         private bool _showSubDir = true;
         private bool _showSets = true;
         private bool _showPrefix = true;
+        private bool _onlyNew = false;
         public static bool _rescale = false;
 
         // List of all stored objects
@@ -52,6 +53,7 @@ namespace Image_Manager
         private bool _isTyping;
         private bool _isEndless;
         private bool _changed;
+        private bool _renameShown = true;
 
         // Image manipulation
         private Point _start;
@@ -254,6 +256,16 @@ namespace Image_Manager
 
             _currentItem = _displayItems[_displayedItemIndex];
 
+            if (!_currentItem.GetFileName().StartsWith("=") && !_currentItem.GetFileName().StartsWith("+") && _renameShown)
+            {
+                string updatedName =
+                    Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
+                string newInput = "=" + updatedName;
+                RenameFile(newInput);
+            }
+
+            
+
             // Makes all irrelevant elements invisible
             MakeTypeVisible(_currentItem.GetTypeOfFile());
             string currentFileType = _currentItem.GetTypeOfFile();
@@ -264,25 +276,23 @@ namespace Image_Manager
                 AddToCache();
 
                 // Gets and show the content
-                if (currentFileType == "image")
+                switch (currentFileType)
                 {
-                    imageViewer.Source = ((ImageItem) _currentItem).GetImage();
-                }
-                else if (currentFileType == "gif")
-                {
-                    gifViewer.Source = ((GifItem) _currentItem).GetGif(gifViewer);
-                }
-                else if (currentFileType == "video")
-                {
-                    imageViewer.Source = ((VideoItem) _currentItem).GetThumbnail();
-                }
-                else if (currentFileType == "text")
-                {
-                    textViewer.Text = ((TextItem) _currentItem).GetText();
-                }
-                else if (currentFileType == "file")
-                {
-                    iconViewer.Source = (_currentItem).GetThumbnail();
+                    case "image":
+                        imageViewer.Source = ((ImageItem) _currentItem).GetImage();
+                        break;
+                    case "gif":
+                        gifViewer.Source = ((GifItem) _currentItem).GetGif(gifViewer);
+                        break;
+                    case "video":
+                        imageViewer.Source = ((VideoItem) _currentItem).GetThumbnail();
+                        break;
+                    case "text":
+                        textViewer.Text = ((TextItem) _currentItem).GetText();
+                        break;
+                    case "file":
+                        iconViewer.Source = (_currentItem).GetThumbnail();
+                        break;
                 }
             }
             catch (System.OutOfMemoryException)
@@ -475,7 +485,7 @@ namespace Image_Manager
                     foreach (string foundFile in Directory.EnumerateFiles(s, "*.*", scanFolderStructure))
                     {
                         // Exlude folders started with an underscore
-                        if (Path.GetDirectoryName(foundFile).Contains("_")) continue;
+                        if (Path.GetDirectoryName(foundFile).Contains("[META]")) continue;
                         // Exclude special folders when set to do so
                         if (!_showSets &&
                             _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
@@ -483,18 +493,22 @@ namespace Image_Manager
                         // If set, exclude showing files with the set prefix
                         if (!_showPrefix && foundFile.Contains(QuickPrefix)) continue;
 
+                        // If set to only show new files
+                        if (_onlyNew && (foundFile.Contains("=") || foundFile.Contains("+"))) continue;
+
                         NewFiles.Add(foundFile);
                     }
                 }
                 else if (File.Exists(s))
                 {
-                    if (Path.GetDirectoryName(s).Contains("_")) continue;
+                    if (Path.GetDirectoryName(s).Contains("[META]")) continue;
                     if (_isDrop) InitializeDrop(Path.GetDirectoryName(s));
 
                     // Add filepath
                     NewFiles.Add(s);
                 }
             }
+            NewFiles.Sort();
         }
 
         // Resets specific settings when content is loaded from a drop as opposed to

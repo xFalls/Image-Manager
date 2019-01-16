@@ -39,6 +39,10 @@ namespace Image_Manager
                     case Key.F3:
                         string hqFileName =
                             Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
+                        if (_currentItem.GetFileName().StartsWith("="))
+                        {
+                            hqFileName = hqFileName?.Replace("=", "");
+                        }
                         string hqInput = QuickPrefix + hqFileName;
                         RenameFile(hqInput);
                         break;
@@ -178,6 +182,19 @@ namespace Image_Manager
                 MakeFullscreen();
 
             }
+            // Toggles showing only new files
+            else if (e.Key == Key.F6)
+            {
+                _onlyNew = !_onlyNew;
+                UpdateTitle();
+            }
+            // Toggles prefixing viewed files
+            else if (e.Key == Key.F7)
+            {
+                _renameShown = !_renameShown;
+                UpdateTitle();
+            }
+
             // Opens README file
             else if (e.Key == Key.F1)
             {

@@ -119,7 +119,15 @@ namespace Image_Manager
                 {
                     Title = Title + " -rescale ";
                 }
-                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles || _rescale)
+                if (_renameShown)
+                {
+                    Title = Title + " -rename ";
+                }
+                if (_onlyNew)
+                {
+                    Title = Title + " -new ";
+                }
+                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles || _rescale || _renameShown || _onlyNew)
                 {
                     Title = Title + "| ";
                 }
@@ -149,6 +157,14 @@ namespace Image_Manager
                 if (_rescale)
                 {
                     Title = Title + " -rescale";
+                }
+                if (_renameShown)
+                {
+                    Title = Title + " -rename ";
+                }
+                if (_onlyNew)
+                {
+                    Title = Title + " -new ";
                 }
             }
         }

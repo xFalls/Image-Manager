@@ -34,7 +34,7 @@ namespace Image_Manager
         {
             _folderPath = folderPath;
             _folderName = new DirectoryInfo(folderPath).Name;
-            if (!folderPath.Contains("_"))
+            if (!folderPath.Contains("[META]"))
             {
                 AllFolders.Add(this);
                 ShownFolders.Add(this);
@@ -59,7 +59,7 @@ namespace Image_Manager
             foreach (string foundFolder in Directory.GetDirectories(_folderPath, "*", SearchOption.TopDirectoryOnly))
             {
                 // Exlude folders started with an underscore
-                if (Path.GetDirectoryName(foundFolder).Contains("_")) continue;
+                if (Path.GetDirectoryName(foundFolder).Contains("[META]")) continue;
 
                 Folder child = new Folder(foundFolder);
                 child.SetParentFolder(this);
@@ -86,7 +86,8 @@ namespace Image_Manager
 
             var allFiles = Directory
                 .EnumerateFiles(_folderPath, "*", SearchOption.AllDirectories).Count(f =>
-                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System));
+                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System) &&
+                    !new FileInfo(f).Directory.FullName.Contains("[META]"));
 
             var topFiles = Directory
                 .EnumerateFiles(_folderPath, "*", SearchOption.TopDirectoryOnly).Where(f =>
