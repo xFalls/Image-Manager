@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using Image_Manager.Properties;
 using Microsoft.VisualBasic;
+using Color = System.Drawing.Color;
 using Control = System.Windows.Controls.Control;
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
@@ -27,7 +28,7 @@ namespace Image_Manager
     public partial class MainWindow
     {
         // Sets what type of folders to show
-        private bool _showSubDir = true;
+        private bool _showSubDir = false;
         private bool _showSets = true;
         private bool _showPrefix = true;
         private bool _onlyNew = false;
@@ -234,8 +235,6 @@ namespace Image_Manager
             }
         }
 
-
-
         // Changes the currently displayed content
         public void UpdateContent()
         {
@@ -256,15 +255,36 @@ namespace Image_Manager
 
             _currentItem = _displayItems[_displayedItemIndex];
 
+            // If set, add prefix to previously unviewed images. Also sets a color based on type of prefix
             if (!_currentItem.GetFileName().StartsWith("=") && !_currentItem.GetFileName().StartsWith("+") && _renameShown)
             {
                 string updatedName =
                     Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
                 string newInput = "=" + updatedName;
-                RenameFile(newInput);
-            }
 
-            
+                RenameFile(newInput);
+                _currentItem.SetIsNew();
+                ColorInfo.Fill = new SolidColorBrush(Colors.Yellow);
+            } else if (_currentItem.GetFileName().StartsWith("+++"))
+            {
+                ColorInfo.Fill = new SolidColorBrush(Colors.GreenYellow);
+            }
+            else if (_currentItem.GetFileName().StartsWith("++"))
+            {
+                ColorInfo.Fill = new SolidColorBrush(Colors.LightSeaGreen);
+            }
+            else if (_currentItem.GetFileName().StartsWith("+"))
+            {
+                ColorInfo.Fill = new SolidColorBrush(Colors.DodgerBlue);
+            }
+            else if (_currentItem.IsNew())
+            {
+                ColorInfo.Fill = new SolidColorBrush(Colors.Yellow);
+            }
+            else
+            {
+                ColorInfo.Fill = new SolidColorBrush(Colors.Gray);
+            }
 
             // Makes all irrelevant elements invisible
             MakeTypeVisible(_currentItem.GetTypeOfFile());

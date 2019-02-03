@@ -175,6 +175,7 @@ namespace Image_Manager
         protected string FileSize;
         protected string InfoBarDefaultContent;
         protected string InfoBarDefaultContentExtra;
+        protected bool isNew;
 
         public bool HasBeenDeleted = false;
 
@@ -213,6 +214,16 @@ namespace Image_Manager
         public string GetTypeOfFile()
         {
             return FileType;
+        }
+
+        public bool IsNew()
+        {
+            return isNew;
+        }
+
+        public void SetIsNew()
+        {
+            isNew = true;
         }
 
         /// <summary>

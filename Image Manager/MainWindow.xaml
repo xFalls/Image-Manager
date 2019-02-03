@@ -90,6 +90,7 @@
         </DockPanel>
 
         <!--Infobar-->
+        <Rectangle x:Name="ColorInfo" Fill="#FFB43333" Width="5" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="1000"></Rectangle>
         <Grid x:Name="InfoContainer" Height="44" Background="#66000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False" Grid.ColumnSpan="2">
             <Label x:Name="CurrentFileInfoLabelLeft" Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas"/>
             <Label x:Name="CurrentFileInfoLabelRight" Content="" Margin="10,0,0,16" VerticalAlignment="Bottom" Foreground="White" FontSize="14" Panel.ZIndex="1" FontFamily="Consolas" HorizontalAlignment="Left"/>
