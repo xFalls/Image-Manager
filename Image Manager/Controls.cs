@@ -174,6 +174,56 @@ namespace Image_Manager
                         if (Keyboard.IsKeyDown(Key.Escape))
                             ConvertAllToWebP();
                         break;
+
+                    case Key.NumPad0:
+                        DirectoryTreeList.SelectedIndex = 0;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad1:
+                        DirectoryTreeList.SelectedIndex = 1;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad2:
+                        DirectoryTreeList.SelectedIndex = 2;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad3:
+                        DirectoryTreeList.SelectedIndex = 3;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad4:
+                        DirectoryTreeList.SelectedIndex = 4;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad5:
+                        DirectoryTreeList.SelectedIndex = 5;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad6:
+                        DirectoryTreeList.SelectedIndex = 6;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad7:
+                        DirectoryTreeList.SelectedIndex = 7;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad8:
+                        DirectoryTreeList.SelectedIndex = 8;
+                        MoveFile();
+                        break;
+
+                    case Key.NumPad9:
+                        DirectoryTreeList.SelectedIndex = 9;
+                        MoveFile();
+                        break;
                 }
 
             // Toggle fullscreen

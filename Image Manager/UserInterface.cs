@@ -173,6 +173,7 @@ namespace Image_Manager
         private void CreateSortMenu()
         {
             DirectoryTreeList.Items.Clear();
+            int counter = 0;
 
             if (_originFolder == null) return;
 
@@ -223,6 +224,12 @@ namespace Image_Manager
                 folderButton.Items.Add(renameFolderButton);
                 folderButton.Items.Add(deleteFolderButton);
 
+                string shortcutkey = "";
+                if (counter < 10)
+                {
+                    shortcutkey = counter + ". ";
+                }
+
                 // How to display each item
                 ListViewItem folderItem = new ListViewItem
                 {
@@ -234,7 +241,7 @@ namespace Image_Manager
                         Children = {
                             new TextBlock
                             {
-                                Text = "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
+                                Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
                                        ") - " + Truncate(foundFolder.GetFolderName(), 40),
                                 Foreground = color
                             },
@@ -251,6 +258,8 @@ namespace Image_Manager
                 deleteFolderButton.PreviewMouseLeftButtonUp += ClickOnDeleteButton;
 
                 DirectoryTreeList.Items.Add(folderItem);
+
+                counter++;
             }
         }
 
