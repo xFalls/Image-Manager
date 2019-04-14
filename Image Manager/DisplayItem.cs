@@ -538,6 +538,7 @@ namespace Image_Manager
         {
             // If the values returned are nonsensical, retry 3 times until 
             // correct values are found.
+            /*
             for (int tries = 0; tries < 4; tries++)
             {
                 if (_videoResolutionHeight != 0 && _videoResolutionWidth >= -100000 &&
@@ -554,7 +555,7 @@ namespace Image_Manager
                 }
 
                 GetMetaData();
-            }
+            }*/
 
             _thumbnailSource = FlyWeightPointer.LoadThumbnail(FilePath);
         }
@@ -581,6 +582,7 @@ namespace Image_Manager
         /// </summary>
         public void GetMetaData()
         {
+            /*
             var mediaDet = (IMediaDet)new MediaDet();
             DsError.ThrowExceptionForHR(mediaDet.put_Filename(FilePath));
 
@@ -613,6 +615,7 @@ namespace Image_Manager
             _videoLength = string.Join(" ", parts);
 
             mediaDet.put_Filename(null);
+            */
         }
     }
 

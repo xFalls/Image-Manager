@@ -241,7 +241,7 @@ namespace Image_Manager
                         Children = {
                             new TextBlock
                             {
-                                Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
+                                Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[6] +
                                        ") - " + Truncate(foundFolder.GetFolderName(), 40),
                                 Foreground = color
                             },
@@ -378,21 +378,65 @@ namespace Image_Manager
 
                 CurrentFileInfoLabelLeft.Foreground = ((ListViewItem)(sender)).Foreground;
 
-                string name = Truncate(folder.GetFolderName(), 40);
+                /*string name = Truncate(folder.GetFolderName(), 40);
                 string length = data[0] + " (" + data[7] + ") files";
                 string images = data[1] + " images";
                 string videos = data[2] + " videos";
                 string gifs = data[3] + " gifs";
                 string webp = data[4] + " webp";
                 string text = data[5] + " text";
-                string other = data[6] + " other";
+                string other = data[6] + " other";*/
+
+                double per1 = Math.Round((double)data[1]*100 / data[0], 0);
+                double per2 = Math.Round((double)data[2]*100 / data[0], 0);
+                double per3 = Math.Round((double)data[3]*100 / data[0], 0);
+                double per4 = Math.Round((double)data[4]*100 / data[0], 0);
+                double per5 = Math.Round((double)data[5]*100 / data[0], 0);
+
+                if (Double.IsNaN(per1))
+                {
+                    per1 = 0;
+                }
+                if (Double.IsNaN(per2))
+                {
+                    per2 = 0;
+                }
+                if (Double.IsNaN(per3))
+                {
+                    per3 = 0;
+                }
+                if (Double.IsNaN(per4))
+                {
+                    per4 = 0;
+                }
+                if (Double.IsNaN(per5))
+                {
+                    per5 = 0;
+                }
+
+
+                string name = Truncate(folder.GetFolderName(), 40);
+                string length = data[0] + " (" + data[6] + ") files";
+
+                /*string images = data[1] + " (" + per1 + "%) +++";
+                string videos = data[2] + " (" + per2 + "%) ++";
+                string gifs = data[3] + " (" + per3 + "%) +";
+                string webp = data[4] + " (" + per4 + "%) =";
+                string text = data[5] + " (" + per5 + "%) new";*/
+
+                string images = "+++ " + per1 + "% (" + data[1] + ")";
+                string videos = " | ++ " + per2 + "% (" + data[2] + ")";
+                string gifs = " | + " + per3 + "% (" + data[3] + ")";
+                string webp = " | = " + per4 + "% (" + data[4] + ")";
+                string text = " | new " + per5 + "% (" + data[5] + ")";
+
 
                 string size = folder.GetDirectorySize() + "";
 
                 CurrentFileInfoLabelLeft.Content =
                     $"{name,-40}{size,-19}{length,-15}";
                 CurrentFileInfoLabelRight.Content =
-                    $"{images,-11}{webp,-9}{gifs,-9}{videos,-11}{text,-9}{other,-10}";
+                    $"{images,-14}{videos,-14}{gifs,-14}{webp,-14}{text,-14}";
             }
             catch
             {

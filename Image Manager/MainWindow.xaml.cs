@@ -264,26 +264,35 @@ namespace Image_Manager
 
                 RenameFile(newInput);
                 _currentItem.SetIsNew();
-                ColorInfo.Fill = new SolidColorBrush(Colors.Yellow);
+                
+                   
+
+                ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0));
             } else if (_currentItem.GetFileName().StartsWith("+++"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.GreenYellow);
+                ColorInfo.Fill = new SolidColorBrush(Colors.Purple);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 128, 0, 128));
             }
             else if (_currentItem.GetFileName().StartsWith("++"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.LightSeaGreen);
+                ColorInfo.Fill = new SolidColorBrush(Colors.MediumSlateBlue);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 123, 104, 238));
             }
             else if (_currentItem.GetFileName().StartsWith("+"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.DodgerBlue);
+                ColorInfo.Fill = new SolidColorBrush(Colors.DeepSkyBlue);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 0, 191, 255));
             }
             else if (_currentItem.IsNew())
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.Yellow);
+                ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0));
             }
             else
             {
                 ColorInfo.Fill = new SolidColorBrush(Colors.Gray);
+                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 128, 128, 128));
             }
 
             // Makes all irrelevant elements invisible

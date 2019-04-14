@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 
@@ -78,6 +79,55 @@ namespace Image_Manager
             return top + " (" + all + ")";
         }
 
+
+        // Counts prefixes
+        public List<int> GetNumberOfFiles()
+        {
+
+
+            var allFiles = Directory
+                .EnumerateFiles(_folderPath, "*", SearchOption.AllDirectories).Count(f =>
+                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System) &&
+                    !new FileInfo(f).Directory.FullName.Contains("[META]"));
+
+            var topFiles = Directory
+                .EnumerateFiles(_folderPath, "*", SearchOption.TopDirectoryOnly).Where(f =>
+                    !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System));
+
+            List<string> names = new List<string>();
+            foreach (string file in topFiles)
+            {
+                var l = file.Split('\\');
+                names.Add(l[l.Length-1]);
+            }
+
+
+            List<int> data = new List<int>
+            {
+                // All files
+                topFiles.Count(),
+
+                // +++
+                names.Count(file => file.Contains("+++")),
+
+                // ++
+                names.Count(file => file.Contains("++") && !file.Contains("+++")),
+
+                // +
+                names.Count(file => file.Contains("+") && !file.Contains("++")),
+
+                // =
+                names.Count(file => file.Contains("=")),
+            };
+
+            data.Add(data[0] - (data.Sum() - data[0]));
+            data.Add(allFiles);
+
+            return data;
+        }
+
+        // Counts file types
+        /*
         public List<int> GetNumberOfFiles()
         {
             List<string> images = new List<string> {".png", ".jpg", ".jpeg"};
@@ -119,6 +169,7 @@ namespace Image_Manager
 
             return data;
         }
+        */
 
         /// <summary>
         /// Gets the how deep this folder is nested.
