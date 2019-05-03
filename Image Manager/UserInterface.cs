@@ -123,11 +123,7 @@ namespace Image_Manager
                 {
                     Title = Title + " -rename ";
                 }
-                if (_onlyNew)
-                {
-                    Title = Title + " -new ";
-                }
-                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles || _rescale || _renameShown || _onlyNew)
+                if (!_showSets || !_showSubDir || !_showPrefix || !_allowOtherFiles || _rescale || _renameShown)
                 {
                     Title = Title + "| ";
                 }
@@ -161,10 +157,6 @@ namespace Image_Manager
                 if (_renameShown)
                 {
                     Title = Title + " -rename ";
-                }
-                if (_onlyNew)
-                {
-                    Title = Title + " -new ";
                 }
             }
         }

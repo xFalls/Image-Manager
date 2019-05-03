@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Printing;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -98,7 +96,7 @@ namespace Image_Manager
             foreach (string file in topFiles)
             {
                 var l = file.Split('\\');
-                names.Add(l[l.Length-1]);
+                names.Add(l[l.Length - 1]);
             }
 
 

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Data;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Xml;
@@ -19,6 +20,7 @@ using Control = System.Windows.Controls.Control;
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
+using System.Globalization;
 
 namespace Image_Manager
 {
@@ -31,7 +33,6 @@ namespace Image_Manager
         private bool _showSubDir = false;
         private bool _showSets = true;
         private bool _showPrefix = true;
-        private bool _onlyNew = false;
         public static bool _rescale = false;
 
         // List of all stored objects
@@ -54,7 +55,7 @@ namespace Image_Manager
         private bool _isTyping;
         private bool _isEndless;
         private bool _changed;
-        private bool _renameShown = true;
+        private bool _renameShown = Settings.Default.Rename;
 
         // Image manipulation
         private Point _start;
@@ -380,23 +381,30 @@ namespace Image_Manager
 
         private void RefreshAll()
         {
-            int currentIndex = _displayedItemIndex;
-            string[] openFolder = { lastFolder };
-            string[] originalFolder = { _originFolder.GetFolderPath() };
-
-            AddNewFolder(originalFolder);
-
             try
             {
-                CreateNewContext(openFolder);
-                _displayedItemIndex = currentIndex;
-                UpdateContent();
+                int currentIndex = _displayedItemIndex;
+                string[] openFolder = { lastFolder };
+                string[] originalFolder = { _originFolder.GetFolderPath() };
+
+                AddNewFolder(originalFolder);
+
+                try
+                {
+                    CreateNewContext(openFolder);
+                    _displayedItemIndex = currentIndex;
+                    UpdateContent();
+                }
+                catch
+                {
+                    CreateNewContext(originalFolder);
+                    _displayedItemIndex = 0;
+                    UpdateContent();
+                }
             }
             catch
             {
-                CreateNewContext(originalFolder);
-                _displayedItemIndex = 0;
-                UpdateContent();
+                Console.WriteLine("Nothing loaded yet!");
             }
         }
 
@@ -522,8 +530,37 @@ namespace Image_Manager
                         // If set, exclude showing files with the set prefix
                         if (!_showPrefix && foundFile.Contains(QuickPrefix)) continue;
 
+                        /////// Filters
+
                         // If set to only show new files
-                        if (_onlyNew && (foundFile.Contains("=") || foundFile.Contains("+"))) continue;
+                        switch (filter)    
+                        {
+                            case "none":
+                                break;
+
+                            case "new":
+                                if (foundFile.Contains("=") || foundFile.Contains("+")) continue;
+                                break;
+
+                            case "+++":
+                                if (!foundFile.Contains("+++")) continue;
+                                break;
+
+                            case "++":
+                                if (!foundFile.Contains("++") || foundFile.Contains("+++")) continue;
+                                break;
+
+                            case "+":
+                                if (!foundFile.Contains("+") || foundFile.Contains("++")) continue;
+                                break;
+
+                            case "=":
+                                if (!foundFile.Contains("=")) continue;
+                                break;
+
+                            default:
+                                break;
+                        }
 
                         NewFiles.Add(foundFile);
                     }
@@ -696,9 +733,6 @@ namespace Image_Manager
             GC.Collect();
         }
 
-
-
-
         // Shows the folder sidebar on mouseover (if enabled)
         private void FolderGrid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -715,5 +749,47 @@ namespace Image_Manager
                 FolderGrid.Opacity = 0;
             }
         }
+
+
+        private void UpdateFilter(string setfilter)
+        {
+            filter = setfilter;
+            _displayedItemIndex = 0;
+            RefreshAll();
+        }
+
+        string filter = "none";
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("none");
+        }
+
+        private void RadioButton_Checked_1(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("new");
+        }
+
+        private void RadioButton_Checked_2(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("+++");
+        }
+
+        private void RadioButton_Checked_3(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("++");
+        }
+
+        private void RadioButton_Checked_4(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("+");
+        }
+
+        private void RadioButton_Checked_5(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("=");
+        }
     }
+
 }
+

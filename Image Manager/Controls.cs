@@ -232,16 +232,11 @@ namespace Image_Manager
                 MakeFullscreen();
 
             }
-            // Toggles showing only new files
-            else if (e.Key == Key.F6)
-            {
-                _onlyNew = !_onlyNew;
-                UpdateTitle();
-            }
             // Toggles prefixing viewed files
             else if (e.Key == Key.F7)
             {
                 _renameShown = !_renameShown;
+                Settings.Default.Rename = _renameShown;
                 UpdateTitle();
             }
 

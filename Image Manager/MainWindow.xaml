@@ -98,7 +98,23 @@
 
         <!--Folderlist-->
         <Grid Name="FolderGrid" HorizontalAlignment="Left" Width="400" MouseMove="FolderGrid_MouseMove" MouseLeave="FolderGrid_MouseLeave" Opacity="0" FocusVisualStyle="{x:Null}">
-            <ListView FocusVisualStyle="{x:Null}" x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
+            <!--Filters-->
+            <StackPanel Height="24" VerticalAlignment="Top" Margin="0,18,0,0" Background="#00000000" Orientation="Horizontal">
+                <RadioButton 
+                    IsChecked="True" GroupName="Filter" Content="None" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="New" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_1"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="+++" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_2"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="++" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_3"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="+" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_4"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="=" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_5"></RadioButton>
+            </StackPanel>
+            
+            <ListView FocusVisualStyle="{x:Null}" x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,44,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
             <Grid.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <LinearGradientBrush.RelativeTransform>
