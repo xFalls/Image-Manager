@@ -88,7 +88,8 @@ namespace Image_Manager
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
 
             // Replace + with ★ and add a space
-            var extractStars = Regex.Replace(_currentItem.GetInfobarContent(), "[^+]", "");
+            string firstStars = _currentItem.GetInfobarContent().Remove(5);
+            var extractStars = Regex.Replace(firstStars, "[^+]", "");
             CurrentFileInfoLabelLeft.Content = preInfo +
                                                extractStars.Replace("+", "★") +
                                                " " +
@@ -232,19 +233,26 @@ namespace Image_Manager
                     shortcutkey = counter + ". ";
                 }
 
+                var extractStars = Regex.Replace(foundFolder.GetFolderName(), "[^+]", "");
+                extractStars = extractStars.Replace("+", "★");
+
                 // How to display each item
                 ListViewItem folderItem = new ListViewItem
                 {
+
                     HorizontalContentAlignment = HorizontalAlignment.Stretch,
                     Cursor = Cursors.Hand,
                     Content = new Grid
-                    { 
-                        Margin = Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0),
+                    {
+                        
+
+                Margin = Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0),
                         Children = {
                             new TextBlock
                             {
                                 Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[6] +
-                                       ") - " + Truncate(foundFolder.GetFolderName(), 40),
+                                       ") " + extractStars + " - "
+                                       + Truncate(foundFolder.GetFolderName().Replace("+", ""), 40),
                                 Foreground = color
                             },
                             folderButton

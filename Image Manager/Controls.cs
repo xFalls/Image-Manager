@@ -578,8 +578,8 @@ namespace Image_Manager
                 margin.Top = 18;
                 ImageBorder.Margin = margin;
                 vis = Visibility.Visible;
-                var bc = new BrushConverter();
-                MenuStrip.Background = (Brush)bc.ConvertFrom("#FF171717");
+                //var bc = new BrushConverter();
+                MenuStrip.Background = currentBrush;
             }
             else
             {
