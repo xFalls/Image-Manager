@@ -52,7 +52,8 @@ namespace Image_Manager
                         string hQnoFileName =
                             Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
                         string hQnoInput = hQnoFileName?.Replace(QuickPrefix, "");
-                        RenameFile(hQnoInput);
+                        string hQnoInput2 = hQnoFileName?.Replace(QuickPrefix+hQnoInput, hQnoInput);
+                        RenameFile(hQnoInput2);
                         break;
 
                     // Move file to selected directory

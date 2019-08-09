@@ -66,6 +66,17 @@ namespace Image_Manager
         private readonly ScaleTransform _st = new ScaleTransform();
         private readonly BlurEffect _videoBlur = new BlurEffect();
 
+        SolidColorBrush PurpleBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 159, 49, 222));
+        SolidColorBrush PurpleTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 159, 49, 222));
+        SolidColorBrush RedBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 230, 30, 88));
+        SolidColorBrush RedTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 230, 30, 88));
+        SolidColorBrush BlueBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 19, 130, 166));
+        SolidColorBrush BlueTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 19, 130, 166));
+        SolidColorBrush YellowBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 243, 243, 1));
+        SolidColorBrush YellowTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 243, 243, 1));
+        SolidColorBrush GreenBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 146, 248, 146));
+        SolidColorBrush GreenTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 146, 248, 146));
+
         public static int imageViewerSize;
 
 
@@ -257,7 +268,7 @@ namespace Image_Manager
             _currentItem = _displayItems[_displayedItemIndex];
 
             // If set, add prefix to previously unviewed images. Also sets a color based on type of prefix
-            if (!_currentItem.GetFileName().StartsWith("=") && !_currentItem.GetFileName().StartsWith("+") && _renameShown)
+            if (!_currentItem.GetFileName().StartsWith("=") && !_currentItem.GetFileName().StartsWith(QuickPrefix) && _renameShown)
             {
                 string updatedName =
                     Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
@@ -270,21 +281,41 @@ namespace Image_Manager
 
                 ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
                 InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0));
-            } else if (_currentItem.GetFileName().StartsWith("+++"))
+
+
+            } else if (_currentItem.GetFileName().StartsWith("+++++"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.Purple);
-                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 128, 0, 128));
+                MenuStrip.Background = PurpleTBrush;
+                ColorInfo.Fill = PurpleBrush;
+                InfoContainer.Background = PurpleTBrush;
+            }
+            else if (_currentItem.GetFileName().StartsWith("++++"))
+            {
+                MenuStrip.Background = RedTBrush;
+                ColorInfo.Fill = RedBrush;
+                InfoContainer.Background = RedTBrush;
+            }
+            else if (_currentItem.GetFileName().StartsWith("+++"))
+            {
+                MenuStrip.Background = BlueTBrush;
+                ColorInfo.Fill = BlueBrush;
+                InfoContainer.Background = BlueTBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("++"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.MediumSlateBlue);
-                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 123, 104, 238));
+                MenuStrip.Background = YellowTBrush;
+                ColorInfo.Fill = YellowBrush;
+                InfoContainer.Background = YellowTBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("+"))
             {
-                ColorInfo.Fill = new SolidColorBrush(Colors.DeepSkyBlue);
-                InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 0, 191, 255));
+                MenuStrip.Background = GreenTBrush;
+                ColorInfo.Fill = GreenBrush;
+                InfoContainer.Background = GreenTBrush;
             }
+
+
+
             else if (_currentItem.IsNew())
             {
                 ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
@@ -292,6 +323,7 @@ namespace Image_Manager
             }
             else
             {
+                MenuStrip.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(23, 23, 23));
                 ColorInfo.Fill = new SolidColorBrush(Colors.Gray);
                 InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 128, 128, 128));
             }

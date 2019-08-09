@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -85,7 +86,16 @@ namespace Image_Manager
 
             // All content is added after its indexed number
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
-            CurrentFileInfoLabelLeft.Content = preInfo + _currentItem.GetInfobarContent() + "   ";
+
+            // Replace + with ★ and add a space
+            var extractStars = Regex.Replace(_currentItem.GetInfobarContent(), "[^+]", "");
+            CurrentFileInfoLabelLeft.Content = preInfo +
+                                               extractStars.Replace("+", "★") +
+                                               " " +
+                                               _currentItem.GetInfobarContent().Replace("+","") +
+                                               "   ";
+
+
             CurrentFileInfoLabelRight.Content = _currentItem.GetInfobarContentExtra();
         }
 
