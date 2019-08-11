@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -21,6 +22,11 @@ using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using System.Globalization;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using Image = System.Windows.Controls.Image;
+using Path = System.IO.Path;
+using Point = System.Windows.Point;
 
 namespace Image_Manager
 {
@@ -78,6 +84,8 @@ namespace Image_Manager
         SolidColorBrush GreenBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 50, 255, 50));
         SolidColorBrush GreenTBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 50, 255, 50));
 
+        DoubleAnimation colorTransitionAnim = new DoubleAnimation(54, 18, new Duration(TimeSpan.FromSeconds(0.7)));
+
         public static int imageViewerSize;
 
 
@@ -109,6 +117,8 @@ namespace Image_Manager
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
 
             FillRecent();
+
+            colorTransitionAnim.EasingFunction = new CubicEase();
         }
 
         public void FillRecent()
@@ -247,6 +257,7 @@ namespace Image_Manager
                     break;
             }
         }
+        
 
         // Changes the currently displayed content
         public void UpdateContent()
@@ -278,46 +289,73 @@ namespace Image_Manager
                 RenameFile(newInput);
                 _currentItem.SetIsNew();
                 
-                   
-
                 ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
                 InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0));
 
 
             } else if (_currentItem.GetFileName().StartsWith("+++++"))
             {
-                MenuStrip.Background = PurpleTBrush;
+                // Show animation if color changes
+                if (currentBrush != PurpleBrush)
+                {
+                    MenuStrip.BeginAnimation(HeightProperty, colorTransitionAnim);
+                }
+
+                MenuStrip.Background = PurpleBrush;
                 ColorInfo.Fill = PurpleBrush;
                 InfoContainer.Background = PurpleTBrush;
-                currentBrush = PurpleTBrush;
+                currentBrush = PurpleBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("++++"))
             {
-                MenuStrip.Background = RedTBrush;
+                // Show animation if color changes
+                if (currentBrush != RedBrush)
+                {
+                    MenuStrip.BeginAnimation(HeightProperty, colorTransitionAnim);
+                }
+
+                MenuStrip.Background = RedBrush;
                 ColorInfo.Fill = RedBrush;
                 InfoContainer.Background = RedTBrush;
-                currentBrush = RedTBrush;
+                currentBrush = RedBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("+++"))
             {
-                MenuStrip.Background = BlueTBrush;
+                // Show animation if color changes
+                if (currentBrush != BlueBrush) {
+                    MenuStrip.BeginAnimation(HeightProperty, colorTransitionAnim);
+                }
+
+                MenuStrip.Background = BlueBrush;
                 ColorInfo.Fill = BlueBrush;
                 InfoContainer.Background = BlueTBrush;
-                currentBrush = BlueTBrush;
+                currentBrush = BlueBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("++"))
             {
-                MenuStrip.Background = YellowTBrush;
+                // Show animation if color changes
+                if (currentBrush != YellowBrush)
+                {
+                    MenuStrip.BeginAnimation(HeightProperty, colorTransitionAnim);
+                }
+
+                MenuStrip.Background = YellowBrush;
                 ColorInfo.Fill = YellowBrush;
                 InfoContainer.Background = YellowTBrush;
-                currentBrush = YellowTBrush;
+                currentBrush = YellowBrush;
             }
             else if (_currentItem.GetFileName().StartsWith("+"))
             {
-                MenuStrip.Background = GreenTBrush;
+                // Show animation if color changes
+                if (currentBrush != GreenBrush)
+                {
+                    MenuStrip.BeginAnimation(HeightProperty, colorTransitionAnim);
+                }
+
+                MenuStrip.Background = GreenBrush;
                 ColorInfo.Fill = GreenBrush;
                 InfoContainer.Background = GreenTBrush;
-                currentBrush = GreenTBrush;
+                currentBrush = GreenBrush;
             }
 
 

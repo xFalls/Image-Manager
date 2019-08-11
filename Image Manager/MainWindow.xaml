@@ -33,8 +33,7 @@
 
         <!--Menubar-->
         <DockPanel Grid.ColumnSpan="2" Panel.ZIndex="20000">
-            <Menu x:Name="MenuStrip" Panel.ZIndex="2000000" DockPanel.Dock="Top" Foreground="White" Background="#00000000" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
-
+            <Menu x:Name="MenuStrip" Panel.ZIndex="2000000" DockPanel.Dock="Top" Foreground="White" Background="Black" VerticalAlignment="Top" VerticalContentAlignment="Top" MouseEnter="MenuStrip_MouseEnter" MouseLeave="MenuStrip_MouseLeave">
                 <MenuItem Name="FileMenu" Header="File" IsTabStop="False">
                     <MenuItem Name="AddFolderMenu" Header="Add folder" Foreground="Black" Click="MenuItem_Click_5"></MenuItem>
                     <MenuItem Name="RecentMenu" Header="Recent folders" Foreground="Black" IsEnabled="False">
@@ -85,7 +84,6 @@
                 <MenuItem Name="AboutMenu" Header="About" IsTabStop="False">
                     <MenuItem Name="HelpMenu" Header="Help" InputGestureText="F1" Foreground="Black" Click="MenuItem_Click_10"></MenuItem>
                 </MenuItem>
-
             </Menu>
         </DockPanel>
 
