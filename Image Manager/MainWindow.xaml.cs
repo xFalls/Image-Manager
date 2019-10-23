@@ -27,6 +27,7 @@ using System.Windows.Shapes;
 using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace Image_Manager
 {
@@ -257,6 +258,21 @@ namespace Image_Manager
                     break;
             }
         }
+
+        public void ShowStars(int stars, SolidColorBrush color)
+        {
+            foreach (TextBlock star in Starbar.Children)
+            {
+                star.Visibility = Visibility.Hidden;
+            }
+
+            for (int i = 0; i < stars; i++)
+            {
+                TextBlock star = (TextBlock) Starbar.Children[i];
+                star.Visibility = Visibility.Visible;
+                star.Foreground = color;
+            }
+        }
         
 
         // Changes the currently displayed content
@@ -305,6 +321,7 @@ namespace Image_Manager
                 ColorInfo.Fill = PurpleBrush;
                 InfoContainer.Background = PurpleTBrush;
                 currentBrush = PurpleBrush;
+                ShowStars(5, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 224, 187, 228)));
             }
             else if (_currentItem.GetFileName().StartsWith("++++"))
             {
@@ -318,6 +335,7 @@ namespace Image_Manager
                 ColorInfo.Fill = RedBrush;
                 InfoContainer.Background = RedTBrush;
                 currentBrush = RedBrush;
+                ShowStars(4, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 179, 186)));
             }
             else if (_currentItem.GetFileName().StartsWith("+++"))
             {
@@ -330,6 +348,7 @@ namespace Image_Manager
                 ColorInfo.Fill = BlueBrush;
                 InfoContainer.Background = BlueTBrush;
                 currentBrush = BlueBrush;
+                ShowStars(3, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 186, 225, 255)));
             }
             else if (_currentItem.GetFileName().StartsWith("++"))
             {
@@ -343,6 +362,7 @@ namespace Image_Manager
                 ColorInfo.Fill = YellowBrush;
                 InfoContainer.Background = YellowTBrush;
                 currentBrush = YellowBrush;
+                ShowStars(2, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 186)));
             }
             else if (_currentItem.GetFileName().StartsWith("+"))
             {
@@ -356,6 +376,7 @@ namespace Image_Manager
                 ColorInfo.Fill = GreenBrush;
                 InfoContainer.Background = GreenTBrush;
                 currentBrush = GreenBrush;
+                ShowStars(1, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 186, 255, 201)));
             }
 
 
@@ -364,6 +385,7 @@ namespace Image_Manager
             {
                 ColorInfo.Fill = new SolidColorBrush(Colors.LawnGreen);
                 InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0));
+                ShowStars(0, new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 124, 252, 0)));
             }
             else
             {
@@ -371,6 +393,7 @@ namespace Image_Manager
                 ColorInfo.Fill = new SolidColorBrush(Colors.Gray);
                 currentBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 0, 0, 0));
                 InfoContainer.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 128, 128, 128));
+                ShowStars(0, new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255)));
             }
 
             // Makes all irrelevant elements invisible

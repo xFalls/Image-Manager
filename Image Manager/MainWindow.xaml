@@ -87,6 +87,30 @@
             </Menu>
         </DockPanel>
 
+        <!--Starbar-->
+        <Grid Name="Starbar" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="70" Height="220" Panel.ZIndex="1000">
+            <TextBlock Name="Star1" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
+            <TextBlock Name="Star2" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,40" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
+            <TextBlock Name="Star3" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,80" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
+            <TextBlock Name="Star4" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,120" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
+            <TextBlock Name="Star5" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,160" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
+        </Grid>
+
         <!--Infobar-->
         <Rectangle x:Name="ColorInfo" Fill="#FFB43333" Width="5" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="1000"></Rectangle>
         <Grid x:Name="InfoContainer" Height="44" Background="#66000000" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="200" IsHitTestVisible="False" Grid.ColumnSpan="2">
