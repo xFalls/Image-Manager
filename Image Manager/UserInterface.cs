@@ -327,23 +327,67 @@ namespace Image_Manager
             int index = DirectoryTreeList.Items.IndexOf(ggParent);
             Folder folder = _originFolder.GetAllShownFolders()[index];
 
+            RenameFolder(folder);
+        }
+
+        public void RenameFolder(Folder folder, string dfltName = "")
+        {
             if (folder.GetFolderPath() == _originFolder.GetFolderPath())
             {
                 Interaction.MsgBox("Cannot rename root folder");
                 return;
             }
 
-            string newName = Interaction.InputBox("Enter new name of the folder", "Choose new name", folder.GetFolderName());
+            string newName = dfltName;
+
+            if (dfltName == "")
+            {
+                newName = Interaction.InputBox("Enter new name of the folder", "Choose new name",
+                    folder.GetFolderName());
+            }
 
             string currentLocation = Directory.GetParent(folder.GetFolderPath()).ToString();
 
             try
             {
+                // Batch rename
+                if (newName.Contains("[Set]"))
+                {
+                    // Count number of stars
+                    int starNum = newName.Count(f => f == '+');
+                    string pre = "";
+                    for (int i = 0; i < starNum; i++)
+                    {
+                        pre = pre + "+";
+                    }
+
+                    // Remove all current stars
+                    DirectoryInfo d = new DirectoryInfo(folder.GetFolderPath());
+                    FileInfo[] infos = d.GetFiles();
+                    foreach (FileInfo f in infos)
+                    {
+                        string finalName = f.Name.Replace("+", "").Insert(0, pre);
+                        File.Move(f.FullName, f.DirectoryName + "\\" + finalName);
+                    }
+
+                    // Add calculated number of stars
+                }
+
+                // Rename
                 Directory.Move(folder.GetFolderPath(), currentLocation + "\\" + newName);
             }
             catch
             {
                 // Same name
+            }
+
+            // Check if the changed folder is the currently opened one
+            if (folder.GetFolderPath() == _currentItem.GetLocation())
+            {
+                Console.WriteLine("CURRENT");
+
+                lastFolder = currentLocation + "\\" + newName;
+                Console.WriteLine(currentLocation + "\\" + newName);
             }
 
             RefreshAll();

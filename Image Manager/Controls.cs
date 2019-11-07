@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -30,6 +31,28 @@ namespace Image_Manager
 
                     // Rename current file
                     case Key.F2:
+
+                        // Batch rename Sets
+                        // Check if loaded folder is a set
+                        if (_currentItem.GetLocation().Split('\\').Last().Contains("[Set]"))
+                        {
+                            // Find Folder by searching for current item's location
+                            int loop = 0;
+                            foreach (Folder folder in _originFolder.GetAllShownFolders())
+                            {
+                                if (folder.GetFolderPath() == _currentItem.GetLocation())
+                                {
+                                    break;
+                                }
+                                loop++;
+                            }
+
+                            RenameFolder(_originFolder.GetAllShownFolders()[loop]);
+                            break;
+                        }
+
+
+                        // Rename
                         string input = Interaction.InputBox("Rename", "Select a new name",
                             _currentItem.GetFileNameExcludingExtension());
                         RenameFile(input);
@@ -37,6 +60,28 @@ namespace Image_Manager
 
                     // Adds a prefix to the current file
                     case Key.F3:
+
+                        // Batch rename Sets
+                        // Check if loaded folder is a set
+                        if (_currentItem.GetLocation().Split('\\').Last().Contains("[Set]"))
+                        {
+                            // Find Folder by searching for current item's location
+                            int loop = 0;
+                            foreach (Folder folder in _originFolder.GetAllShownFolders())
+                            {
+                                if (folder.GetFolderPath() == _currentItem.GetLocation())
+                                {
+                                    break;
+                                }
+
+                                loop++;
+                            }
+
+                            RenameFolder(_originFolder.GetAllShownFolders()[loop], 
+                                "+" + _currentItem.GetLocation().Split('\\').Last());
+                            break;
+                        }
+
                         string hqFileName =
                             Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
                         if (_currentItem.GetFileName().StartsWith("="))
@@ -49,6 +94,28 @@ namespace Image_Manager
 
                     // Remove the prefix
                     case Key.F4:
+                        // Batch rename Sets
+                        // Check if loaded folder is a set
+                        if (_currentItem.GetLocation().Split('\\').Last().Contains("+[Set]"))
+                        {
+                            // Find Folder by searching for current item's location
+                            int loop = 0;
+                            foreach (Folder folder in _originFolder.GetAllShownFolders())
+                            {
+                                if (folder.GetFolderPath() == _currentItem.GetLocation())
+                                {
+                                    break;
+                                }
+
+                                loop++;
+                            }
+
+                            RenameFolder(_originFolder.GetAllShownFolders()[loop],
+                                _currentItem.GetLocation().Split('\\').Last().Replace("+[Set]","[Set]"));
+                            break;
+                        }
+
+
                         string hQnoFileName =
                             Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
                         string hQnoInput = hQnoFileName?.Replace(QuickPrefix, "");
