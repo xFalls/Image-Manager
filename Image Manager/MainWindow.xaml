@@ -15,6 +15,9 @@
             <ColumnDefinition Width="85*"/>
         </Grid.ColumnDefinitions>
 
+
+        <ListView Name="RecentItems" Grid.Column="1" HorizontalAlignment="Left" Margin="0,30,0,0" Panel.ZIndex="2" Background="#00000000" ScrollViewer.HorizontalScrollBarVisibility="Hidden" BorderThickness="0"/>
+
         <TextBox x:Name="SortTypeBox" HorizontalAlignment="Center" Height="40" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2" Foreground="White" Background="#66000000" VerticalContentAlignment="Center" BorderBrush="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" IsTabStop="False" IsHitTestVisible="False" KeyUp="SortTypeBox_KeyUp" FontSize="16" FontFamily="Segoe UI Light" Panel.ZIndex="150" Canvas.Left="256" Canvas.Top="73" Margin="0,50,0,0" Padding="0" Visibility="Hidden"/>
         <Canvas HorizontalAlignment="Center" Height="200" Margin="256,82,231,71" VerticalAlignment="Center" Width="200" IsHitTestVisible="True" Grid.ColumnSpan="2" Panel.ZIndex="100">
             <Image x:Name="VideoPlayIcon" Height="200" Width="200" Source="PlayIcon.png" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden">

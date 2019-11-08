@@ -24,7 +24,9 @@ using MenuItem = System.Windows.Controls.MenuItem;
 using System.Globalization;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
+using ListViewItem = System.Windows.Controls.ListViewItem;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
 using TextBox = System.Windows.Controls.TextBox;
@@ -128,6 +130,7 @@ namespace Image_Manager
             string[] folders = folderString.Split(',');
 
             RecentMenu.Items.Clear();
+            RecentItems.Items.Clear();
 
             foreach (string folder in folders)
             {
@@ -139,6 +142,7 @@ namespace Image_Manager
             if (RecentMenu.Items.Count > 0)
             {
                 RecentMenu.IsEnabled = true;
+                RecentItems.IsEnabled = true;
             }
         }
 
@@ -149,6 +153,15 @@ namespace Image_Manager
             menu.Click += MenuItem_Click_27;
 
             RecentMenu.Items.Add(menu);
+
+            ListViewItem menu2 = new ListViewItem();
+            menu2.MouseLeftButtonUp += MenuItem_Click_28;
+            menu2.Content = folder;
+            menu2.Foreground = Brushes.White;
+            menu2.MinHeight = 30;
+            //menu2.Margin = new Thickness(0,0,0,0);
+
+            RecentItems.Items.Add(menu2);
         }
 
         public void AddFolderToSettings(string folder)
@@ -712,6 +725,7 @@ namespace Image_Manager
                 CreateSortMenu();
                 
                 AddFolderToSettings(folder[0]);
+                RecentItems.Visibility = Visibility.Hidden;
             }
             catch
             {

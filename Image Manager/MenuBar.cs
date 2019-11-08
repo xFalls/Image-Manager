@@ -73,6 +73,7 @@ namespace Image_Manager
             _originFolder?.GetAllFolders()?.Clear();
             _originFolder?.GetAllShownFolders()?.Clear();
             MakeTypeVisible("");
+            RecentItems.Visibility = Visibility.Visible;
         }
 
         // Toggle subfolders
@@ -230,6 +231,15 @@ namespace Image_Manager
             System.Windows.Controls.MenuItem menu = (System.Windows.Controls.MenuItem)sender;
 
             string[] fol = { (string) menu.Header };
+            AddNewFolder(fol);
+        }
+
+        // Recent menu
+        private void MenuItem_Click_28(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.ListViewItem menu = (System.Windows.Controls.ListViewItem)sender;
+
+            string[] fol = { (string)menu.Content };
             AddNewFolder(fol);
         }
     }
