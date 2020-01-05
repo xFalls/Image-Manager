@@ -250,7 +250,7 @@ namespace Image_Manager
                         Children = {
                             new TextBlock
                             {
-                                Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[6] +
+                                Text = shortcutkey + "(" + foundFolder.GetNumberOfFiles()[0] + "/" + foundFolder.GetNumberOfFiles()[7] +
                                        ") " + extractStars + " - "
                                        + Truncate(foundFolder.GetFolderName().Replace("+", ""), 40),
                                 Foreground = color
@@ -472,17 +472,27 @@ namespace Image_Manager
                 string name = Truncate(folder.GetFolderName(), 40);
                 string length = data[0] + " (" + data[6] + ") files";
 
-                /*string images = data[1] + " (" + per1 + "%) +++";
+                /*string images = data[1] + " (" + per1 + "%) +++"
+                 ;
                 string videos = data[2] + " (" + per2 + "%) ++";
                 string gifs = data[3] + " (" + per3 + "%) +";
                 string webp = data[4] + " (" + per4 + "%) =";
                 string text = data[5] + " (" + per5 + "%) new";*/
 
-                string images = "+++ " + per1 + "% (" + data[1] + ")";
-                string videos = " | ++ " + per2 + "% (" + data[2] + ")";
-                string gifs = " | + " + per3 + "% (" + data[3] + ")";
-                string webp = " | = " + per4 + "% (" + data[4] + ")";
-                string text = " | new " + per5 + "% (" + data[5] + ")";
+                /*string images = "5🟊 " + per1 + "% (" + data[1] + ")";
+                string videos = " | 4🟊 " + per2 + "% (" + data[2] + ")";
+                string gifs = " | 3🟊 " + per3 + "% (" + data[3] + ")";
+                string webp = " | 2🟊 " + per4 + "% (" + data[4] + ")";
+                string text = " | 1🟊 " + per5 + "% (" + data[5] + ")";
+                string none = " | 0🟊 " + per5 + "% (" + data[6] + ")";
+                */
+
+                string images = "5🟊 " + data[1];
+                string videos = "| 4🟊 " + data[2];
+                string gifs =   "| 3🟊 " + data[3];
+                string webp =   "| 2🟊 " + data[4];
+                string text =   "| 1🟊 " + data[5];
+                string none =   "| New " + data[6];
 
 
                 string size = folder.GetDirectorySize() + "";
@@ -490,7 +500,7 @@ namespace Image_Manager
                 CurrentFileInfoLabelLeft.Content =
                     $"{name,-40}{size,-19}{length,-15}";
                 CurrentFileInfoLabelRight.Content =
-                    $"{images,-14}{videos,-14}{gifs,-14}{webp,-14}{text,-14}";
+                    $"{images,-10}{videos,-10}{gifs,-10}{webp,-10}{text,-10}{none,-10}";
             }
             catch
             {

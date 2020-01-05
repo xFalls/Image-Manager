@@ -651,12 +651,16 @@ namespace Image_Manager
                             case "none":
                                 break;
 
-                            case "new":
-                                if (foundFile.Contains("=") || foundFile.Contains("+")) continue;
+                            case "+++++":
+                                if (!foundFile.Contains("+++++")) continue;
+                                break;
+
+                            case "++++":
+                                if (!foundFile.Contains("++++") || foundFile.Contains("+++++")) continue;
                                 break;
 
                             case "+++":
-                                if (!foundFile.Contains("+++")) continue;
+                                if (!foundFile.Contains("+++") || foundFile.Contains("++++")) continue;
                                 break;
 
                             case "++":
@@ -667,8 +671,9 @@ namespace Image_Manager
                                 if (!foundFile.Contains("+") || foundFile.Contains("++")) continue;
                                 break;
 
-                            case "=":
-                                if (!foundFile.Contains("=")) continue;
+                            // Add file if + does NOT exist
+                            case "new":
+                                if (foundFile.Contains("+")) continue;
                                 break;
 
                             default:
@@ -881,27 +886,32 @@ namespace Image_Manager
 
         private void RadioButton_Checked_1(object sender, RoutedEventArgs e)
         {
-            UpdateFilter("new");
+            UpdateFilter("+++++");
         }
 
         private void RadioButton_Checked_2(object sender, RoutedEventArgs e)
         {
-            UpdateFilter("+++");
+            UpdateFilter("++++");
         }
 
         private void RadioButton_Checked_3(object sender, RoutedEventArgs e)
         {
-            UpdateFilter("++");
+            UpdateFilter("+++");
         }
 
         private void RadioButton_Checked_4(object sender, RoutedEventArgs e)
         {
-            UpdateFilter("+");
+            UpdateFilter("++");
         }
 
         private void RadioButton_Checked_5(object sender, RoutedEventArgs e)
         {
-            UpdateFilter("=");
+            UpdateFilter("+");
+        }
+
+        private void RadioButton_Checked_6(object sender, RoutedEventArgs e)
+        {
+            UpdateFilter("new");
         }
     }
 

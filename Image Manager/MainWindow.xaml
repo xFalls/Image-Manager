@@ -128,15 +128,17 @@
                 <RadioButton 
                     IsChecked="True" GroupName="Filter" Content="None" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked"></RadioButton>
                 <RadioButton 
-                    GroupName="Filter" Content="New" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_1"></RadioButton>
+                    GroupName="Filter" Content="5🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_1"></RadioButton>
                 <RadioButton 
-                    GroupName="Filter" Content="+++" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_2"></RadioButton>
+                    GroupName="Filter" Content="4🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_2"></RadioButton>
                 <RadioButton 
-                    GroupName="Filter" Content="++" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_3"></RadioButton>
+                    GroupName="Filter" Content="3🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_3"></RadioButton>
                 <RadioButton 
-                    GroupName="Filter" Content="+" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_4"></RadioButton>
+                    GroupName="Filter" Content="2🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_4"></RadioButton>
                 <RadioButton 
-                    GroupName="Filter" Content="=" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_5"></RadioButton>
+                    GroupName="Filter" Content="1🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_5"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="New" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_6"></RadioButton>
             </StackPanel>
             
             <ListView FocusVisualStyle="{x:Null}" x:Name="DirectoryTreeList" HorizontalAlignment="Left" Margin="0,44,0,0" VerticalAlignment="Top" Width="350" Foreground="White" IsTextSearchEnabled="False" Panel.ZIndex="500" BorderThickness="0" Background="{x:Null}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0,0,0,50" MouseLeftButtonUp="DirectoryTreeList_MouseLeftButtonUp" MouseRightButtonUp="DirectoryTreeList_MouseRightButtonUp"/>
@@ -182,7 +184,7 @@
             </StackPanel>
 
             <Grid.RenderTransform>
-                <TranslateTransform x:Name="MoveBlock" Y="110" />
+                <TranslateTransform x:Name="MoveBlock" Y="135" />
             </Grid.RenderTransform>
 
             <Grid.Triggers>
@@ -209,7 +211,7 @@
                                 To="0.3" Duration="0:0:0.1"/>
                             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MoveBlock" 
                                                            Storyboard.TargetProperty="Y">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="110" />
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="135" />
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>

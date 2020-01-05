@@ -106,19 +106,19 @@ namespace Image_Manager
                 topFiles.Count(),
 
                 // 5
-                names.Count(file => file.Contains("★★★★★")),
+                names.Count(file => file.Contains("+++++")),
 
                 // 4
-                names.Count(file => file.Contains("★★★★") && !file.Contains("★★★★★")),
+                names.Count(file => file.Contains("++++") && !file.Contains("+++++")),
 
                 // 3
-                names.Count(file => file.Contains("★★★") && !file.Contains("★★★★")),
+                names.Count(file => file.Contains("+++") && !file.Contains("++++")),
 
                 // 2
-                names.Count(file => file.Contains("★★") && !file.Contains("★★★")),
+                names.Count(file => file.Contains("++") && !file.Contains("+++")),
 
                 // 1
-                names.Count(file => file.Contains("★") && !file.Contains("★★")),
+                names.Count(file => file.Contains("+") && !file.Contains("++")),
             };
 
             data.Add(data[0] - (data.Sum() - data[0]));
