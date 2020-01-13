@@ -12,7 +12,7 @@ namespace Image_Manager.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,25 +25,13 @@ namespace Image_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("+HQ")]
+        [global::System.Configuration.DefaultSettingValueAttribute("+")]
         public string PrefixName {
             get {
                 return ((string)(this["PrefixName"]));
             }
             set {
                 this["PrefixName"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Prefer1000px {
-            get {
-                return ((bool)(this["Prefer1000px"]));
-            }
-            set {
-                this["Prefer1000px"] = value;
             }
         }
         
@@ -85,18 +73,6 @@ namespace Image_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Experimental {
-            get {
-                return ((bool)(this["Experimental"]));
-            }
-            set {
-                this["Experimental"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool SortMode {
             get {
@@ -109,7 +85,7 @@ namespace Image_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[Artist]:#FFFB96,[Collection]:#01CDFE,[Manga]:#B967FF,[Set]:#FF71CE")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[Art]:#FFFB96,[Ser]:#01CDFE,[Set]:#FF71CE")]
         public string FolderColors {
             get {
                 return ((string)(this["FolderColors"]));
@@ -140,6 +116,30 @@ namespace Image_Manager.Properties {
             }
             set {
                 this["Rename"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Prefer1000px {
+            get {
+                return ((bool)(this["Prefer1000px"]));
+            }
+            set {
+                this["Prefer1000px"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Experimental {
+            get {
+                return ((bool)(this["Experimental"]));
+            }
+            set {
+                this["Experimental"] = value;
             }
         }
     }

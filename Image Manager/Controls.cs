@@ -123,6 +123,20 @@ namespace Image_Manager
                         RenameFile(hQnoInput2);
                         break;
 
+
+                    // Add Action
+                    case Key.A:
+                       string hqFileName2 =
+                            Path.GetFileNameWithoutExtension(_currentItem.GetFileNameExcludingExtension());
+                        if (_currentItem.GetFileName().Contains("[A]")) {
+                            break;
+                        }
+
+                        string hqInput2 = hqFileName2 + "[A]";
+                        RenameFile(hqInput2);
+                        break;
+
+
                     // Move file to selected directory
                     case Key.Enter:
                     case Key.R:
@@ -182,19 +196,16 @@ namespace Image_Manager
 
                     // Select directory below
                     case Key.Down:
-                    case Key.S:
                         MoveDown();
                         break;
 
                     // Select directory above
                     case Key.Up:
-                    case Key.W:
                         MoveUp();
                         break;
 
                     // Previous image
                     case Key.Left:
-                    case Key.A:
                         if (_displayedItemIndex > 0 && !(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
                             _displayedItemIndex--;
@@ -204,7 +215,6 @@ namespace Image_Manager
 
                     // Next image
                     case Key.Right:
-                    case Key.D:
                         if (_displayedItemIndex + 1 < _displayItems.Count && !(_isActive && _currentItem.GetTypeOfFile() == "text"))
                         {
                             _displayedItemIndex++;

@@ -3,10 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="PrefixName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">+HQ</Value>
-    </Setting>
-    <Setting Name="Prefer1000px" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">+</Value>
     </Setting>
     <Setting Name="PreferWebP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -17,20 +14,23 @@
     <Setting Name="IsPreviewOpen" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="Experimental" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="SortMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="FolderColors" Type="System.String" Scope="User">
-      <Value Profile="(Default)">[Artist]:#FFFB96,[Collection]:#01CDFE,[Manga]:#B967FF,[Set]:#FF71CE</Value>
+      <Value Profile="(Default)">[Art]:#FFFB96,[Ser]:#01CDFE,[Set]:#FF71CE</Value>
     </Setting>
     <Setting Name="RecentFolders" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Rename" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Prefer1000px" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Experimental" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
