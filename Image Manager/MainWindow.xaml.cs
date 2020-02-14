@@ -30,6 +30,10 @@ using ListViewItem = System.Windows.Controls.ListViewItem;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
 using TextBox = System.Windows.Controls.TextBox;
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Shell;
 
 namespace Image_Manager
 {
@@ -122,7 +126,27 @@ namespace Image_Manager
             FillRecent();
 
             colorTransitionAnim.EasingFunction = new CubicEase();
+
+
+            
+            
+            //JumpList
+            //Needs to be able to handle Open With... for folders first
+            /*
+            //Configure a new JumpTask
+            JumpTask jumpTask1 = new JumpTask();
+            jumpTask1.Title = "Most Recent";
+            jumpTask1.Arguments = "0";
+            JumpTask jumpTask2 = new JumpTask();
+            jumpTask2.Title = "Second Most Recent";
+            jumpTask2.Arguments = "1";
+            // Create and set the new JumpList.
+            JumpList jumpList2 = new JumpList();
+            jumpList2.JumpItems.Add(jumpTask1);
+            jumpList2.JumpItems.Add(jumpTask2);
+            JumpList.SetJumpList(App.Current, jumpList2);*/
         }
+
 
         public void FillRecent()
         {
@@ -132,12 +156,23 @@ namespace Image_Manager
             RecentMenu.Items.Clear();
             RecentItems.Items.Clear();
 
+            JumpList jumpList = new JumpList();
+
             foreach (string folder in folders)
             {
                 if (folder == "") continue;
 
                 AddFolderToRecent(folder);
+
+                // Fills taskbar jump list
+                JumpTask jumpTask = new JumpTask();
+                string[] folname = folder.Split('\\');
+                jumpTask.Title = folname[folname.Length-1];
+                jumpTask.Arguments = folder;
+                jumpList.JumpItems.Add(jumpTask);
             }
+
+            JumpList.SetJumpList(App.Current, jumpList);
 
             if (RecentMenu.Items.Count > 0)
             {
@@ -714,7 +749,7 @@ namespace Image_Manager
         }
 
         // Initializes a new folder, removing the previous state
-        private void AddNewFolder(string[] folder)
+        public void AddNewFolder(string[] folder)
         {
             try
             {
