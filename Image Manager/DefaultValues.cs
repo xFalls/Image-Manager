@@ -48,7 +48,7 @@ namespace Image_Manager
         private readonly SolidColorBrush orangeWarning = new SolidColorBrush(Colors.DarkOrange);
 
         // Indentation distance for each subfolder level
-        private const int IndentDistance = 20;
+        private const int IndentDistance = 30;
 
         // Naming
         private string QuickPrefix = Settings.Default.PrefixName;

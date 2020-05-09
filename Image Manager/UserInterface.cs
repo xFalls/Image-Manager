@@ -236,7 +236,13 @@ namespace Image_Manager
                 var extractStars = Regex.Replace(foundFolder.GetFolderName(), "[^+]", "");
                 extractStars = extractStars.Replace("+", "★");
 
+                int depthSize = 0;
                 // How to display each item
+                if (foundFolder.GetFolderDepth() > 0)
+                {
+                    depthSize = IndentDistance * (foundFolder.GetFolderDepth() - 1) + 5;
+                }
+
                 ListViewItem folderItem = new ListViewItem
                 {
 
@@ -246,7 +252,7 @@ namespace Image_Manager
                     {
                         
 
-                Margin = Margin = new Thickness(IndentDistance * foundFolder.GetFolderDepth(), 0, 0, 0),
+                Margin = Margin = new Thickness(depthSize, 0, 0, 0),
                         Children = {
                             new TextBlock
                             {

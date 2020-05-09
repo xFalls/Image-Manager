@@ -132,7 +132,7 @@ namespace Image_Manager
                             break;
                         }
 
-                        string hqInput2 = hqFileName2 + "[A]";
+                        string hqInput2 = "[A]" + hqFileName2;
                         RenameFile(hqInput2);
                         break;
 
@@ -567,9 +567,7 @@ namespace Image_Manager
             {
                 DirectoryTreeList.SelectedItem = item;
                 MoveFile();
-
             }
-
         }
 
         // A left click opens the selected directory in the gallery    
