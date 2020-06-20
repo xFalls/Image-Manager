@@ -184,9 +184,7 @@ namespace Image_Manager
             {
                 SolidColorBrush color = _defaultTextColor;
 
-                // Color directories based on content
-                _specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
-                    .ForEach(cc => color = cc.Value);
+               
 
 
                 MenuItem newFolderButton = new MenuItem
@@ -242,6 +240,16 @@ namespace Image_Manager
                 {
                     depthSize = IndentDistance * (foundFolder.GetFolderDepth() - 1) + 5;
                 }
+
+                // Color directories based on their depth
+                if (foundFolder.GetFolderDepth() > 1)
+                {
+                    color = new SolidColorBrush(Color.FromArgb(255,165, 165, 165));
+                }
+
+                // Color directories based on content
+                _specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
+                    .ForEach(cc => color = cc.Value);
 
                 ListViewItem folderItem = new ListViewItem
                 {
