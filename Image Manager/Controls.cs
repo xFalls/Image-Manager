@@ -363,6 +363,7 @@ namespace Image_Manager
                         IncludeSpecialMenu.IsChecked = _showSets;
                         _showSets = !_showSets;
                         UpdateTitle();
+                        CreateSortMenu();
                         break;
                     case Key.C:
                         IncludePrefixMenu.IsChecked = _showPrefix;

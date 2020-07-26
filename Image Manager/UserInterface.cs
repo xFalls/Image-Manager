@@ -251,11 +251,19 @@ namespace Image_Manager
                 _specialFolders.Where(c => foundFolder.GetFolderName().Contains(c.Key)).ToList()
                     .ForEach(cc => color = cc.Value);
 
+                Visibility vis = Visibility.Visible;
+
+                if (!_showSets && foundFolder.GetFolderName().Contains("[Set]"))
+                {
+                    vis = Visibility.Collapsed;
+                }
+
                 ListViewItem folderItem = new ListViewItem
                 {
 
                     HorizontalContentAlignment = HorizontalAlignment.Stretch,
                     Cursor = Cursors.Hand,
+                    Visibility = vis,
                     Content = new Grid
                     {
                         

@@ -672,8 +672,8 @@ namespace Image_Manager
                         // Exlude folders started with an underscore
                         if (Path.GetDirectoryName(foundFile).Contains("[META]")) continue;
                         // Exclude special folders when set to do so
-                        if (!_showSets &&
-                            _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
+                        //if (!_showSets &&
+                        //    _specialFolders.Any(o => Path.GetDirectoryName(foundFile).Contains(o.Key))) continue;
 
                         // If set, exclude showing files with the set prefix
                         if (!_showPrefix && foundFile.Contains(QuickPrefix)) continue;
