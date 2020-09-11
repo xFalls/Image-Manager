@@ -90,7 +90,7 @@
         </DockPanel>
 
         <!--Starbar-->
-        <Grid Name="Starbar" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="70" Height="220" Panel.ZIndex="1000">
+        <Grid Name="Starbar" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="70" Height="260" Panel.ZIndex="1000">
             <TextBlock Name="Star1" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Visibility="Hidden">
                 <TextBlock.Effect>
                     <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
@@ -111,6 +111,10 @@
                 <TextBlock.Effect>
                     <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
                 </TextBlock.Effect>🟊</TextBlock>
+            <TextBlock Name="Star6" Foreground="White" FontSize="60" Width="50" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,200" Visibility="Hidden">
+                <TextBlock.Effect>
+                    <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </TextBlock.Effect>🟊</TextBlock>
         </Grid>
 
         <!--Infobar-->
@@ -126,6 +130,8 @@
             <StackPanel Height="24" VerticalAlignment="Top" Margin="0,18,0,0" Background="#00000000" Orientation="Horizontal">
                 <RadioButton 
                     IsChecked="True" GroupName="Filter" Content="None" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked"></RadioButton>
+                <RadioButton 
+                    GroupName="Filter" Content="6🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_0"></RadioButton>
                 <RadioButton 
                     GroupName="Filter" Content="5🟊" VerticalAlignment="Center" Padding="4,-1,0,0" Margin="10,0,0,0" Foreground="White" Checked="RadioButton_Checked_1"></RadioButton>
                 <RadioButton 

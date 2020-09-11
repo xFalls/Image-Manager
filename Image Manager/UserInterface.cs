@@ -40,40 +40,18 @@ namespace Image_Manager
             // Colors the text according to preset preferences
             if (_currentItem.GetTypeOfFile() == "image")
             {
-                bool isWebP = _currentItem.GetFileExtension() == ".webp";
-                bool isOver = ((ImageItem)_displayItems[_displayedItemIndex]).GetSize() >= 1000;
+                bool isWebP = (((ImageItem)_displayItems[_displayedItemIndex]).GetSize() > 5000);
+                bool isOver = (((ImageItem)_displayItems[_displayedItemIndex]).GetSize() <= 1300);
 
-                // Check if both
-                if (_prefer1000Px && _preferWebP)
-                    // Neither
-                    if (!isWebP && !isOver)
-                    {
-                        CurrentFileInfoLabelLeft.Foreground = redWarning;
-                        CurrentFileInfoLabelRight.Foreground = redWarning;
-                    }
-                    // Either
-                    else if (!isWebP || !isOver)
-                    {
-                        CurrentFileInfoLabelLeft.Foreground = orangeWarning;
-                        CurrentFileInfoLabelRight.Foreground = orangeWarning;
-                    }
-                    // Both
-                    else
-                    {
-                        CurrentFileInfoLabelLeft.Foreground = _defaultTextColor;
-                        CurrentFileInfoLabelRight.Foreground = _defaultTextColor;
-                    }
-                // Check for webP
-                else if (!_prefer1000Px && _preferWebP)
+                if (isWebP)
                 {
-                    CurrentFileInfoLabelLeft.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
-                    CurrentFileInfoLabelRight.Foreground = !isWebP ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelLeft.Foreground = redWarning;
+                    CurrentFileInfoLabelRight.Foreground = redWarning;
                 }
-                // Check for 1000px
-                else if (!_preferWebP && _prefer1000Px && !_rescale)
+                else if (isOver)
                 {
-                    CurrentFileInfoLabelLeft.Foreground = !isOver ? orangeWarning : _defaultTextColor;
-                    CurrentFileInfoLabelRight.Foreground = !isOver ? orangeWarning : _defaultTextColor;
+                    CurrentFileInfoLabelLeft.Foreground = orangeWarning;
+                    CurrentFileInfoLabelRight.Foreground = orangeWarning;
                 }
                 // Default
                 else
@@ -88,7 +66,7 @@ namespace Image_Manager
             string preInfo = "(" + (_displayedItemIndex + 1) + "/" + _displayItems.Count + ") ";
 
             // Replace + with ★ and add a space
-            string firstStars = _currentItem.GetInfobarContent().Remove(5);
+            string firstStars = _currentItem.GetInfobarContent().Remove(6);
             var extractStars = Regex.Replace(firstStars, "[^+]", "");
             CurrentFileInfoLabelLeft.Content = preInfo +
                                                extractStars.Replace("+", "★") +
@@ -501,7 +479,9 @@ namespace Image_Manager
                 string webp = data[4] + " (" + per4 + "%) =";
                 string text = data[5] + " (" + per5 + "%) new";*/
 
-                /*string images = "5🟊 " + per1 + "% (" + data[1] + ")";
+                /*string images = "5🟊
+                 
+                " + per1 + "% (" + data[1] + ")";
                 string videos = " | 4🟊 " + per2 + "% (" + data[2] + ")";
                 string gifs = " | 3🟊 " + per3 + "% (" + data[3] + ")";
                 string webp = " | 2🟊 " + per4 + "% (" + data[4] + ")";
